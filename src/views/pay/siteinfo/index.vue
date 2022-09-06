@@ -1,199 +1,56 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="用户ID" prop="userId">
+
+      <el-form-item label="商家账号" prop="siteAccount">
         <el-input
-          v-model="queryParams.userId"
-          placeholder="请输入用户ID"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="商家ID" prop="memberId">
-        <el-input
-          v-model="queryParams.memberId"
-          placeholder="请输入商家ID"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="商家账号" prop="memberAccount">
-        <el-input
-          v-model="queryParams.memberAccount"
+          v-model="queryParams.siteAccount"
           placeholder="请输入商家账号"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="商家密码" prop="memberPwd">
+      <el-form-item label="商家名称" prop="siteName">
         <el-input
-          v-model="queryParams.memberPwd"
-          placeholder="请输入商家密码"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="商家交易密码" prop="memberTransactionPwd">
-        <el-input
-          v-model="queryParams.memberTransactionPwd"
-          placeholder="请输入商家交易密码"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="商家名称" prop="memberName">
-        <el-input
-          v-model="queryParams.memberName"
+          v-model="queryParams.siteName"
           placeholder="请输入商家名称"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="信用等级" prop="creditRating">
+      <el-form-item label="商家ID" prop="siteId">
         <el-input
-          v-model="queryParams.creditRating"
-          placeholder="请输入信用等级"
+          v-model="queryParams.siteId"
+          placeholder="请输入商家ID"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="充值费率" prop="chargeRate">
-        <el-input
-          v-model="queryParams.chargeRate"
-          placeholder="请输入充值费率"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="提现费率" prop="withdrawRate">
-        <el-input
-          v-model="queryParams.withdrawRate"
-          placeholder="请输入提现费率"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="撮合充值费率" prop="chChargeRate">
-        <el-input
-          v-model="queryParams.chChargeRate"
-          placeholder="请输入撮合充值费率"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="撮合提现费率" prop="chWithdrawRate">
-        <el-input
-          v-model="queryParams.chWithdrawRate"
-          placeholder="请输入撮合提现费率"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="姓" prop="surname">
-        <el-input
-          v-model="queryParams.surname"
-          placeholder="请输入姓"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="名" prop="name">
-        <el-input
-          v-model="queryParams.name"
-          placeholder="请输入名"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="证件类型" prop="documentType">
-        <el-select v-model="queryParams.documentType" placeholder="请选择证件类型" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
+
+      <el-form-item label="状态" prop="state">
+        <el-select v-model="queryParams.state" placeholder="请选择状态">
+          <el-option
+            v-for="dict in dict.type.site_status"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="证件号" prop="idNo">
-        <el-input
-          v-model="queryParams.idNo"
-          placeholder="请输入证件号"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="性别" prop="gender">
-        <el-input
-          v-model="queryParams.gender"
-          placeholder="请输入性别"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="手机号" prop="phone">
-        <el-input
-          v-model="queryParams.phone"
-          placeholder="请输入手机号"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="邮箱" prop="email">
-        <el-input
-          v-model="queryParams.email"
-          placeholder="请输入邮箱"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="联系地址" prop="address">
-        <el-input
-          v-model="queryParams.address"
-          placeholder="请输入联系地址"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="当前余额" prop="balance">
-        <el-input
-          v-model="queryParams.balance"
-          placeholder="请输入当前余额"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="冻结金额" prop="freeBalance">
-        <el-input
-          v-model="queryParams.freeBalance"
-          placeholder="请输入冻结金额"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="状态" prop="state">
-        <el-input
-          v-model="queryParams.state"
-          placeholder="请输入状态"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
+
+      <el-form-item label="创建时间">
+        <el-date-picker
+          v-model="dateRange"
+          style="width: 240px"
+          value-format="yyyy-MM-dd"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        ></el-date-picker>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -209,7 +66,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['pay:member:add']"
+          v-hasPermi="['pay:siteinfo:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -220,7 +77,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['pay:member:edit']"
+          v-hasPermi="['pay:siteinfo:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -231,7 +88,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['pay:member:remove']"
+          v-hasPermi="['pay:siteinfo:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -241,37 +98,42 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['pay:member:export']"
+          v-hasPermi="['pay:siteinfo:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
-
-    <el-table v-loading="loading" :data="memberList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
+    <el-table v-loading="loading" :data="siteList" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55" align="center"  />
       <el-table-column label="序号" align="center" prop="id" v-if="false"/>
-      <el-table-column label="用户ID" align="center" prop="userId" />
-      <el-table-column label="商家ID" align="center" prop="memberId" />
-      <el-table-column label="商家账号" align="center" prop="memberAccount" />
-      <el-table-column label="商家密码" align="center" prop="memberPwd" />
-      <el-table-column label="商家交易密码" align="center" prop="memberTransactionPwd" />
-      <el-table-column label="商家名称" align="center" prop="memberName" />
+      <el-table-column label="商家账号" align="center" prop="siteAccount" />
+      <el-table-column label="商家名称" align="center" prop="siteName" />
+      <el-table-column label="商家ID" align="center" prop="siteId" />
       <el-table-column label="信用等级" align="center" prop="creditRating" />
-      <el-table-column label="充值费率" align="center" prop="chargeRate" />
-      <el-table-column label="提现费率" align="center" prop="withdrawRate" />
-      <el-table-column label="撮合充值费率" align="center" prop="chChargeRate" />
-      <el-table-column label="撮合提现费率" align="center" prop="chWithdrawRate" />
-      <el-table-column label="姓" align="center" prop="surname" />
-      <el-table-column label="名" align="center" prop="name" />
-      <el-table-column label="证件类型" align="center" prop="documentType" />
-      <el-table-column label="证件号" align="center" prop="idNo" />
-      <el-table-column label="性别" align="center" prop="gender" />
-      <el-table-column label="手机号" align="center" prop="phone" />
-      <el-table-column label="邮箱" align="center" prop="email" />
-      <el-table-column label="联系地址" align="center" prop="address" />
+      <el-table-column label="充值费率" align="center" prop="chargeRate" >
+        <template slot-scope="scope">
+          <div>{{scope.row.chargeRate}}%</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="提现费率" align="center" prop="withdrawRate" >
+        <template slot-scope="scope">
+          <div>{{scope.row.withdrawRate}}%</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="撮合充值费率" align="center" prop="chChargeRate"  >
+        <template slot-scope="scope">
+          <div>{{scope.row.chChargeRate}}%</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="撮合提现费率" align="center" prop="chWithdrawRate" >
+        <template slot-scope="scope">
+          <div>{{scope.row.chWithdrawRate}}%</div>
+        </template>
+      </el-table-column>
       <el-table-column label="当前余额" align="center" prop="balance" />
       <el-table-column label="冻结金额" align="center" prop="freeBalance" />
       <el-table-column label="状态" align="center" prop="state" />
+      <el-table-column label="创建时间" align="center" prop="createTime" />
       <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
@@ -280,19 +142,19 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['pay:member:edit']"
+            v-hasPermi="['pay:siteinfo:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['pay:member:remove']"
+            v-hasPermi="['pay:siteinfo:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -307,20 +169,20 @@
         <el-form-item label="用户ID" prop="userId">
           <el-input v-model="form.userId" placeholder="请输入用户ID" />
         </el-form-item>
-        <el-form-item label="商家ID" prop="memberId">
-          <el-input v-model="form.memberId" placeholder="请输入商家ID" />
+<!--        <el-form-item label="商家ID" prop="siteId">-->
+<!--          <el-input v-model="form.siteId" placeholder="请输入商家ID" />-->
+<!--        </el-form-item>-->
+        <el-form-item label="商家账号" prop="siteAccount">
+          <el-input v-model="form.siteAccount" placeholder="请输入商家账号" />
         </el-form-item>
-        <el-form-item label="商家账号" prop="memberAccount">
-          <el-input v-model="form.memberAccount" placeholder="请输入商家账号" />
+        <el-form-item label="商家名称" prop="siteName">
+          <el-input v-model="form.siteName" placeholder="请输入商家名称" />
         </el-form-item>
-        <el-form-item label="商家密码" prop="memberPwd">
-          <el-input v-model="form.memberPwd" placeholder="请输入商家密码" />
+        <el-form-item label="商家密码" prop="sitePwd">
+          <el-input v-model="form.sitePwd" placeholder="请输入商家密码" />
         </el-form-item>
-        <el-form-item label="商家交易密码" prop="memberTransactionPwd">
-          <el-input v-model="form.memberTransactionPwd" placeholder="请输入商家交易密码" />
-        </el-form-item>
-        <el-form-item label="商家名称" prop="memberName">
-          <el-input v-model="form.memberName" placeholder="请输入商家名称" />
+        <el-form-item label="商家交易密码" prop="siteTransactionPwd">
+          <el-input v-model="form.siteTransactionPwd" placeholder="请输入商家交易密码" />
         </el-form-item>
         <el-form-item label="信用等级" prop="creditRating">
           <el-input v-model="form.creditRating" placeholder="请输入信用等级" />
@@ -351,26 +213,22 @@
         <el-form-item label="证件号" prop="idNo">
           <el-input v-model="form.idNo" placeholder="请输入证件号" />
         </el-form-item>
+
         <el-form-item label="性别" prop="gender">
-          <el-input v-model="form.gender" placeholder="请输入性别" />
+          <el-radio-group v-model="form.gender">
+            <el-radio label="0">男</el-radio>
+            <el-radio label="1">女</el-radio>
+          </el-radio-group>
         </el-form-item>
+
         <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入手机号" />
+          <el-input v-model="form.phone" placeholder="请输入手机号"  maxlength="11" />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="form.email" placeholder="请输入邮箱" />
         </el-form-item>
         <el-form-item label="联系地址" prop="address">
           <el-input v-model="form.address" placeholder="请输入联系地址" />
-        </el-form-item>
-        <el-form-item label="当前余额" prop="balance">
-          <el-input v-model="form.balance" placeholder="请输入当前余额" />
-        </el-form-item>
-        <el-form-item label="冻结金额" prop="freeBalance">
-          <el-input v-model="form.freeBalance" placeholder="请输入冻结金额" />
-        </el-form-item>
-        <el-form-item label="状态" prop="state">
-          <el-input v-model="form.state" placeholder="请输入状态" />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入备注" />
@@ -385,10 +243,11 @@
 </template>
 
 <script>
-import { listMember, getMember, delMember, addMember, updateMember, exportMember } from "@/api/pay/member";
+import { listSiteInfo, getSiteInfo,addDateRange, delSiteInfo, addSiteInfo, updateSiteInfo, exportSiteInfo } from "@/api/pay/siteinfo";
 
 export default {
-  name: "Member",
+  name: "SiteInfo",
+  dicts:['site_status'],
   components: {
   },
   data() {
@@ -406,7 +265,7 @@ export default {
       // 总条数
       total: 0,
       // 商户表格数据
-      memberList: [],
+      siteList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -416,11 +275,11 @@ export default {
         pageNum: 1,
         pageSize: 10,
         userId: undefined,
-        memberId: undefined,
-        memberAccount: undefined,
-        memberPwd: undefined,
-        memberTransactionPwd: undefined,
-        memberName: undefined,
+        siteId: undefined,
+        siteAccount: undefined,
+        sitePwd: undefined,
+        siteTransactionPwd: undefined,
+        siteName: undefined,
         creditRating: undefined,
         chargeRate: undefined,
         withdrawRate: undefined,
@@ -438,6 +297,8 @@ export default {
         freeBalance: undefined,
         state: undefined,
       },
+      // 日期范围
+      dateRange: [],
       // 表单参数
       form: {},
       // 表单校验
@@ -445,17 +306,12 @@ export default {
         userId: [
           { required: true, message: "用户ID不能为空", trigger: "blur" }
         ],
-        memberId: [
-          { required: true, message: "商家ID不能为空", trigger: "blur" }
+        siteName: [
+          { required: true, message: "4-20位字母数字组合", trigger: "blur" },
+          { min: 4, max: 20, message: '4-20位字母数字组合', trigger: 'blur' }
         ],
-        memberTransactionPwd: [
-          { required: true, message: "商家交易密码不能为空", trigger: "blur" }
-        ],
-        memberName: [
-          { required: true, message: "商家名称不能为空", trigger: "blur" }
-        ],
-        creditRating: [
-          { required: true, message: "信用等级不能为空", trigger: "blur" }
+        siteAccount: [
+          { required: true, message: "商家账号不能为空", trigger: "blur" }
         ],
         chargeRate: [
           { required: true, message: "充值费率不能为空", trigger: "blur" }
@@ -469,20 +325,12 @@ export default {
         chWithdrawRate: [
           { required: true, message: "撮合提现费率不能为空", trigger: "blur" }
         ],
-        surname: [
-          { required: true, message: "姓不能为空", trigger: "blur" }
-        ],
-        name: [
-          { required: true, message: "名不能为空", trigger: "blur" }
-        ],
-        balance: [
-          { required: true, message: "当前余额不能为空", trigger: "blur" }
-        ],
-        freeBalance: [
-          { required: true, message: "冻结金额不能为空", trigger: "blur" }
-        ],
-        createTime: [
-          { required: true, message: "创建时间不能为空", trigger: "blur" }
+        phone: [
+          { required: true, message: "手机号不能为空", trigger: "blur" },{
+            pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
+            message: "请输入正确的手机号码",
+            trigger: "blur"
+          }
         ],
       }
     };
@@ -494,8 +342,8 @@ export default {
     /** 查询商户列表 */
     getList() {
       this.loading = true;
-      listMember(this.queryParams).then(response => {
-        this.memberList = response.rows;
+      listSiteInfo(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.siteList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -510,11 +358,11 @@ export default {
       this.form = {
         id: undefined,
         userId: undefined,
-        memberId: undefined,
-        memberAccount: undefined,
-        memberPwd: undefined,
-        memberTransactionPwd: undefined,
-        memberName: undefined,
+        siteId: undefined,
+        siteAccount: undefined,
+        sitePwd: undefined,
+        siteTransactionPwd: undefined,
+        siteName: undefined,
         creditRating: undefined,
         chargeRate: undefined,
         withdrawRate: undefined,
@@ -545,6 +393,7 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm");
+      this.dateRange = [];
       this.handleQuery();
     },
     // 多选框选中数据
@@ -563,7 +412,7 @@ export default {
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getMember(id).then(response => {
+      getSiteInfo(id).then(response => {
         this.form = response.data;
         this.open = true;
         this.title = "修改商户";
@@ -574,13 +423,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateMember(this.form).then(response => {
+            updateSiteInfo(this.form).then(response => {
               this.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addMember(this.form).then(response => {
+            addSiteInfo(this.form).then(response => {
               this.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -597,7 +446,7 @@ export default {
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          return delMember(ids);
+          return delSiteInfo(ids);
         }).then(() => {
           this.getList();
           this.msgSuccess("删除成功");
@@ -611,7 +460,7 @@ export default {
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          return exportMember(queryParams);
+          return exportSiteInfo(queryParams);
         }).then(response => {
           this.download(response.msg);
         })
