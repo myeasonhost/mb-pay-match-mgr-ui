@@ -22,19 +22,6 @@ export function changeSiteStatus(id,siteId, status) {
   })
 }
 
-// 重置密码
-export function changeSiteStatus(id,siteId, status) {
-  const data = {
-    id,
-    siteId,
-    status
-  }
-  return request({
-    url: '/pay/siteinfo/changeStatus',
-    method: 'put',
-    data: data
-  })
-}
 // 查询商户详细
 export function getSiteInfo(id) {
   return request({
