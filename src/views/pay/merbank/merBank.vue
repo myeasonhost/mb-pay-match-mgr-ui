@@ -19,20 +19,31 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="币种" prop="currency">
+      <el-form-item label="状态" prop="status">
         <el-select
-          v-model="queryParams.currency"
+          v-model="queryParams.status"
           placeholder="全部"
           clearable
           style="width: 240px"
         >
           <el-option
-            v-for="dict in dict.type.sys_currency"
+            v-for="dict in dict.type.sys_bank_status"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="创建时间">
+        <el-date-picker
+          v-model="dateRange"
+          style="width: 240px"
+          value-format="yyyy-MM-dd"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        ></el-date-picker>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -48,7 +59,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['pay:bank:add']"
+          v-hasPermi="['pay:merBank:add']"
         >新增</el-button>
       </el-col>
 <!--      <el-col :span="1.5">
@@ -59,7 +70,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['pay:bank:edit']"
+          v-hasPermi="['pay:merBank:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -70,7 +81,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['pay:bank:remove']"
+          v-hasPermi="['pay:merBank:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -80,7 +91,7 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['pay:bank:export']"
+          v-hasPermi="['pay:merBank:export']"
         >导出</el-button>
       </el-col>
       -->
@@ -88,25 +99,19 @@
     </el-row>
 
     <el-table v-loading="loading" :data="bankList" @selection-change="handleSelectionChange">
-      <el-table-column label="序号" align="center" prop="id"/>
       <el-table-column label="银行卡名称" align="center" prop="bankName" />
-      <el-table-column label="银行账户" align="center" prop="bankNum" />
-      <el-table-column label="支行名称" align="center" prop="branchName" />
       <el-table-column label="姓名" align="center" prop="userName" />
+      <el-table-column label="银行账户" align="center" prop="bankNum" />
+      <el-table-column label="分行名称" align="center" prop="branchName" />
       <el-table-column label="银行编码" align="center" prop="bankCode" />
-      <el-table-column label="币种" align="center" prop="currency" />
-      <el-table-column label="每日限额" align="center" prop="dayLimit" />
-      <el-table-column label="每月限额" align="center" prop="monthLimit" />
       <el-table-column label="单笔限额" align="center" prop="singleLimit" />
-      <el-table-column label="单日收款额度" align="center" prop="dayReceiptAmount" />
-      <el-table-column label="累计收款金额" align="center" prop="totalReceiptAmount" />
-      <el-table-column label="录入人" align="center" prop="operCode" />
+      <el-table-column label="每日限额" align="center" prop="dayLimit" />
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_bank_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="录入时间" align="center" prop="createTime" sortable="custom" :sort-orders="['descending', 'ascending']" width="180">
+      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" :sort-orders="['descending', 'ascending']" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -118,14 +123,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['pay:bank:edit']"
+            v-hasPermi="['pay:merBank:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['pay:bank:remove']"
+            v-hasPermi="['pay:merBank:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -145,11 +150,11 @@
         <el-form-item label="银行卡名称" prop="bankName">
           <el-input v-model="form.bankName" placeholder="请输入银行卡名称" />
         </el-form-item>
-        <el-form-item label="支行名称" prop="branchName">
-          <el-input v-model="form.branchName" placeholder="请输入支行名称" />
-        </el-form-item>
         <el-form-item label="银行账户" prop="bankNum">
           <el-input v-model="form.bankNum" placeholder="请输入银行账户" />
+        </el-form-item>
+        <el-form-item label="分行名称" prop="branchName">
+          <el-input v-model="form.branchName" placeholder="请输入支行名称" />
         </el-form-item>
         <el-form-item label="姓名" prop="userName">
           <el-input v-model="form.userName" placeholder="请输入姓名" />
@@ -157,29 +162,11 @@
         <el-form-item label="银行编码" prop="bankCode">
           <el-input v-model="form.bankCode" placeholder="请输入银行编码" />
         </el-form-item>
-        <el-form-item label="币种" prop="currency">
-          <el-select
-            v-model="form.currency"
-            placeholder="请选择"
-            clearable
-            style="width: 240px"
-          >
-            <el-option
-              v-for="dict in dict.type.sys_currency"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            />
-          </el-select>
+        <el-form-item label="单笔限额" prop="singleLimit">
+          <el-input v-model="form.singleLimit" placeholder="请输入单笔限额" />
         </el-form-item>
         <el-form-item label="每日限额" prop="dayLimit">
           <el-input v-model="form.dayLimit" placeholder="请输入每日限额" />
-        </el-form-item>
-        <el-form-item label="每月限额" prop="monthLimit">
-          <el-input v-model="form.monthLimit" placeholder="请输入每月限额" />
-        </el-form-item>
-        <el-form-item label="单笔限额" prop="singleLimit">
-          <el-input v-model="form.singleLimit" placeholder="请输入单笔限额" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-select
@@ -232,6 +219,8 @@ export default {
       total: 0,
       // 收款银行表格数据
       bankList: [],
+      // 日期范围
+      dateRange: [],
       //登录用户信息
       user: {},
       // 弹出层标题
@@ -242,7 +231,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        siteId:"0",
+        siteId:this.$store.state.user.name,
         bankName: undefined,
         bankNum: undefined,
         branchName: undefined,
@@ -267,23 +256,8 @@ export default {
         bankNum: [
           { required: true, message: "银行账户不能为空", trigger: "blur" }
         ],
-        branchName: [
-          { required: true, message: "支行名称不能为空", trigger: "blur" }
-        ],
         userName: [
           { required: true, message: "姓名不能为空", trigger: "blur" }
-        ],
-        currency: [
-          { required: true, message: "币种不能为空", trigger: "blur" }
-        ],
-        dayLimit: [
-          { required: true, message: "每日限额不能为空", trigger: "blur" }
-        ],
-        monthLimit: [
-          { required: true, message: "每月限额不能为空", trigger: "blur" }
-        ],
-        singleLimit: [
-          { required: true, message: "单笔限额不能为空", trigger: "blur" }
         ]
       }
     };
@@ -295,7 +269,7 @@ export default {
     /** 查询收款银行列表 */
     getList() {
       this.loading = true;
-      listBank(this.queryParams).then(response => {
+      listBank(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
         this.bankList = response.rows;
         this.total = response.total;
         this.loading = false;
@@ -310,7 +284,7 @@ export default {
     reset() {
       this.form = {
         id: undefined,
-        siteId:"0",
+        siteId:this.$store.state.user.name,
         bankName: undefined,
         bankNum: undefined,
         branchName: undefined,
