@@ -55,7 +55,13 @@ export function delSiteInfo(id) {
     method: 'delete'
   })
 }
-
+// 重置密码 type=1是登录密码 2是交易密码
+export function updPwdSiteInfo(id,type) {
+  return request({
+    url: '/pay/siteinfo/updPwd/'+id+"/"+type,
+    method: 'put'
+  })
+}
 // 导出商户
 export function exportSiteInfo(query) {
   return request({
@@ -64,3 +70,12 @@ export function exportSiteInfo(query) {
     params: query
   })
 }
+//校验用户名是否存在
+export function userRules(query) {
+  return request({
+    url: '/pay/siteinfo/userRules',
+    method: 'get',
+    params: query
+  })
+}
+

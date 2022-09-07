@@ -78,7 +78,7 @@
           :disabled="single"
           @click="handleUpdate"
           v-hasPermi="['pay:siteinfo:edit']"
-        >修改</el-button>
+        >编辑</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -142,7 +142,11 @@
           ></el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" />
+      <el-table-column label="创建时间" align="center" prop="createTime" >
+        <template slot-scope="scope">
+          <div>{{parseTime(scope.row.createTime)}}</div>
+        </template>
+      </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
@@ -150,9 +154,16 @@
             size="mini"
             type="text"
             icon="el-icon-edit"
+            @click="handleShow(scope.row)"
+            v-hasPermi="['pay:siteinfo:edit']"
+          >查看</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['pay:siteinfo:edit']"
-          >修改</el-button>
+          >编辑</el-button>
           <el-button
             size="mini"
             type="text"
@@ -160,6 +171,27 @@
             @click="handleDelete(scope.row)"
             v-hasPermi="['pay:siteinfo:remove']"
           >删除</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-refresh"
+            @click="handleUpdPwd(scope.row,1)"
+            v-hasPermi="['pay:siteinfo:updPwd']"
+          >重置密码</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-refresh"
+            @click="handleUpdPwd(scope.row,2)"
+            v-hasPermi="['pay:siteinfo:updPwd']"
+          >重置交易密码</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleBalance(scope.row)"
+            v-hasPermi="['pay:siteinfo:upBalance']"
+          >额度调整</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -172,79 +204,99 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改商户对话框 -->
+    <!-- 添加或编辑商户对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="700px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="用户ID" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入用户ID" />
+        <el-form-item label="商家账号" prop="siteAccount"  v-if="['update', 'show','add','balance'].includes(type)">
+          <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteAccount" placeholder="请输入商家账号"  />
         </el-form-item>
-        <el-form-item label="商家ID" prop="siteId">
-          <el-input v-model="form.siteId" placeholder="请输入商家ID" />
+        <el-form-item label="商家ID" prop="siteId" v-if="['update', 'show','balance'].includes(type)" >
+          <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteId" placeholder="请输入商家ID" />
         </el-form-item>
-        <el-form-item label="商家账号" prop="siteAccount">
-          <el-input v-model="form.siteAccount" placeholder="请输入商家账号" />
+        <el-form-item label="商家名称" prop="siteName" >
+          <el-input :disabled="['show','balance'].includes(type)" v-model="form.siteName" placeholder="请输入商家名称" />
         </el-form-item>
-        <el-form-item label="商家名称" prop="siteName">
-          <el-input v-model="form.siteName" placeholder="请输入商家名称" />
+        <el-form-item label="密码" prop="sitePwd"  v-if="['add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.sitePwd" placeholder="请输入密码"  />
         </el-form-item>
-        <el-form-item label="商家密码" prop="sitePwd">
-          <el-input v-model="form.sitePwd" placeholder="请输入商家密码" />
+        <el-form-item label="交易密码" prop="siteTransactionPwd"  v-if="['add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.siteTransactionPwd" placeholder="请输入交易密码"  />
         </el-form-item>
-        <el-form-item label="商家交易密码" prop="siteTransactionPwd">
-          <el-input v-model="form.siteTransactionPwd" placeholder="请输入商家交易密码" />
-        </el-form-item>
-        <el-form-item label="信用等级" prop="creditRating">
-          <el-input v-model="form.creditRating" placeholder="请输入信用等级" />
-        </el-form-item>
-        <el-form-item label="充值费率" prop="chargeRate">
-          <el-input v-model="form.chargeRate" placeholder="请输入充值费率" />
-        </el-form-item>
-        <el-form-item label="提现费率" prop="withdrawRate">
-          <el-input v-model="form.withdrawRate" placeholder="请输入提现费率" />
-        </el-form-item>
-        <el-form-item label="撮合充值费率" prop="chChargeRate">
-          <el-input v-model="form.chChargeRate" placeholder="请输入撮合充值费率" />
-        </el-form-item>
-        <el-form-item label="撮合提现费率" prop="chWithdrawRate">
-          <el-input v-model="form.chWithdrawRate" placeholder="请输入撮合提现费率" />
-        </el-form-item>
-        <el-form-item label="姓" prop="surname">
-          <el-input v-model="form.surname" placeholder="请输入姓" />
-        </el-form-item>
-        <el-form-item label="名" prop="name">
-          <el-input v-model="form.name" placeholder="请输入名" />
-        </el-form-item>
-        <el-form-item label="证件类型" prop="documentType">
-          <el-select v-model="form.documentType" placeholder="请选择证件类型">
-            <el-option label="请选择字典生成" value="" />
+        <el-form-item label="信用等级" prop="creditRating" v-if="['update', 'show','add'].includes(type)">
+          <el-select :disabled="['show'].includes(type)" v-model="form.creditRating" placeholder="请选择信用等级">
+            <el-option
+              v-for="dict in dict.type.credit_rating"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            >{{dict.label}}</el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="证件号" prop="idNo">
-          <el-input v-model="form.idNo" placeholder="请输入证件号" />
+        <el-form-item label="充值费率" prop="chargeRate" v-if="['update', 'show','add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.chargeRate" placeholder="请输入充值费率" />
+        </el-form-item>
+        <el-form-item label="提现费率" prop="withdrawRate" v-if="['update', 'show','add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.withdrawRate" placeholder="请输入提现费率" />
+        </el-form-item>
+        <el-form-item label="撮合充值费率" prop="chChargeRate" v-if="['update', 'show','add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.chChargeRate" placeholder="请输入撮合充值费率" />
+        </el-form-item>
+        <el-form-item label="撮合提现费率" prop="chWithdrawRate" v-if="['update', 'show','add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.chWithdrawRate" placeholder="请输入撮合提现费率" />
+        </el-form-item>
+        <el-form-item label="姓" prop="surname" v-if="['update', 'show','add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.surname" placeholder="请输入姓" />
+        </el-form-item>
+        <el-form-item label="名" prop="name" v-if="['update', 'show','add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.name" placeholder="请输入名" />
+        </el-form-item>
+        <el-form-item label="证件类型" prop="documentType" v-if="['update', 'show','add'].includes(type)">
+          <el-select :disabled="['show'].includes(type)" v-model="form.documentType" placeholder="请选择证件类型">
+            <el-option
+              v-for="dict in dict.type.document_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            >{{dict.label}}</el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="证件号" prop="idNo" v-if="['update', 'show','add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.idNo" placeholder="请输入证件号" />
+        </el-form-item>
+        <el-form-item label="性别" v-if="['update', 'show','add'].includes(type)">
+          <el-select :disabled="['show'].includes(type)" v-model="form.gender" placeholder="请选择性别">
+            <el-option
+              v-for="dict in dict.type.sys_user_sex"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            >{{dict.label}}</el-option>
+          </el-select>
         </el-form-item>
 
-        <el-form-item label="性别" prop="gender">
-          <el-radio-group v-model="form.gender">
-            <el-radio label="0">男</el-radio>
-            <el-radio label="1">女</el-radio>
-          </el-radio-group>
+        <el-form-item label="手机号" prop="phone" v-if="['update', 'show','add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.phone" placeholder="请输入手机号"  maxlength="11" />
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email" v-if="['update', 'show','add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.email" placeholder="请输入邮箱" />
+        </el-form-item>
+        <el-form-item label="联系地址" prop="address" v-if="['update', 'show','add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.address" placeholder="请输入联系地址" />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark" v-if="['update', 'show','add'].includes(type)">
+          <el-input :disabled="['show'].includes(type)" v-model="form.remark" placeholder="请输入备注" />
         </el-form-item>
 
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入手机号"  maxlength="11" />
-        </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="请输入邮箱" />
-        </el-form-item>
-        <el-form-item label="联系地址" prop="address">
-          <el-input v-model="form.address" placeholder="请输入联系地址" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注" />
+        <el-form-item label="调整类型" prop="balance_type" v-if="['balance'].includes(type)">
+          <el-select  v-model="form.balance">
+            <el-option label="增加" value="1" />
+            <el-option label="扣除" value="2" />
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button v-if="!['show','balance'].includes(type)" type="primary" @click="submitForm">确 定</el-button>
+        <el-button v-if="['balance'].includes(type)" type="primary" @click="balanceForm"  >调整余额</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
@@ -252,14 +304,26 @@
 </template>
 
 <script>
-import { listSiteInfo, getSiteInfo, delSiteInfo, addSiteInfo,changeSiteStatus, updateSiteInfo, exportSiteInfo } from "@/api/pay/siteinfo";
+import { listSiteInfo, userRules ,getSiteInfo, delSiteInfo,updPwdSiteInfo, addSiteInfo,changeSiteStatus, updateSiteInfo, exportSiteInfo } from "@/api/pay/siteinfo";
 
 export default {
   name: "SiteInfo",
-  dicts:['site_status'],
+  dicts:['site_status','document_type','sys_user_sex','credit_rating'],
   components: {
   },
   data() {
+    //失去焦点的时候校验商家账号是否存在
+    var checkSiteAccount = (rule, value, callback) => {
+      if (value != "") {
+        if(this.SiteAccountRules()){
+          callback(new Error("商家账号已存在，请重新输入"))
+        }else{
+          callback()
+        }
+
+      }
+      callback();
+    };
     return {
       // 遮罩层
       loading: true,
@@ -279,6 +343,8 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 当前编辑类型
+      type: '',
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -316,11 +382,13 @@ export default {
           { required: true, message: "用户ID不能为空", trigger: "blur" }
         ],
         siteName: [
-          { required: true, message: "4-20位字母数字组合", trigger: "blur" },
-          { min: 4, max: 20, message: '4-20位字母数字组合', trigger: 'blur' }
+          { required: true, message: "商家名称不能为空", trigger: "blur" },
+          { min: 2, max: 50, message: '2-50位字母数字组合', trigger: 'blur' }
         ],
-        siteAccount: [
-          { required: true, message: "商家账号不能为空", trigger: "blur" }
+        siteAccount:[
+          { required: true, message: "商家账号不能为空", trigger: "blur" },
+          { min: 4,   max: 20, message: "4-20位字母数字组合",  trigger: "blur"},
+          { validator: checkSiteAccount, trigger: "blur" },
         ],
         chargeRate: [
           { required: true, message: "充值费率不能为空", trigger: "blur" }
@@ -362,7 +430,7 @@ export default {
       this.open = false;
       this.reset();
     },
-    // 状态修改
+    // 状态编辑
     handleStatusChange(row) {
       let text = row.status === "0" ? "启用" : "停用";
       this.$modal.confirm('确认要"' + text + '""' + row.siteName + '"吗？').then(function() {
@@ -371,6 +439,22 @@ export default {
         this.$modal.msgSuccess(text + "成功");
       }).catch(function() {
         row.status = row.status === "0" ? "1" : "0";
+      });
+    },
+    //验证账号名称是否存在
+     SiteAccountRules() {
+      let params = {
+        siteAccount: this.form.siteAccount,
+        id:this.form.id
+      };
+      userRules(params).then((response) => {
+          if(response.code == 200 ){
+          }else{
+            this.$message.error("账号已存在")
+            this.form.siteAccount = ""
+          }
+      }).catch(function() {
+
       });
     },
     // 表单重置
@@ -427,15 +511,28 @@ export default {
       this.reset();
       this.open = true;
       this.title = "添加商户";
+      this.type = "add"
     },
-    /** 修改按钮操作 */
+    /** 编辑按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
       getSiteInfo(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改商户";
+        this.title = "编辑商户";
+        this.type = "update"
+      });
+    },
+    /** 查看按钮操作 */
+    handleShow(row) {
+      this.reset();
+      const id = row.id || this.ids
+      getSiteInfo(id).then(response => {
+        this.form = response.data;
+        this.open = true;
+        this.title = "查看商户";
+        this.type = "show"
       });
     },
     /** 提交按钮 */
@@ -444,7 +541,7 @@ export default {
         if (valid) {
           if (this.form.id != null) {
             updateSiteInfo(this.form).then(response => {
-              this.msgSuccess("修改成功");
+              this.msgSuccess("编辑成功");
               this.open = false;
               this.getList();
             });
@@ -471,6 +568,50 @@ export default {
           this.getList();
           this.msgSuccess("删除成功");
         })
+    },
+    /** 调整余额按钮 */
+    balanceForm() {
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          if (this.form.id != null) {
+            updateSiteInfo(this.form).then(response => {
+              this.msgSuccess("编辑成功");
+              this.open = false;
+              this.getList();
+            });
+          } else {
+            addSiteInfo(this.form).then(response => {
+              this.msgSuccess("新增成功");
+              this.open = false;
+              this.getList();
+            });
+          }
+        }
+      });
+    },
+    /** 重置密码按钮操作 */
+    handleUpdPwd(row,type) {
+      this.$confirm('确认将密码重置为默认密码123456？', " 重置密码", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function() {
+        return updPwdSiteInfo(row.id,type);
+      }).then(() => {
+        this.getList();
+        this.msgSuccess("重置成功");
+      })
+    },
+    /** 调整余额按钮操作 */
+    handleBalance(row) {
+      this.reset();
+      const id = row.id || this.ids
+      getSiteInfo(id).then(response => {
+        this.form = response.data;
+        this.open = true;
+        this.title = "调整余额";
+        this.type = "balance"
+      });
     },
     /** 导出按钮操作 */
     handleExport() {
