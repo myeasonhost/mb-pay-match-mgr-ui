@@ -48,6 +48,14 @@ export function updateSiteInfo(data) {
   })
 }
 
+export function updateSiteInfoBalance(query) {
+  return request({
+    url: '/pay/siteinfo/updateSiteInfoBalance',
+    method: 'put',
+    params: query
+  })
+}
+
 // 删除商户
 export function delSiteInfo(id) {
   return request({

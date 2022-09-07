@@ -287,11 +287,15 @@
           <el-input :disabled="['show'].includes(type)" v-model="form.remark" placeholder="请输入备注" />
         </el-form-item>
 
-        <el-form-item label="调整类型" prop="balance_type" v-if="['balance'].includes(type)">
-          <el-select  v-model="form.balance">
+       <el-form-item label="调整类型" prop="phone" placeholder="请选择调整类型" v-if="['balance'].includes(type)">
+          <el-select  v-model="form.balance_type">
             <el-option label="增加" value="1" />
             <el-option label="扣除" value="2" />
           </el-select>
+        </el-form-item>
+
+        <el-form-item label="金额" prop="phone" v-if="['balance'].includes(type)">
+          <el-input   v-model="form.balance" placeholder="请输入金额"  maxlength="11" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -304,7 +308,7 @@
 </template>
 
 <script>
-import { listSiteInfo, userRules ,getSiteInfo, delSiteInfo,updPwdSiteInfo, addSiteInfo,changeSiteStatus, updateSiteInfo, exportSiteInfo } from "@/api/pay/siteinfo";
+import { listSiteInfo, userRules ,getSiteInfo, delSiteInfo,updPwdSiteInfo, addSiteInfo,changeSiteStatus, updateSiteInfo, updateSiteInfoBalance,exportSiteInfo } from "@/api/pay/siteinfo";
 
 export default {
   name: "SiteInfo",
@@ -401,6 +405,9 @@ export default {
         ],
         chWithdrawRate: [
           { required: true, message: "撮合提现费率不能为空", trigger: "blur" }
+        ],
+        balance: [
+          { required: true, message: "金额不能为空", trigger: "blur" }
         ],
         phone: [
           { required: true, message: "手机号不能为空", trigger: "blur" },{
@@ -571,17 +578,16 @@ export default {
     },
     /** 调整余额按钮 */
     balanceForm() {
+      let params = {
+        balance: this.form.balance,
+        balance_type: this.form.balance_type,
+        id:this.form.id
+      };
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateSiteInfo(this.form).then(response => {
-              this.msgSuccess("编辑成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addSiteInfo(this.form).then(response => {
-              this.msgSuccess("新增成功");
+             updateSiteInfoBalance(params).then(response => {
+              this.msgSuccess("调整成功");
               this.open = false;
               this.getList();
             });
