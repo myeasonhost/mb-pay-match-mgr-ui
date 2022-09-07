@@ -287,14 +287,14 @@
           <el-input :disabled="['show'].includes(type)" v-model="form.remark" placeholder="请输入备注" />
         </el-form-item>
 
-       <el-form-item label="调整类型" prop="phone" placeholder="请选择调整类型" v-if="['balance'].includes(type)">
+       <el-form-item label="调整类型" prop="balance_type" placeholder="请选择调整类型" v-if="['balance'].includes(type)">
           <el-select  v-model="form.balance_type">
             <el-option label="增加" value="1" />
             <el-option label="扣除" value="2" />
           </el-select>
         </el-form-item>
 
-        <el-form-item label="金额" prop="phone" v-if="['balance'].includes(type)">
+        <el-form-item label="金额" prop="balance" v-if="['balance'].includes(type)">
           <el-input   v-model="form.balance" placeholder="请输入金额"  maxlength="11" />
         </el-form-item>
       </el-form>
@@ -387,7 +387,12 @@ export default {
         ],
         siteName: [
           { required: true, message: "商家名称不能为空", trigger: "blur" },
-          { min: 2, max: 50, message: '2-50位字母数字组合', trigger: 'blur' }
+          { min: 2, max: 50, message: '2-50位字母数字组合', trigger: 'blur' },
+          {
+            pattern:/^[a-zA-Z0-9]+$/,
+            message: "请输入正确的商家名称",
+            trigger: "blur"
+          }
         ],
         siteAccount:[
           { required: true, message: "商家账号不能为空", trigger: "blur" },
@@ -407,7 +412,14 @@ export default {
           { required: true, message: "撮合提现费率不能为空", trigger: "blur" }
         ],
         balance: [
-          { required: true, message: "金额不能为空", trigger: "blur" }
+          { required: true, message: "金额不能为空", trigger: "blur" },{
+            pattern:/^\+?[1-9]\d*$/,
+            message: "请输入正确的金额",
+            trigger: "blur"
+          }
+        ],
+        balance_type: [
+          { required: true, message: "类型不能为空", trigger: "blur" }
         ],
         phone: [
           { required: true, message: "手机号不能为空", trigger: "blur" },{
