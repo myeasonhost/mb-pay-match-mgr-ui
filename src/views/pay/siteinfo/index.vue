@@ -30,8 +30,8 @@
         />
       </el-form-item>
 
-      <el-form-item label="状态" prop="state">
-        <el-select v-model="queryParams.state" placeholder="请选择状态">
+      <el-form-item label="状态" prop="status">
+        <el-select v-model="queryParams.status" placeholder="请选择状态">
           <el-option
             v-for="dict in dict.type.site_status"
             :key="dict.value"
@@ -132,7 +132,16 @@
       </el-table-column>
       <el-table-column label="当前余额" align="center" prop="balance" />
       <el-table-column label="冻结金额" align="center" prop="freeBalance" />
-      <el-table-column label="状态" align="center" prop="state" />
+      <el-table-column label="状态" align="center">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.status"
+            :active-value="0"
+            :inactive-value="1"
+            @change="handleStatusChange(scope.row)"
+          ></el-switch>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" />
       <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -164,14 +173,14 @@
     />
 
     <!-- 添加或修改商户对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+    <el-dialog :title="title" :visible.sync="open" width="700px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="用户ID" prop="userId">
           <el-input v-model="form.userId" placeholder="请输入用户ID" />
         </el-form-item>
-<!--        <el-form-item label="商家ID" prop="siteId">-->
-<!--          <el-input v-model="form.siteId" placeholder="请输入商家ID" />-->
-<!--        </el-form-item>-->
+        <el-form-item label="商家ID" prop="siteId">
+          <el-input v-model="form.siteId" placeholder="请输入商家ID" />
+        </el-form-item>
         <el-form-item label="商家账号" prop="siteAccount">
           <el-input v-model="form.siteAccount" placeholder="请输入商家账号" />
         </el-form-item>
@@ -243,7 +252,7 @@
 </template>
 
 <script>
-import { listSiteInfo, getSiteInfo,addDateRange, delSiteInfo, addSiteInfo, updateSiteInfo, exportSiteInfo } from "@/api/pay/siteinfo";
+import { listSiteInfo, getSiteInfo, delSiteInfo, addSiteInfo,changeSiteStatus, updateSiteInfo, exportSiteInfo } from "@/api/pay/siteinfo";
 
 export default {
   name: "SiteInfo",
@@ -295,7 +304,7 @@ export default {
         address: undefined,
         balance: undefined,
         freeBalance: undefined,
-        state: undefined,
+        status: undefined,
       },
       // 日期范围
       dateRange: [],
@@ -353,6 +362,17 @@ export default {
       this.open = false;
       this.reset();
     },
+    // 状态修改
+    handleStatusChange(row) {
+      let text = row.status === "0" ? "启用" : "停用";
+      this.$modal.confirm('确认要"' + text + '""' + row.siteName + '"吗？').then(function() {
+        return changeSiteStatus(row.id,row.siteId, row.status);
+      }).then(() => {
+        this.$modal.msgSuccess(text + "成功");
+      }).catch(function() {
+        row.status = row.status === "0" ? "1" : "0";
+      });
+    },
     // 表单重置
     reset() {
       this.form = {
@@ -378,7 +398,7 @@ export default {
         address: undefined,
         balance: undefined,
         freeBalance: undefined,
-        state: undefined,
+        status: undefined,
         remark: undefined,
         createTime: undefined,
         updateTime: undefined
