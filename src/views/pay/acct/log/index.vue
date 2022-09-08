@@ -3,9 +3,9 @@
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
 
 
-      <el-form-item label="平台订单号" prop="ptOrderId">
+      <el-form-item label="平台订单号" prop="orderId">
         <el-input
-          v-model="queryParams.ptOrderId"
+          v-model="queryParams.orderId"
           placeholder="请输入平台订单号"
           clearable
           size="small"
@@ -30,10 +30,10 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="账变类型" prop="busiType">
-        <el-select v-model="queryParams.busiType" placeholder="请选择账变类型" clearable size="small">
+      <el-form-item label="账变类型" prop="orderType">
+        <el-select v-model="queryParams.orderType" placeholder="请选择账变类型" clearable size="small">
           <el-option
-            v-for="dict in busiTypeOptions"
+            v-for="dict in sysOrderTypeOptions"
             :key="dict.dictValue"
             :label="dict.dictLabel"
             :value="dict.dictValue"
@@ -58,63 +58,16 @@
       </el-form-item>
     </el-form>
 
-<!--    <el-row :gutter="10" class="mb8">-->
-<!--      <el-col :span="1.5">-->
-<!--        <el-button-->
-<!--          type="primary"-->
-<!--          plain-->
-<!--          icon="el-icon-plus"-->
-<!--          size="mini"-->
-<!--          @click="handleAdd"-->
-<!--          v-hasPermi="['pay:acctdetail:add']"-->
-<!--        >新增</el-button>-->
-<!--      </el-col>-->
-<!--      <el-col :span="1.5">-->
-<!--        <el-button-->
-<!--          type="success"-->
-<!--          plain-->
-<!--          icon="el-icon-edit"-->
-<!--          size="mini"-->
-<!--          :disabled="single"-->
-<!--          @click="handleUpdate"-->
-<!--          v-hasPermi="['pay:acctdetail:edit']"-->
-<!--        >修改</el-button>-->
-<!--      </el-col>-->
-<!--      <el-col :span="1.5">-->
-<!--        <el-button-->
-<!--          type="danger"-->
-<!--          plain-->
-<!--          icon="el-icon-delete"-->
-<!--          size="mini"-->
-<!--          :disabled="multiple"-->
-<!--          @click="handleDelete"-->
-<!--          v-hasPermi="['pay:acctdetail:remove']"-->
-<!--        >删除</el-button>-->
-<!--      </el-col>-->
-<!--      <el-col :span="1.5">-->
-<!--        <el-button-->
-<!--          type="warning"-->
-<!--          plain-->
-<!--          icon="el-icon-download"-->
-<!--          size="mini"-->
-<!--          @click="handleExport"-->
-<!--          v-hasPermi="['pay:acctdetail:export']"-->
-<!--        >导出</el-button>-->
-<!--      </el-col>-->
-<!--      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>-->
-<!--    </el-row>-->
-
     <el-table v-loading="loading" :data="detailList" @selection-change="handleSelectionChange">
-<!--      <el-table-column type="selection" width="55" align="center" />-->
       <el-table-column label="序号" align="center" prop="id" v-if="false"/>
-      <el-table-column label="平台订单号" align="center" prop="ptOrderId" />
+      <el-table-column label="平台订单号" align="center" prop="orderId" />
       <el-table-column label="商家名称" align="center" prop="siteName" />
       <el-table-column label="商家ID" align="center" prop="siteId" />
-      <el-table-column label="账变类型" align="center" prop="busiType" :formatter="busiTypeFormat" />
-      <el-table-column label="账变前金额" align="center" prop="oriBalance" />
-      <el-table-column label="账变金额" align="center" prop="transAmount" />
-      <el-table-column label="手续费" align="center" prop="transRate" />
-      <el-table-column label="账变后金额" align="center" prop="afterBalance" />
+      <el-table-column label="账变类型" align="center" prop="orderType" :formatter="OrderTypeFormat" />
+      <el-table-column label="账变前金额" align="center" prop="beforeMoney" />
+      <el-table-column label="账变金额" align="center" prop="remit" />
+      <el-table-column label="手续费" align="center" prop="serviceCharge" />
+      <el-table-column label="账变后金额" align="center" prop="afterMoney" />
       <el-table-column label="账变时间" align="center" prop="createTime" sortable="custom"
                        :sort-orders="['descending', 'ascending']" width="180">
         <template slot-scope="scope">
@@ -122,24 +75,6 @@
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" />
-<!--      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
-<!--        <template slot-scope="scope">-->
-<!--          <el-button-->
-<!--            size="mini"-->
-<!--            type="text"-->
-<!--            icon="el-icon-edit"-->
-<!--            @click="handleUpdate(scope.row)"-->
-<!--            v-hasPermi="['pay:acctdetail:edit']"-->
-<!--          >修改</el-button>-->
-<!--          <el-button-->
-<!--            size="mini"-->
-<!--            type="text"-->
-<!--            icon="el-icon-delete"-->
-<!--            @click="handleDelete(scope.row)"-->
-<!--            v-hasPermi="['pay:acctdetail:remove']"-->
-<!--          >删除</el-button>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
     </el-table>
 
     <pagination
@@ -159,30 +94,30 @@
         <el-form-item label="商家名称" prop="siteName">
           <el-input v-model="form.siteName" placeholder="请输入商家名称" />
         </el-form-item>
-        <el-form-item label="平台订单号" prop="ptOrderId">
-          <el-input v-model="form.ptOrderId" placeholder="请输入平台订单号" />
+        <el-form-item label="平台订单号" prop="orderId">
+          <el-input v-model="form.orderId" placeholder="请输入平台订单号" />
         </el-form-item>
-        <el-form-item label="账变类型" prop="busiType">
-          <el-select v-model="form.busiType" placeholder="请选择账变类型">
+        <el-form-item label="账变类型" prop="orderType">
+          <el-select v-model="form.orderType" placeholder="请选择账变类型">
             <el-option
-              v-for="dict in busiTypeOptions"
+              v-for="dict in sysOrderTypeOptions"
               :key="dict.dictValue"
               :label="dict.dictLabel"
               :value="parseInt(dict.dictValue)"
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="账变前金额" prop="oriBalance">
-          <el-input v-model="form.oriBalance" placeholder="请输入账变前金额" />
+        <el-form-item label="账变前金额" prop="beforeMoney">
+          <el-input v-model="form.beforeMoney" placeholder="请输入账变前金额" />
         </el-form-item>
-        <el-form-item label="账变金额" prop="transAmount">
-          <el-input v-model="form.transAmount" placeholder="请输入账变金额" />
+        <el-form-item label="账变金额" prop="remit">
+          <el-input v-model="form.remit" placeholder="请输入账变金额" />
         </el-form-item>
-        <el-form-item label="账变后金额" prop="afterBalance">
-          <el-input v-model="form.afterBalance" placeholder="请输入账变后金额" />
+        <el-form-item label="账变后金额" prop="afterMoney">
+          <el-input v-model="form.afterMoney" placeholder="请输入账变后金额" />
         </el-form-item>
-        <el-form-item label="手续费" prop="transRate">
-          <el-input v-model="form.transRate" placeholder="请输入手续费" />
+        <el-form-item label="手续费" prop="serviceCharge">
+          <el-input v-model="form.serviceCharge" placeholder="请输入手续费" />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入备注" />
@@ -197,9 +132,10 @@
 </template>
 
 <script>
-import { listDetail, getDetail, delDetail, addDetail, updateDetail, exportDetail } from "@/api/pay/acct/detail";
+import { listDetail, getDetail, delDetail, addDetail, updateDetail, exportDetail } from "@/api/pay/acct/log";
 
 export default {
+  dicts: ['mapay_order_type'],
   name: "Detail",
   components: {
   },
@@ -224,7 +160,7 @@ export default {
       // 是否显示弹出层
       open: false,
       // 账变类型字典
-      busiTypeOptions: [],
+      sysOrderTypeOptions: [],
       // 创建时间时间范围
       daterangeCreateTime: [],
       // 查询参数
@@ -233,12 +169,12 @@ export default {
         pageSize: 10,
         siteId: undefined,
         siteName: undefined,
-        ptOrderId: undefined,
-        busiType: undefined,
-        oriBalance: undefined,
-        transAmount: undefined,
-        afterBalance: undefined,
-        transRate: undefined,
+        orderId: undefined,
+        orderType: undefined,
+        beforeMoney: undefined,
+        remit: undefined,
+        afterMoney: undefined,
+        serviceCharge: undefined,
         createTime: undefined,
       },
       // 表单参数
@@ -251,19 +187,19 @@ export default {
         siteName: [
           { required: true, message: "商家名称不能为空", trigger: "blur" }
         ],
-        ptOrderId: [
+        orderId: [
           { required: true, message: "平台订单号不能为空", trigger: "blur" }
         ],
-        oriBalance: [
+        beforeMoney: [
           { required: true, message: "账变前金额不能为空", trigger: "blur" }
         ],
-        transAmount: [
+        remit: [
           { required: true, message: "账变金额不能为空", trigger: "blur" }
         ],
-        afterBalance: [
+        afterMoney: [
           { required: true, message: "账变后金额不能为空", trigger: "blur" }
         ],
-        transRate: [
+        serviceCharge: [
           { required: true, message: "手续费不能为空", trigger: "blur" }
         ],
         createTime: [
@@ -274,8 +210,8 @@ export default {
   },
   created() {
     this.getList();
-    this.getDicts("busi_type").then(response => {
-      this.busiTypeOptions = response.data;
+    this.getDicts("mapay_order_type").then(response => {
+      this.sysOrderTypeOptions = response.data;
     });
   },
   methods: {
@@ -294,8 +230,8 @@ export default {
       });
     },
     // 账变类型字典翻译
-    busiTypeFormat(row, column) {
-      return this.selectDictLabel(this.busiTypeOptions, row.busiType);
+    OrderTypeFormat(row, column) {
+      return this.selectDictLabel(this.dict.type.mapay_order_type, row.orderType);
     },
     // 取消按钮
     cancel() {
@@ -308,12 +244,12 @@ export default {
         id: undefined,
         siteId: undefined,
         siteName: undefined,
-        ptOrderId: undefined,
-        busiType: undefined,
-        oriBalance: undefined,
-        transAmount: undefined,
-        afterBalance: undefined,
-        transRate: undefined,
+        orderId: undefined,
+        orderType: undefined,
+        beforeMoney: undefined,
+        remit: undefined,
+        afterMoney: undefined,
+        serviceCharge: undefined,
         remark: undefined,
         createTime: undefined,
         updateTime: undefined

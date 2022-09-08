@@ -225,7 +225,7 @@
         <el-form-item label="信用等级" prop="creditRating" v-if="['update', 'show','add'].includes(type)">
           <el-select :disabled="['show'].includes(type)" v-model="form.creditRating" placeholder="请选择信用等级">
             <el-option
-              v-for="dict in dict.type.credit_rating"
+              v-for="dict in dict.type.mbpay_credit_rating"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -253,7 +253,7 @@
         <el-form-item label="证件类型" prop="documentType" v-if="['update', 'show','add'].includes(type)">
           <el-select :disabled="['show'].includes(type)" v-model="form.documentType" placeholder="请选择证件类型">
             <el-option
-              v-for="dict in dict.type.document_type"
+              v-for="dict in dict.type.mbpay_document_type"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -289,13 +289,13 @@
 
        <el-form-item label="调整类型" prop="balance_type" placeholder="请选择调整类型" v-if="['balance'].includes(type)">
           <el-select  v-model="form.balance_type">
-            <el-option label="增加" value="1" />
-            <el-option label="扣除" value="2" />
+            <el-option label="增加" value="6" />
+            <el-option label="扣除" value="7" />
           </el-select>
         </el-form-item>
 
         <el-form-item label="金额" prop="balance" v-if="['balance'].includes(type)">
-          <el-input   v-model="form.balance" placeholder="请输入金额"  maxlength="11" />
+          <el-input  v-model="form.balance"   placeholder="请输入金额"  maxlength="11" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -312,7 +312,7 @@ import { listSiteInfo, userRules ,getSiteInfo, delSiteInfo,updPwdSiteInfo, addSi
 
 export default {
   name: "SiteInfo",
-  dicts:['site_status','document_type','sys_user_sex','credit_rating'],
+  dicts:['site_status','mbpay_document_type','sys_user_sex','mbpay_credit_rating'],
   components: {
   },
   data() {
@@ -602,6 +602,7 @@ export default {
               this.msgSuccess("调整成功");
               this.open = false;
               this.getList();
+
             });
           }
         }
@@ -629,6 +630,7 @@ export default {
         this.open = true;
         this.title = "调整余额";
         this.type = "balance"
+        this.form.balance=undefined;
       });
     },
     /** 导出按钮操作 */
