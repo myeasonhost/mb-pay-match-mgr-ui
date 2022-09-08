@@ -18,7 +18,7 @@
           style="width: 240px"
         >
           <el-option
-            v-for="dict in dict.type.sys_currency_protocol"
+            v-for="dict in dict.type.mbpay_currency_protocol"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value"
@@ -92,7 +92,7 @@
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_currency_status" :value="scope.row.status"/>
+          <dict-tag :options="dict.type.mbpay_currency_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -136,7 +136,7 @@
             style="width: 240px"
           >
             <el-option
-              v-for="dict in dict.type.sys_currency_list"
+              v-for="dict in dict.type.mbpay_currency_list"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -157,7 +157,7 @@
             style="width: 240px"
           >
             <el-option
-              v-for="dict in dict.type.sys_currency_protocol"
+              v-for="dict in dict.type.mbpay_currency_protocol"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -174,7 +174,7 @@
             style="width: 240px"
           >
             <el-option
-              v-for="dict in dict.type.sys_currency_status"
+              v-for="dict in dict.type.mbpay_currency_status"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -202,7 +202,7 @@
 
   export default {
     name: "Currency",
-    dicts: ['sys_currency_list', 'sys_currency_protocol', 'sys_currency_status'],
+    dicts: ['mbpay_currency_list', 'mbpay_currency_protocol', 'mbpay_currency_status'],
     components: {},
     data() {
       const checkAddress = (rule, value, callback) => {

@@ -27,7 +27,7 @@
           style="width: 240px"
         >
           <el-option
-            v-for="dict in dict.type.sys_currency"
+            v-for="dict in dict.type.mbpay_currency"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value"
@@ -104,7 +104,7 @@
       <el-table-column label="录入人" align="center" prop="operCode"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_bank_status" :value="scope.row.status"/>
+          <dict-tag :options="dict.type.mbpay_bank_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column label="录入时间" align="center" prop="createTime" sortable="custom"
@@ -169,7 +169,7 @@
             style="width: 240px"
           >
             <el-option
-              v-for="dict in dict.type.sys_currency"
+              v-for="dict in dict.type.mbpay_currency"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -192,7 +192,7 @@
             style="width: 240px"
           >
             <el-option
-              v-for="dict in dict.type.sys_bank_status"
+              v-for="dict in dict.type.mbpay_bank_status"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -216,7 +216,7 @@
 
   export default {
     name: "Bank",
-    dicts: ['sys_currency', 'sys_bank_status'],
+    dicts: ['mbpay_currency', 'mbpay_bank_status'],
     components: {},
     data() {
       const checkAmount = (rule, value, callback) => {
