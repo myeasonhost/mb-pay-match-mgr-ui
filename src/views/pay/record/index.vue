@@ -91,16 +91,39 @@
     </el-row>
 
     <el-table v-loading="loading" :data="recordList" @selection-change="handleSelectionChange">
-      <el-table-column label="序号" align="center" prop="id"/>
-      <el-table-column label="平台订单号" align="center" prop="orderId" />
-      <el-table-column label="币种" align="center" prop="currency" :formatter="currencyFormat" />
-      <el-table-column label="银行名称" align="center" prop="bankName" />
-      <el-table-column label="支行名称" align="center" prop="branchName" />
-      <el-table-column label="姓名" align="center" prop="actualName" />
-      <el-table-column label="卡号" align="center" prop="bankNum" />
-      <el-table-column label="收款金额" align="center" prop="receiptAmount" />
+      <el-table-column label="序号" align="center" prop="id" width="120"/>
+      <el-table-column label="平台订单号" align="center" prop="orderId"/>
+      <el-table-column label="银行卡明细" align="left" prop="bankName">
+        <template slot-scope="scope">
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            币种：{{ scope.row.currency }}
+          </div>
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            银行名称：{{ scope.row.bankName }}
+          </div>
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            支行名称：{{ scope.row.branchName }}
+          </div>
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            姓名：{{ scope.row.userName }}
+          </div>
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            银行账户：{{ scope.row.bankNum }}
+          </div>
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            银行编码：{{ scope.row.bankCode }}
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="收款明细" align="left" prop="receiptAmount">
+        <template slot-scope="scope">
+          <div style="color: red;font-family: 'Arial Black';font-size: small;">
+            收款金额：{{ scope.row.receiptAmount == null ? "0.00" : scope.row.receiptAmount }}
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column label="收款时间" align="center" prop="createTime" sortable="custom"
-                       :sort-orders="['descending', 'ascending']" width="180">
+                       :sort-orders="['descending', 'ascending']">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -158,8 +181,8 @@
         <el-form-item label="支行名称" prop="branchName">
           <el-input v-model="form.branchName" placeholder="请输入支行名称" />
         </el-form-item>
-        <el-form-item label="姓名" prop="actualName">
-          <el-input v-model="form.actualName" placeholder="请输入姓名" />
+        <el-form-item label="姓名" prop="userName">
+          <el-input v-model="form.userName" placeholder="请输入姓名" />
         </el-form-item>
         <el-form-item label="银行账户" prop="bankNum">
           <el-input v-model="form.bankNum" placeholder="请输入银行账户" />
@@ -217,7 +240,7 @@ export default {
         currency: undefined,
         bankName: undefined,
         branchName: undefined,
-        actualName: undefined,
+        userName: undefined,
         bankNum: undefined,
         receiptAmount: undefined,
       },
@@ -280,7 +303,7 @@ export default {
         currency: undefined,
         bankName: undefined,
         branchName: undefined,
-        actualName: undefined,
+        userName: undefined,
         bankNum: undefined,
         receiptAmount: undefined,
         remark: undefined,

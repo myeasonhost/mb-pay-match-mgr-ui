@@ -90,17 +90,47 @@
 
     <el-table v-loading="loading" :data="bankList" @selection-change="handleSelectionChange">
       <el-table-column label="序号" align="center" prop="id"/>
-      <el-table-column label="银行卡名称" align="center" prop="bankName"/>
-      <el-table-column label="银行账户" align="center" prop="bankNum"/>
-      <el-table-column label="支行名称" align="center" prop="branchName"/>
-      <el-table-column label="姓名" align="center" prop="userName"/>
-      <el-table-column label="银行编码" align="center" prop="bankCode"/>
-      <el-table-column label="币种" align="center" prop="currency"/>
-      <el-table-column label="每日限额" align="center" prop="dayLimit"/>
-      <el-table-column label="每月限额" align="center" prop="monthLimit"/>
-      <el-table-column label="单笔限额" align="center" prop="singleLimit"/>
-      <el-table-column label="单日收款额度" align="center" prop="dayReceiptAmount"/>
-      <el-table-column label="累计收款金额" align="center" prop="totalReceiptAmount"/>
+      <el-table-column label="银行卡明细" align="left" prop="bankName" width="200">
+        <template slot-scope="scope">
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            银行卡名称：{{ scope.row.bankName }}
+          </div>
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            银行账户：{{ scope.row.bankNum }}
+          </div>
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            支行名称：{{ scope.row.branchName }}
+          </div>
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            姓名：{{ scope.row.userName }}
+          </div>
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            银行编码：{{ scope.row.bankCode }}
+          </div>
+          <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
+            币种：{{ scope.row.currency }}
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="限额与收款明细" align="left" prop="dayLimit" width="200">
+        <template slot-scope="scope">
+          <div style="color: #ff6600;font-family: 'Arial Black';font-size: small;">
+            每日限额：{{ scope.row.dayLimit == null ? "0.00" : scope.row.dayLimit }}
+          </div>
+          <div style="color: #ff3333;font-family: 'Arial Black';font-size: small;">
+            每月限额：{{ scope.row.monthLimit == null ? "0.00" : scope.row.monthLimit }}
+          </div>
+          <div style="color: #cc0000;font-family: 'Arial Black';font-size: small;">
+            单笔限额：{{ scope.row.singleLimit == null ? "0.00" : scope.row.singleLimit }}
+          </div>
+          <div style="color: #ff0000;font-family: 'Arial Black';font-size: small;">
+            单日收款额度：{{ scope.row.dayReceiptAmount == null ? "0.00" : scope.row.dayReceiptAmount }}
+          </div>
+          <div style="color: #1890ff;font-family: 'Arial Black';font-size: small;">
+            累计收款金额：{{ scope.row.totalReceiptAmount == null ? "0.00" : scope.row.totalReceiptAmount }}
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column label="录入人" align="center" prop="operCode"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
@@ -144,61 +174,91 @@
     />
 
     <!-- 添加或修改收款银行对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="银行卡名称" prop="bankName">
-          <el-input v-model="form.bankName" placeholder="请输入银行卡名称"/>
-        </el-form-item>
-        <el-form-item label="支行名称" prop="branchName">
-          <el-input v-model="form.branchName" placeholder="请输入支行名称"/>
-        </el-form-item>
-        <el-form-item label="银行账户" prop="bankNum">
-          <el-input v-model="form.bankNum" placeholder="请输入银行账户"/>
-        </el-form-item>
-        <el-form-item label="姓名" prop="userName">
-          <el-input v-model="form.userName" placeholder="请输入姓名"/>
-        </el-form-item>
-        <el-form-item label="银行编码" prop="bankCode">
-          <el-input v-model="form.bankCode" placeholder="请输入银行编码"/>
-        </el-form-item>
-        <el-form-item label="币种" prop="currency">
-          <el-select
-            v-model="form.currency"
-            placeholder="请选择"
-            clearable
-            style="width: 240px"
-          >
-            <el-option
-              v-for="dict in dict.type.mbpay_currency"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="每日限额" prop="dayLimit">
-          <el-input v-model="form.dayLimit" placeholder="请输入每日限额"/>
-        </el-form-item>
-        <el-form-item label="每月限额" prop="monthLimit">
-          <el-input v-model="form.monthLimit" placeholder="请输入每月限额"/>
-        </el-form-item>
-        <el-form-item label="单笔限额" prop="singleLimit">
-          <el-input v-model="form.singleLimit" placeholder="请输入单笔限额"/>
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select
-            v-model="form.status"
-            clearable
-            style="width: 240px"
-          >
-            <el-option
-              v-for="dict in dict.type.mbpay_bank_status"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            />
-          </el-select>
-        </el-form-item>
+    <el-dialog :title="title" :visible.sync="open" width="700px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="银行卡名称" prop="bankName">
+              <el-input v-model="form.bankName" placeholder="请输入银行卡名称"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="支行名称" prop="branchName">
+              <el-input v-model="form.branchName" placeholder="请输入支行名称"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="银行账户" prop="bankNum">
+              <el-input v-model="form.bankNum" placeholder="请输入银行账户"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="姓名" prop="userName">
+              <el-input v-model="form.userName" placeholder="请输入姓名"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="银行编码" prop="bankCode">
+              <el-input v-model="form.bankCode" placeholder="请输入银行编码"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="币种" prop="currency">
+              <el-select
+                v-model="form.currency"
+                placeholder="请选择"
+                clearable
+                style="width: 240px"
+              >
+                <el-option
+                  v-for="dict in dict.type.mbpay_currency"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="dict.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="每日限额" prop="dayLimit">
+              <el-input v-model="form.dayLimit" placeholder="请输入每日限额"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="每月限额" prop="monthLimit">
+              <el-input v-model="form.monthLimit" placeholder="请输入每月限额"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="单笔限额" prop="singleLimit">
+              <el-input v-model="form.singleLimit" placeholder="请输入单笔限额"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="状态" prop="status">
+              <el-select
+                v-model="form.status"
+                clearable
+                style="width: 240px"
+              >
+                <el-option
+                  v-for="dict in dict.type.mbpay_bank_status"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="dict.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <!--        <el-form-item label="备注" prop="remark">
                   <el-input v-model="form.remark" placeholder="请输入备注" />
                 </el-form-item>-->
@@ -224,7 +284,7 @@
           var reg = /^[0-9]{0,16}$/
           if (reg.test(value) === false) {
             callback(new Error("只能输入16位正整数"))
-          }else{
+          } else {
             callback()
           }
         } else {
