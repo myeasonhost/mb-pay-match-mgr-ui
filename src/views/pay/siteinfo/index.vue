@@ -197,6 +197,9 @@
         <el-form-item label="商家ID" prop="siteId" v-if="['update', 'show','balance'].includes(type)" >
           <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteId" placeholder="请输入商家ID" />
         </el-form-item>
+        <el-form-item label="用户ID" prop="userId" v-if="['update', 'show','add','balance'].includes(type)" >
+          <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.userId" placeholder="请输入用户ID" />
+        </el-form-item>
         <el-form-item label="商家名称" prop="siteName" >
           <el-input :disabled="['show','balance'].includes(type)" v-model="form.siteName" placeholder="请输入商家名称" />
         </el-form-item>
@@ -339,6 +342,7 @@ export default {
         pageSize: 10,
         userId: undefined,
         siteId: undefined,
+        userId: undefined,
         siteAccount: undefined,
         sitePwd: undefined,
         siteTransactionPwd: undefined,
@@ -492,6 +496,7 @@ export default {
         id: undefined,
         userId: undefined,
         siteId: undefined,
+        userId:undefined,
         siteAccount: undefined,
         sitePwd: undefined,
         siteTransactionPwd: undefined,
