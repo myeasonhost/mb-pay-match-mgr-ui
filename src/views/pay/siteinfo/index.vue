@@ -33,12 +33,13 @@
       <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择状态">
           <el-option
-            v-for="dict in dict.type.site_status"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
+            v-for="dict in sysStatusOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="parseInt(dict.dictValue)"
           ></el-option>
         </el-select>
+
       </el-form-item>
 
       <el-form-item label="创建时间">
@@ -69,47 +70,31 @@
           v-hasPermi="['pay:siteinfo:add']"
         >新增</el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['pay:siteinfo:edit']"
-        >编辑</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['pay:siteinfo:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['pay:siteinfo:export']"
-        >导出</el-button>
-      </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
     <el-table v-loading="loading" :data="siteList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center"  />
+<!--      <el-table-column type="selection" width="55" align="center"  />-->
       <el-table-column label="序号" align="center" prop="id" v-if="false"/>
-      <el-table-column label="商家账号" align="center" prop="siteAccount" />
-      <el-table-column label="商家名称" align="center" prop="siteName" />
-      <el-table-column label="商家ID" align="center" prop="siteId" />
-      <el-table-column label="信用等级" align="center" prop="creditRating" />
+      <el-table-column label="商家账号" align="center" prop="siteAccount" >
+        <template slot-scope="scope">
+          <div style="font-weight: bold;font-size: 13px;">{{ scope.row.siteAccount }}</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="商家名称" align="center" prop="siteName" >
+        <template slot-scope="scope">
+          <div style="">{{ scope.row.siteName }}</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="商家ID" align="center" prop="siteId" >
+        <template slot-scope="scope">
+          <div style="color: rgb(13,206,98); font-weight: bold; font-size: 13px;">{{ scope.row.siteId }}</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="信用等级" align="center" prop="creditRating" >
+        <template slot-scope="scope">
+          <div style="">{{ scope.row.creditRating }}</div>
+        </template>
+      </el-table-column>
       <el-table-column label="充值费率" align="center" prop="chargeRate" >
         <template slot-scope="scope">
           <div>{{scope.row.chargeRate}}%</div>
@@ -132,16 +117,7 @@
       </el-table-column>
       <el-table-column label="当前余额" align="center" prop="balance" />
       <el-table-column label="冻结金额" align="center" prop="freeBalance" />
-      <el-table-column label="状态" align="center">
-        <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.status"
-            :active-value="0"
-            :inactive-value="1"
-            @change="handleStatusChange(scope.row)"
-          ></el-switch>
-        </template>
-      </el-table-column>
+      <el-table-column label="状态" align="center" prop="status"  :formatter="sysStatusFormat"/>
       <el-table-column label="创建时间" align="center" prop="createTime" >
         <template slot-scope="scope">
           <div>{{parseTime(scope.row.createTime)}}</div>
@@ -153,7 +129,7 @@
           <el-button
             size="mini"
             type="text"
-            icon="el-icon-edit"
+            icon="el-icon-search"
             @click="handleShow(scope.row)"
             v-hasPermi="['pay:siteinfo:edit']"
           >查看</el-button>
@@ -167,10 +143,24 @@
           <el-button
             size="mini"
             type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['pay:siteinfo:remove']"
-          >删除</el-button>
+            icon="el-icon-edit"
+            @click="handleBalance(scope.row)"
+            v-hasPermi="['pay:siteinfo:upBalance']"
+          >额度调整</el-button>
+          <el-button
+            v-if="scope.row.status == 0"
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleStatusChange(scope.row,1)"
+          >禁用</el-button>
+          <el-button
+            v-if="scope.row.status==1"
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleStatusChange(scope.row,0)"
+          >启用</el-button>
           <el-button
             size="mini"
             type="text"
@@ -185,13 +175,7 @@
             @click="handleUpdPwd(scope.row,2)"
             v-hasPermi="['pay:siteinfo:updPwd']"
           >重置交易密码</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleBalance(scope.row)"
-            v-hasPermi="['pay:siteinfo:upBalance']"
-          >额度调整</el-button>
+
         </template>
       </el-table-column>
     </el-table>
@@ -205,10 +189,10 @@
     />
 
     <!-- 添加或编辑商户对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="700px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="110px">
         <el-form-item label="商家账号" prop="siteAccount"  v-if="['update', 'show','add','balance'].includes(type)">
-          <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteAccount" placeholder="请输入商家账号"  />
+          <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteAccount" placeholder="请输入商家账号;4-20位字母数字组合"  />
         </el-form-item>
         <el-form-item label="商家ID" prop="siteId" v-if="['update', 'show','balance'].includes(type)" >
           <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteId" placeholder="请输入商家ID" />
@@ -217,10 +201,10 @@
           <el-input :disabled="['show','balance'].includes(type)" v-model="form.siteName" placeholder="请输入商家名称" />
         </el-form-item>
         <el-form-item label="密码" prop="sitePwd"  v-if="['add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.sitePwd" placeholder="请输入密码"  />
+          <el-input :disabled="['show'].includes(type)" v-model="form.sitePwd" placeholder="请输入密码"  maxlength="16"/>
         </el-form-item>
         <el-form-item label="交易密码" prop="siteTransactionPwd"  v-if="['add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.siteTransactionPwd" placeholder="请输入交易密码"  />
+          <el-input :disabled="['show'].includes(type)" v-model="form.siteTransactionPwd" placeholder="请输入交易密码" maxlength="16" />
         </el-form-item>
         <el-form-item label="信用等级" prop="creditRating" v-if="['update', 'show','add'].includes(type)">
           <el-select :disabled="['show'].includes(type)" v-model="form.creditRating" placeholder="请选择信用等级">
@@ -228,27 +212,27 @@
               v-for="dict in dict.type.mbpay_credit_rating"
               :key="dict.value"
               :label="dict.label"
-              :value="dict.value"
+              :value="Number(dict.value)"
             >{{dict.label}}</el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="充值费率" prop="chargeRate" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.chargeRate" placeholder="请输入充值费率" />
+        <el-form-item label="充值费率"  prop="chargeRate" v-if="['update', 'show','add'].includes(type)">
+          <el-input  :disabled="['show'].includes(type)" v-model="form.chargeRate" placeholder="请输入充值费率（千分位）" />
         </el-form-item>
         <el-form-item label="提现费率" prop="withdrawRate" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.withdrawRate" placeholder="请输入提现费率" />
+          <el-input :disabled="['show'].includes(type)" v-model="form.withdrawRate" placeholder="请输入提现费率（千分位）" />
         </el-form-item>
         <el-form-item label="撮合充值费率" prop="chChargeRate" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.chChargeRate" placeholder="请输入撮合充值费率" />
+          <el-input :disabled="['show'].includes(type)" v-model="form.chChargeRate" placeholder="请输入撮合充值费率（千分位）" />
         </el-form-item>
         <el-form-item label="撮合提现费率" prop="chWithdrawRate" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.chWithdrawRate" placeholder="请输入撮合提现费率" />
+          <el-input :disabled="['show'].includes(type)" v-model="form.chWithdrawRate" placeholder="请输入撮合提现费率（千分位）" />
         </el-form-item>
         <el-form-item label="姓" prop="surname" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.surname" placeholder="请输入姓" />
+          <el-input :disabled="['show'].includes(type)" v-model="form.surname" placeholder="请输入姓" maxlength="50"/>
         </el-form-item>
         <el-form-item label="名" prop="name" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.name" placeholder="请输入名" />
+          <el-input :disabled="['show'].includes(type)" v-model="form.name" placeholder="请输入名" maxlength="50"/>
         </el-form-item>
         <el-form-item label="证件类型" prop="documentType" v-if="['update', 'show','add'].includes(type)">
           <el-select :disabled="['show'].includes(type)" v-model="form.documentType" placeholder="请选择证件类型">
@@ -256,7 +240,7 @@
               v-for="dict in dict.type.mbpay_document_type"
               :key="dict.value"
               :label="dict.label"
-              :value="dict.value"
+              :value="Number(dict.value)"
             >{{dict.label}}</el-option>
           </el-select>
         </el-form-item>
@@ -269,7 +253,7 @@
               v-for="dict in dict.type.sys_user_sex"
               :key="dict.value"
               :label="dict.label"
-              :value="dict.value"
+              :value="Number(dict.value)"
             >{{dict.label}}</el-option>
           </el-select>
         </el-form-item>
@@ -278,13 +262,13 @@
           <el-input :disabled="['show'].includes(type)" v-model="form.phone" placeholder="请输入手机号"  maxlength="11" />
         </el-form-item>
         <el-form-item label="邮箱" prop="email" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.email" placeholder="请输入邮箱" />
+          <el-input :disabled="['show'].includes(type)" v-model="form.email" placeholder="请输入邮箱" maxlength="32"/>
         </el-form-item>
         <el-form-item label="联系地址" prop="address" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.address" placeholder="请输入联系地址" />
+          <el-input :disabled="['show'].includes(type)" v-model="form.address" placeholder="请输入联系地址" maxlength="200" />
         </el-form-item>
         <el-form-item label="备注" prop="remark" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.remark" placeholder="请输入备注" />
+          <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.remark" placeholder="请输入备注" />
         </el-form-item>
 
        <el-form-item label="调整类型" prop="balance_type" placeholder="请选择调整类型" v-if="['balance'].includes(type)">
@@ -312,7 +296,7 @@ import { listSiteInfo, userRules ,getSiteInfo, delSiteInfo,updPwdSiteInfo, addSi
 
 export default {
   name: "SiteInfo",
-  dicts:['site_status','mbpay_document_type','sys_user_sex','mbpay_credit_rating'],
+  dicts:['mbpay_site_status','mbpay_document_type','sys_user_sex','mbpay_credit_rating'],
   components: {
   },
   data() {
@@ -376,6 +360,8 @@ export default {
         freeBalance: undefined,
         status: undefined,
       },
+      // 状态字典
+      sysStatusOptions: [],
       // 日期范围
       dateRange: [],
       // 表单参数
@@ -387,33 +373,48 @@ export default {
         ],
         siteName: [
           { required: true, message: "商家名称不能为空", trigger: "blur" },
-          { min: 2, max: 50, message: '2-50位字母数字组合', trigger: 'blur' },
-          {
-            pattern:/^[a-zA-Z0-9]+$/,
-            message: "请输入正确的商家名称",
-            trigger: "blur"
-          }
+          { min: 2, max: 50, message: '长度在4-20', trigger: 'blur' }
         ],
         siteAccount:[
           { required: true, message: "商家账号不能为空", trigger: "blur" },
-          { min: 4,   max: 20, message: "4-20位字母数字组合",  trigger: "blur"},
+          { min: 4,   max: 20, message: "4-20位字母数字组合",  trigger: "blur"},{
+            pattern:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/,
+            message: "请输入正确的商家账号",
+            trigger: "blur"
+          },
           { validator: checkSiteAccount, trigger: "blur" },
         ],
         chargeRate: [
-          { required: true, message: "充值费率不能为空", trigger: "blur" }
+          { required: true, message: "充值费率不能为空", trigger: "blur" },{
+            pattern:/^[0-9]?$/,
+            message: "请输入正确的费率",
+            trigger: "blur"
+          }
         ],
         withdrawRate: [
-          { required: true, message: "提现费率不能为空", trigger: "blur" }
+          { required: true, message: "提现费率不能为空", trigger: "blur" },{
+            pattern:/^[0-9]?$/,
+            message: "请输入正确的费率",
+            trigger: "blur"
+          }
         ],
         chChargeRate: [
-          { required: true, message: "撮合充值费率不能为空", trigger: "blur" }
+          { required: true, message: "撮合充值费率不能为空", trigger: "blur" },{
+            pattern:/^[0-9]?$/,
+            message: "请输入正确的费率",
+            trigger: "blur"
+          }
         ],
         chWithdrawRate: [
-          { required: true, message: "撮合提现费率不能为空", trigger: "blur" }
+          { required: true, message: "撮合提现费率不能为空", trigger: "blur" },{
+            pattern:/^[0-9]?$/,
+            message: "请输入正确的费率",
+            trigger: "blur"
+          }
         ],
         balance: [
           { required: true, message: "金额不能为空", trigger: "blur" },{
-            pattern:/^\+?[1-9]\d*$/,
+            pattern:/^[0-9]+(.[0-9]+)?$/,
             message: "请输入正确的金额",
             trigger: "blur"
           }
@@ -433,6 +434,9 @@ export default {
   },
   created() {
     this.getList();
+    this.getDicts("mbpay_site_status").then(response => {
+      this.sysStatusOptions = response.data;
+    });
   },
   methods: {
     /** 查询商户列表 */
@@ -444,21 +448,27 @@ export default {
         this.loading = false;
       });
     },
+    // 状态字典翻译
+    sysStatusFormat(row, column) {
+      return this.selectDictLabel(this.dict.type.mbpay_site_status, row.status);
+    },
     // 取消按钮
     cancel() {
       this.open = false;
       this.reset();
     },
     // 状态编辑
-    handleStatusChange(row) {
-      let text = row.status === "0" ? "启用" : "停用";
+    handleStatusChange(row,type) {
+      let text = type === 0 ? "启用" : "停用";
       this.$modal.confirm('确认要"' + text + '""' + row.siteName + '"吗？').then(function() {
-        return changeSiteStatus(row.id,row.siteId, row.status);
+        return changeSiteStatus(row.id,row.siteId,type);
       }).then(() => {
         this.$modal.msgSuccess(text + "成功");
+        this.getList();
       }).catch(function() {
-        row.status = row.status === "0" ? "1" : "0";
+
       });
+
     },
     //验证账号名称是否存在
      SiteAccountRules() {

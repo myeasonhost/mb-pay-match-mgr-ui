@@ -11,6 +11,7 @@
     "preview": "node build/index.js --preview",
     "lint": "eslint --ext .js,.vue src"
   },
+  "vue-clipboard2": "^0.3.1",
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
