@@ -62,7 +62,11 @@
       <el-table-column label="序号" align="center" prop="id" v-if="false"/>
       <el-table-column label="平台订单号" align="center" prop="orderId" />
       <el-table-column label="商家名称" align="center" prop="siteName" />
-      <el-table-column label="商家ID" align="center" prop="siteId" />
+      <el-table-column label="商家ID" align="center" prop="siteId">
+        <template slot-scope="scope">
+            <div style="color: rgb(13,206,98); font-weight: bold; font-size: 13px;">{{ scope.row.siteId }}</div>
+        </template>
+      </el-table-column>
       <el-table-column label="账变类型" align="center" prop="orderType" :formatter="OrderTypeFormat" />
       <el-table-column label="账变前金额" align="center" prop="beforeMoney" />
       <el-table-column label="账变金额" align="center" prop="remit" />
