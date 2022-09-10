@@ -64,12 +64,85 @@
           size="mini"
           @click="handleExport"
           v-hasPermi="['mbpay:withdraw:export']"
-        >导出</el-button>
+        >导出
+        </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="withdrawList" @selection-change="handleSelectionChange">
+    <el-table ref="table" v-loading="loading" :data="withdrawList" @expand-change="expandChange" border
+              border-color="#ff0000"
+              @selection-change="handleSelectionChange"
+              :row-style="{
+                      fontWeight: '600',
+                      fontSize: '12px',
+                    }">
+      <!-- 展开部分 -->
+      <el-table-column type="expand" width="50%">
+        <template slot-scope="scope">
+          <el-table v-loading="loadingChild" :row-key="scope.row.child.id" :data="scope.row.child"
+                    border size="mini" style="width:90%;margin:auto;"
+                    :header-cell-style="{
+                      background: '#99a9bf!important',
+                      fontWeight: '600',
+                      fontSize: '10px',
+                    }"
+                    :row-style="{
+                      fontSize: '5px',
+                    }">
+            <el-table-column label="支付订单号" align="center" prop="id"/>
+            <el-table-column label="商户ID/玩家ID" align="center" prop="siteId" width="120">
+              <template slot-scope="scope">
+                <div style="color: #13ce66;font-weight: bold;font-size: 13px;">{{ scope.row.siteId }}</div>
+                <div style="color: #f4516c;font-weight: bold;font-size: 13px;">{{ scope.row.userId }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="商户订单号" align="center" prop="orderId"/>
+            <el-table-column label="产品名" align="center" prop="productName"/>
+            <el-table-column label="实际收款" align="center" prop="coinAmount"/>
+            <el-table-column label="状态" align="center" prop="status">
+              <template slot-scope="scope">
+                <dict-tag :options="dict.type.mbpay_recharge_status" :value="scope.row.status"/>
+              </template>
+            </el-table-column>
+            <el-table-column label="审核人" align="center" prop="applyBy"/>
+            <el-table-column label="审核时间" align="center" prop="applyTime" width="100"/>
+            <el-table-column label="下单时间" align="center" prop="createTime" width="100"/>
+            <el-table-column label="备注" align="center" prop="remark"/>
+            <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+              <template slot-scope="scope">
+                <el-button
+                  v-if="scope.row.status!=5 && scope.row.status!=4 && scope.row.status!=7"
+                  size="mini"
+                  type="text"
+                  icon="el-icon-search"
+                  @click="handleUpdate(scope.row)"
+                  v-hasPermi="['mbpay:recharge:edit']"
+                >查看凭证
+                </el-button>
+                <el-button
+                  v-if="scope.row.status==4 || scope.row.status==7"
+                  size="mini"
+                  type="text"
+                  icon="el-icon-s-custom"
+                  @click="handleAdmin(scope.row)"
+                  v-hasPermi="['mbpay:recharge:edit']"
+                >转代付
+                </el-button>
+                <el-button
+                  v-if="scope.row.status==5"
+                  size="mini"
+                  type="text"
+                  icon="el-icon-edit"
+                  @click="handleUpdate(scope.row)"
+                  v-hasPermi="['mbpay:recharge:edit']"
+                >审批
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </template>
+      </el-table-column>
       <el-table-column label="提现订单号" align="center" prop="id"/>
       <el-table-column label="商户ID/玩家ID" align="center" prop="siteId" width="120">
         <template slot-scope="scope">
@@ -77,7 +150,7 @@
           <div style="color: #f4516c;font-weight: bold;font-size: 13px;">{{ scope.row.userId }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="商户提单号" align="center" prop="withdrawId" />
+      <el-table-column label="商户提单号" align="center" prop="withdrawId"/>
       <el-table-column label="提款明细" align="left" prop="amount" width="130">
         <template slot-scope="scope">
           <div style="color: #1890ff;font-family: 'Arial Black';font-size: small;">
@@ -87,12 +160,12 @@
             换算金额：{{ scope.row.coinAmount == null ? "0.00" : scope.row.coinAmount }}
           </div>
           <div style="color: #f8ac59;font-style: italic;font-size: small;">
-            汇率：{{ scope.row.currency == null ? "0.00" : scope.row.currency }}
-            / {{ scope.row.coinCode == null ? "0.00" : scope.row.coinCode }}
+            汇率：{{ scope.row.currency == null ? "--" : scope.row.currency }}
+            / {{ scope.row.coinCode == null ? "--" : scope.row.coinCode }}
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="提现状态" align="center" prop="status" >
+      <el-table-column label="提现状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.mbpay_withdraw_status" :value="scope.row.status"/>
         </template>
@@ -115,12 +188,13 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="审核人" align="center" prop="applyBy" />
+      <el-table-column label="审核人" align="center" prop="applyBy"/>
       <el-table-column label="审核时间" align="center" prop="applyTime" width="100">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.applyTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -130,8 +204,20 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['mbpay:withdraw:edit']"
-          >审批</el-button>
+          >审批
+          </el-button>
         </template>
+        <template slot-scope="scope">
+          <el-button
+            size="small"
+            type="text"
+            icon="el-icon-thumb"
+            @click="toogleExpand(scope.row)"
+            v-hasPermi="['mbpay:withdraw:edit']"
+          >拆单详情
+          </el-button>
+        </template>
+
       </el-table-column>
     </el-table>
 
@@ -192,7 +278,7 @@
           </el-col>
         </el-row>
         <el-form-item label="评审意见" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入评审意见" />
+          <el-input v-model="form.remark" placeholder="请输入评审意见"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -206,16 +292,17 @@
 
 <script>
 import {exportWithdraw, getWithdraw, listWithdraw, updateWithdraw} from "@/api/mbpay/withdraw";
+import {listRecharge} from "@/api/mbpay/recharge";
 
 export default {
   name: "Withdraw",
-  dicts: ['mbpay_withdraw_status'],
-  components: {
-  },
+  dicts: ['mbpay_withdraw_status', 'mbpay_recharge_status'],
+  components: {},
   data() {
     return {
       // 遮罩层
       loading: true,
+      loadingChild: true,
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -228,13 +315,15 @@ export default {
       total: 0,
       // 提现订单表格数据
       withdrawList: [],
+      // 充值订单表格数据
+      dataRow: [], // 当前行的数据列表(由于子表格是内嵌的，所以也有子表格的所有数据)
       // 日期范围
       dateRange: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
-      // 查询参数
+      // 查询参数1
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -242,21 +331,30 @@ export default {
         withdrawId: undefined,
         userId: undefined,
       },
+      // 查询参数2
+      queryRechargeParams: {
+        pageNum: 1,
+        pageSize: 10,
+        siteId: undefined,
+        orderId: undefined,
+        userId: undefined,
+        matchId: undefined,
+      },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
         siteId: [
-          { required: true, message: "商户ID不能为空", trigger: "blur" }
+          {required: true, message: "商户ID不能为空", trigger: "blur"}
         ],
         withdrawId: [
-          { required: true, message: "商户提单号不能为空", trigger: "blur" }
+          {required: true, message: "商户提单号不能为空", trigger: "blur"}
         ],
         userId: [
-          { required: true, message: "用户ID不能为空", trigger: "blur" }
+          {required: true, message: "用户ID不能为空", trigger: "blur"}
         ],
         remark: [
-          { required: true, message: "评审意见不能为空", trigger: "blur" }
+          {required: true, message: "评审意见不能为空", trigger: "blur"}
         ],
       }
     };
@@ -268,11 +366,43 @@ export default {
     /** 查询提现订单列表 */
     getList() {
       this.loading = true;
-      listWithdraw(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.withdrawList = response.rows;
-        this.total = response.total;
-        this.loading = false;
+      this.queryParams.status = 3, //默认获取 待撮合的状态列表
+        listWithdraw(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+          this.withdrawList = response.rows;
+          this.total = response.total;
+          this.loading = false;
+        });
+    },
+    expandChange(row, expandedRows) {
+      this.dataRow = row;
+      // 由于expand-change对于异步加载第一轮dom不渲染先加一个存在的dom让接口返回值可以渲染
+      this.withdrawList.forEach(item => {
+        this.dataRow.child = [];
+      })
+
+      if (expandedRows.length) {
+        this.loadingChild = true;
+        this.queryRechargeParams.matchId = row.id;
+        listRecharge(this.queryRechargeParams).then(response => {
+          this.dataRow.child = response.rows;
+          this.dataRow.child.push({});
+          this.dataRow.child.pop();
+          this.loadingChild = false;
+        });
+      }
+    },
+    // 展开行效果
+    toogleExpand(row) {
+      row.expanded = !row.expanded;
+      this.loadingChild = true;
+      this.queryRechargeParams.matchId = row.id;
+      listRecharge(this.queryRechargeParams).then(response => {
+        this.dataRow.child = response.rows;
+        this.dataRow.child.push({});
+        this.dataRow.child.pop();
+        this.loadingChild = false;
       });
+      this.$refs.table.toggleRowExpansion(row, row.expanded) // 点击button展开
     },
     // 取消按钮
     cancel() {
@@ -303,7 +433,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 修改按钮操作 */
@@ -335,14 +465,14 @@ export default {
     handleExport() {
       const queryParams = this.queryParams;
       this.$confirm('是否确认导出所有提现订单数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return exportWithdraw(queryParams);
-        }).then(response => {
-          this.download(response.msg);
-        })
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        return exportWithdraw(queryParams);
+      }).then(response => {
+        this.download(response.msg);
+      })
     }
   }
 };

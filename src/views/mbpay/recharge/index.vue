@@ -92,13 +92,22 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
-            v-if="scope.row.status!=5"
+            v-if="scope.row.status!=5 && scope.row.status!=4 && scope.row.status!=7"
             size="mini"
             type="text"
             icon="el-icon-search"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['mbpay:recharge:edit']"
           >查看凭证
+          </el-button>
+          <el-button
+            v-if="scope.row.status==4 || scope.row.status==7"
+            size="mini"
+            type="text"
+            icon="el-icon-s-custom"
+            @click="handleAdmin(scope.row)"
+            v-hasPermi="['mbpay:recharge:edit']"
+          >转代付
           </el-button>
           <el-button
             v-if="scope.row.status==5"
@@ -198,7 +207,7 @@
 </template>
 
 <script>
-import {listRecharge, getRecharge, addRecharge, updateRecharge} from "@/api/mbpay/recharge";
+import {listRecharge, getRecharge, updateRecharge} from "@/api/mbpay/recharge";
 
 export default {
   name: "Recharge",
@@ -314,6 +323,12 @@ export default {
       this.dateRange = [];
       this.resetForm("queryForm");
       this.handleQuery();
+    },
+    /** 修改按钮操作 */
+    handleAdmin(row) {
+      this.reset();
+      this.msgSuccess("请客户手动转账");
+      this.open = false;
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
