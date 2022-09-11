@@ -80,7 +80,7 @@
       <!-- 展开部分 -->
       <el-table-column type="expand" width="50%">
         <template slot-scope="scope">
-          <el-table v-loading="loadingChild" :row-key="scope.row.child.id" :data="scope.row.child"
+          <el-table v-loading="scope.row.loadingChild" :row-key="scope.row.child.id" :data="scope.row.child"
                     border size="mini" style="width:90%;margin:auto;"
                     :header-cell-style="{
                       background: '#99a9bf!important',
@@ -106,8 +106,8 @@
               </template>
             </el-table-column>
             <el-table-column label="审核人" align="center" prop="applyBy"/>
-            <el-table-column label="审核时间" align="center" prop="applyTime" width="100"/>
-            <el-table-column label="下单时间" align="center" prop="createTime" width="100"/>
+            <el-table-column label="审核时间" align="center" prop="applyTime" width="90"/>
+            <el-table-column label="下单时间" align="center" prop="createTime" width="90"/>
             <el-table-column label="备注" align="center" prop="remark"/>
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
               <template slot-scope="scope">
@@ -116,7 +116,7 @@
                   size="mini"
                   type="text"
                   icon="el-icon-search"
-                  @click="handleUpdate(scope.row)"
+                  @click="handleUpdateChild(scope.row)"
                   v-hasPermi="['mbpay:recharge:edit']"
                 >查看凭证
                 </el-button>
@@ -125,7 +125,7 @@
                   size="mini"
                   type="text"
                   icon="el-icon-s-custom"
-                  @click="handleAdmin(scope.row)"
+                  @click="handleAdminChild(scope.row)"
                   v-hasPermi="['mbpay:recharge:edit']"
                 >转代付
                 </el-button>
@@ -134,7 +134,7 @@
                   size="mini"
                   type="text"
                   icon="el-icon-edit"
-                  @click="handleUpdate(scope.row)"
+                  @click="handleUpdateChild(scope.row)"
                   v-hasPermi="['mbpay:recharge:edit']"
                 >审批
                 </el-button>
@@ -229,15 +229,15 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改提现订单对话框 -->
+    <!-- 查看凭证对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <div style="color: green;font-weight: bold;font-size: 10px;">
+      <div style="color: green;font-weight: bold;font-size: 10px;" v-if="form.status==5">
         <div>
           <i class="el-icon-warning"></i>
-          <span>&nbsp;&nbsp;&nbsp;温馨提示：请仔细核对商户余额是否充足，确保用户提现交易成功</span>
+          <span>&nbsp;&nbsp;&nbsp;温馨提示：请仔细核对收款信息与转账截图凭证一致，确保用户充值交易成功</span>
         </div>
-        <div style="color: #f4516c;font-size: 8px;">&nbsp;&nbsp;&nbsp;（1）如果信息匹配，点击按钮【评审通过】，进行撮合池；</div>
-        <div style="color: #f4516c;font-size: 8px;">&nbsp;&nbsp;&nbsp;（2）如果信息不匹配，点击按钮【评审失败】，代表拒绝用户提现；</div>
+        <div style="color: #f4516c;font-size: 8px;">&nbsp;&nbsp;&nbsp;（1）如果信息匹配，点击按钮【评审通过】，代表用户支付成功；</div>
+        <div style="color: #f4516c;font-size: 8px;">&nbsp;&nbsp;&nbsp;（2）如果信息不匹配，点击按钮【评审失败】，代表用户支付失败；</div>
       </div>
       <div/>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
@@ -255,20 +255,20 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="提现金额" prop="amount">
+            <el-form-item label="充值金额" prop="amount">
               <el-input v-model="form.amount" :disabled="true"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="实际打款" prop="coinAmount">
+            <el-form-item label="实际收款" prop="coinAmount">
               <el-input v-model="form.coinAmount" :disabled="true"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="提现状态" prop="status">
-              <dict-tag :options="dict.type.mbpay_withdraw_status" :value="form.status"/>
+            <el-form-item label="支付状态" prop="status">
+              <dict-tag :options="dict.type.mbpay_recharge_status" :value="form.status"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -277,22 +277,38 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-form-item label="收款户主" prop="productName">
+          <el-input v-model="form.productName" :disabled="true"/>
+        </el-form-item>
+        <el-form-item label="收款卡号" prop="bankCard">
+          <el-input v-model="form.orderId" :disabled="true"/>
+        </el-form-item>
+        <el-form-item label="收款银行" prop="orderId">
+          <el-input v-model="form.orderId" :disabled="true"/>
+        </el-form-item>
+        <el-form-item label="收款支行" prop="userId">
+          <el-input v-model="form.userId" :disabled="true"/>
+        </el-form-item>
         <el-form-item label="评审意见" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入评审意见"/>
+          <el-input v-model="form.remark" placeholder="请输入评审意见" />
+        </el-form-item>
+        <el-form-item label="图片凭证" prop="payimageUrl" width="300px">
+          <el-image :src="form.payimageUrl"></el-image>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="success" @click="submitForm(3)" v-if="form.status==1">审批通过</el-button>
-        <el-button type="danger" @click="submitForm(2)" v-if="form.status==1">审批失败</el-button>
+        <el-button type="success" @click="submitForm(6)" v-if="form.status==5">审批通过</el-button>
+        <el-button type="danger" @click="submitForm(7)" v-if="form.status==5">审批失败</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
   </div>
 </template>
 
 <script>
 import {exportWithdraw, getWithdraw, listWithdraw, updateWithdraw} from "@/api/mbpay/withdraw";
-import {listRecharge} from "@/api/mbpay/recharge";
+import {getRecharge, listRecharge, updateRecharge} from "@/api/mbpay/recharge";
 
 export default {
   name: "Withdraw",
@@ -302,7 +318,6 @@ export default {
     return {
       // 遮罩层
       loading: true,
-      loadingChild: true,
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -368,6 +383,10 @@ export default {
       this.loading = true;
       this.queryParams.status = 3, //默认获取 待撮合的状态列表
         listWithdraw(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+          response.rows.map(row => {
+            row.child = [];
+            row.loadingChild = true;
+          });
           this.withdrawList = response.rows;
           this.total = response.total;
           this.loading = false;
@@ -375,33 +394,19 @@ export default {
     },
     expandChange(row, expandedRows) {
       this.dataRow = row;
-      // 由于expand-change对于异步加载第一轮dom不渲染先加一个存在的dom让接口返回值可以渲染
-      this.withdrawList.forEach(item => {
-        this.dataRow.child = [];
-      })
-
       if (expandedRows.length) {
-        this.loadingChild = true;
+        this.dataRow.loadingChild = true;
         this.queryRechargeParams.matchId = row.id;
         listRecharge(this.queryRechargeParams).then(response => {
           this.dataRow.child = response.rows;
           this.dataRow.child.push({});
           this.dataRow.child.pop();
-          this.loadingChild = false;
+          this.dataRow.loadingChild = false;
         });
       }
     },
     // 展开行效果
     toogleExpand(row) {
-      row.expanded = !row.expanded;
-      this.loadingChild = true;
-      this.queryRechargeParams.matchId = row.id;
-      listRecharge(this.queryRechargeParams).then(response => {
-        this.dataRow.child = response.rows;
-        this.dataRow.child.push({});
-        this.dataRow.child.pop();
-        this.loadingChild = false;
-      });
       this.$refs.table.toggleRowExpansion(row, row.expanded) // 点击button展开
     },
     // 取消按钮
@@ -430,21 +435,25 @@ export default {
       this.resetForm("queryForm");
       this.handleQuery();
     },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
-    },
     /** 修改按钮操作 */
-    handleUpdate(row) {
+    handleUpdateChild(row) {
       this.reset();
       const id = row.id || this.ids
-      getWithdraw(id).then(response => {
+      getRecharge(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "审批提现订单";
+        if (this.form.status==5){
+          this.title = "审核订单";
+        } else {
+          this.title = "订单凭证详情";
+        }
+
       });
+    },
+    handleAdminChild(row) {
+      this.reset();
+      this.msgSuccess("请客户手动转账");
+      this.open = false;
     },
     /** 提交按钮 */
     submitForm(status) {
@@ -452,7 +461,7 @@ export default {
         if (valid) {
           if (this.form.id != null) {
             this.form.status = status;
-            updateWithdraw(this.form).then(response => {
+            updateRecharge(this.form).then(response => {
               this.msgSuccess("审批处理完成");
               this.open = false;
               this.getList();
@@ -460,19 +469,6 @@ export default {
           }
         }
       });
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有提现订单数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        return exportWithdraw(queryParams);
-      }).then(response => {
-        this.download(response.msg);
-      })
     }
   }
 };
