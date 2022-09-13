@@ -95,29 +95,30 @@
           <div style="">{{ scope.row.creditRating }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="充值费率" align="center" prop="chargeRate" >
-        <template slot-scope="scope">
-          <div>{{scope.row.chargeRate}}%</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="提现费率" align="center" prop="withdrawRate" >
-        <template slot-scope="scope">
-          <div>{{scope.row.withdrawRate}}%</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="撮合充值费率" align="center" prop="chChargeRate"  >
-        <template slot-scope="scope">
-          <div>{{scope.row.chChargeRate}}%</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="撮合提现费率" align="center" prop="chWithdrawRate" >
-        <template slot-scope="scope">
-          <div>{{scope.row.chWithdrawRate}}%</div>
-        </template>
+
+      <el-table-column label="费率" align="center" prop="chChargeRate"  >
+      <template slot-scope="scope">
+        <div style="color: #1890ff;font-family: 'Arial Black';font-size: small;">
+          充值费率：{{ scope.row.chargeRate == null ? "0.00" : scope.row.chargeRate }} %
+        </div>
+        <div style="color: #1890ff;font-family: 'Arial Black';font-size: small;">
+          提现费率：{{ scope.row.withdrawRate == null ? "0.00" : scope.row.withdrawRate }}  %
+        </div>
+        <div style="color: red;font-family: 'Arial Black';font-size: small;">
+          撮合充值费率：{{ scope.row.chChargeRate== null ? "0.00" : scope.row.chChargeRate }}  %
+        </div>
+        <div style="color: #f8ac59;font-style: italic;font-size: small;">
+          撮合提现费率：{{ scope.row.chWithdrawRate == null ? "0.00" : scope.row.chWithdrawRate }} %
+        </div>
+      </template>
       </el-table-column>
       <el-table-column label="当前余额" align="center" prop="balance" />
       <el-table-column label="冻结金额" align="center" prop="freeBalance" />
-      <el-table-column label="状态" align="center" prop="status"  :formatter="sysStatusFormat"/>
+      <el-table-column label="状态" align="center" prop="status">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.mbpay_site_status" :value="scope.row.status"/>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" >
         <template slot-scope="scope">
           <div>{{parseTime(scope.row.createTime)}}</div>
@@ -198,7 +199,15 @@
           <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteId" placeholder="请输入商家ID" />
         </el-form-item>
         <el-form-item label="用户ID" prop="userId" v-if="['update', 'show','add','balance'].includes(type)" >
-          <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.userId" placeholder="请输入用户ID" />
+<!--          <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.userId" placeholder="请输入用户ID" />-->
+          <el-select   :disabled="['update', 'show','balance'].includes(type)"  v-model="form.userId" placeholder="请选择绑定用户">
+            <el-option
+              v-for="dict in dict.type.mbpay_credit_rating"
+              :key="dict.value"
+              :label="dict.label"
+              :value="Number(dict.value)"
+            >{{dict.label}}</el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="商家名称" prop="siteName" >
           <el-input :disabled="['show','balance'].includes(type)" v-model="form.siteName" placeholder="请输入商家名称" />
@@ -390,28 +399,28 @@ export default {
         ],
         chargeRate: [
           { required: true, message: "充值费率不能为空", trigger: "blur" },{
-            pattern:/^[0-9]?$/,
+            pattern:/^[0-9]+(.[0-9]+)?$/,
             message: "请输入正确的费率",
             trigger: "blur"
           }
         ],
         withdrawRate: [
           { required: true, message: "提现费率不能为空", trigger: "blur" },{
-            pattern:/^[0-9]?$/,
+            pattern:/^[0-9]+(.[0-9]+)?$/,
             message: "请输入正确的费率",
             trigger: "blur"
           }
         ],
         chChargeRate: [
           { required: true, message: "撮合充值费率不能为空", trigger: "blur" },{
-            pattern:/^[0-9]?$/,
+            pattern:/^[0-9]+(.[0-9]+)?$/,
             message: "请输入正确的费率",
             trigger: "blur"
           }
         ],
         chWithdrawRate: [
           { required: true, message: "撮合提现费率不能为空", trigger: "blur" },{
-            pattern:/^[0-9]?$/,
+            pattern:/^[0-9]+(.[0-9]+)?$/,
             message: "请输入正确的费率",
             trigger: "blur"
           }
