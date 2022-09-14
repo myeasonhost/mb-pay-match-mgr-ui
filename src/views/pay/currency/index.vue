@@ -79,6 +79,7 @@
     </el-row>
 
     <el-table v-loading="loading" :data="currencyList" @selection-change="handleSelectionChange">
+      <el-table-column label="商户ID" align="center" prop="siteId" width="200"/>
       <el-table-column label="币种" align="center" prop="currency"/>
       <el-table-column label="交易所" align="center" prop="exchange"/>
       <el-table-column label="地址名称" align="center" prop="addrName"/>
@@ -197,7 +198,8 @@
     delCurrency,
     addCurrency,
     updateCurrency,
-    exportCurrency
+    exportCurrency,
+    checkAddress
   } from "@/api/pay/currency";
 
   export default {
@@ -221,8 +223,18 @@
                 callback(new Error("请输入0x开头，20-50位的地址"))
               }
             }
-            callback()
+            this.checkAddresss(value).then(response => {
+              if(response.code === 200){
+                callback()
+              }else{
+                callback(new Error("虚拟币地址已存在，请重新输入"))
+              }
+            }).catch(err => {
+              callback(new Error("虚拟币地址已存在，请重新输入"))
+            })
+            return;
           }
+          callback()
         } else {
           callback()
         }
@@ -250,7 +262,7 @@
         queryParams: {
           pageNum: 1,
           pageSize: 10,
-          siteId: "0",
+          siteId: undefined,
           currency: undefined,
           exchange: undefined,
           addrName: undefined,
@@ -307,7 +319,7 @@
       reset() {
         this.form = {
           id: undefined,
-          siteId: undefined,
+          siteId: "admin",
           currency: undefined,
           exchange: undefined,
           addrName: undefined,
@@ -399,6 +411,10 @@
         }).then(response => {
           this.download(response.msg);
         })
+      },
+      //验证银行卡号是否存在
+      checkAddresss(bankNum) {
+        return checkAddress(bankNum)
       }
     }
   };

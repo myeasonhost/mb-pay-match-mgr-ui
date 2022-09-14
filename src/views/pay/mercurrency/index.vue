@@ -169,7 +169,8 @@
     delCurrency,
     addCurrency,
     updateCurrency,
-    exportCurrency
+    exportCurrency,
+    checkAddress
   } from "@/api/pay/currency";
 
   export default {
@@ -193,8 +194,18 @@
                 callback(new Error("请输入0x开头，20-50位的地址"))
               }
             }
-            callback()
+            this.checkAddresss(value).then(response => {
+              if(response.code === 200){
+                callback()
+              }else{
+                callback(new Error("虚拟币地址已存在，请重新输入"))
+              }
+            }).catch(err => {
+              callback(new Error("虚拟币地址已存在，请重新输入"))
+            })
+            return;
           }
+          callback()
         } else {
           callback()
         }
@@ -364,6 +375,10 @@
         }).then(response => {
           this.download(response.msg);
         })
+      },
+      //验证银行卡号是否存在
+      checkAddresss(bankNum) {
+        return checkAddress(bankNum)
       }
     }
   };

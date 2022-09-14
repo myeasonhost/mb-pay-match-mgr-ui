@@ -246,8 +246,7 @@
 </template>
 
 <script>
-  import {listBank, getBank, delBank, addBank, updateBank, exportBank} from "@/api/pay/bank";
-  import {getUserProfile} from "@/api/system/user";
+  import {listBank, getBank, delBank, addBank, updateBank, exportBank, checkBankNum} from "@/api/pay/bank";
 
   export default {
     name: "Bank",
@@ -265,6 +264,21 @@
         } else {
           callback()
         }
+      }
+      const checkBankNum = (rule, value, callback) => {
+        if (value) {
+          this.checkBankNumber(value).then(response => {
+            if(response.code === 200){
+              callback()
+            }else{
+              callback(new Error("银行账户已存在，请重新输入"))
+            }
+          }).catch(err => {
+            callback(new Error("银行账户已存在，请重新输入"))
+          })
+          return;
+        }
+        callback();
       }
       return {
         // 遮罩层
@@ -314,7 +328,7 @@
         rules: {
           bankName: [
             {required: true, message: "请输入银行卡名称", trigger: "blur"},
-            {min: 2, max: 100, message: "长度2-100个字符", trigger: "blur"},
+            {min: 2, max: 100, message: "长度2-100个字符", trigger: "blur"}
           ],
           branchName: [
             {min: 2, max: 100, message: "长度2-100个字符", trigger: "blur"}
@@ -322,13 +336,14 @@
           bankNum: [
             {required: true, message: "请输入银行账户", trigger: "blur"},
             {min: 1, max: 20, message: "长度1-20个字符", trigger: "blur"},
+            {trigger: "blur", validator: checkBankNum}//自定义规则
           ],
           userName: [
             {required: true, message: "请输入姓名", trigger: "blur"},
-            {min: 1, max: 50, message: "长度1-50个字符", trigger: "blur"},
+            {min: 1, max: 50, message: "长度1-50个字符", trigger: "blur"}
           ],
           bankCode: [
-            {min: 0, max: 20, message: "长度0-20个字符", trigger: "blur"},
+            {min: 0, max: 20, message: "长度0-20个字符", trigger: "blur"}
           ],
           dayLimit: [
             {trigger: "blur", validator: checkAmount}//自定义规则
@@ -460,6 +475,10 @@
         }).then(response => {
           this.download(response.msg);
         })
+      },
+      //验证银行卡号是否存在
+      checkBankNumber(bankNum) {
+        return checkBankNum(bankNum)
       }
     }
   };

@@ -90,6 +90,7 @@
 
     <el-table v-loading="loading" :data="bankList" @selection-change="handleSelectionChange">
       <el-table-column label="序号" align="center" prop="id"/>
+      <el-table-column label="商户ID" align="center" prop="siteId" width="200"/>
       <el-table-column label="银行卡明细" align="left" prop="bankName" width="200">
         <template slot-scope="scope">
           <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
@@ -272,7 +273,7 @@
 </template>
 
 <script>
-  import {listBank, getBank, delBank, addBank, updateBank, exportBank} from "@/api/pay/bank";
+  import {listBank, getBank, delBank, addBank, updateBank, exportBank, checkBankNum} from "@/api/pay/bank";
 
   export default {
     name: "Bank",
@@ -290,6 +291,21 @@
         } else {
           callback()
         }
+      }
+      const checkBankNum = (rule, value, callback) => {
+        if (value) {
+          this.checkBankNumber(value).then(response => {
+            if(response.code === 200){
+              callback()
+            }else{
+              callback(new Error("银行账户已存在，请重新输入"))
+            }
+          }).catch(err => {
+            callback(new Error("银行账户已存在，请重新输入"))
+          })
+          return;
+        }
+        callback();
       }
       return {
         // 遮罩层
@@ -316,7 +332,7 @@
         queryParams: {
           pageNum: 1,
           pageSize: 10,
-          siteId: "0",
+          siteId: undefined,
           bankName: undefined,
           bankNum: undefined,
           branchName: undefined,
@@ -337,21 +353,22 @@
         rules: {
           bankName: [
             {required: true, message: "请输入银行卡名称", trigger: "blur"},
-            {min: 2, max: 100, message: "长度2-100个字符", trigger: "blur"},
+            {min: 2, max: 100, message: "长度2-100个字符", trigger: "blur"}
           ],
           bankNum: [
             {required: true, message: "请输入银行账户", trigger: "blur"},
             {min: 1, max: 20, message: "长度1-20个字符", trigger: "blur"},
+            {trigger: "blur", validator: checkBankNum}//自定义规则
           ],
           branchName: [
             {min: 2, max: 100, message: "长度2-100个字符", trigger: "blur"}
           ],
           userName: [
             {required: true, message: "请输入姓名", trigger: "blur"},
-            {min: 1, max: 50, message: "长度1-50个字符", trigger: "blur"},
+            {min: 1, max: 50, message: "长度1-50个字符", trigger: "blur"}
           ],
           bankCode: [
-            {min: 0, max: 20, message: "长度0-20个字符", trigger: "blur"},
+            {min: 0, max: 20, message: "长度0-20个字符", trigger: "blur"}
           ],
           currency: [
             {required: true, message: "请选择币种", trigger: "blur"}
@@ -390,7 +407,7 @@
       reset() {
         this.form = {
           id: undefined,
-          siteId: "0",
+          siteId: "admin",
           bankName: undefined,
           bankNum: undefined,
           branchName: undefined,
@@ -489,6 +506,10 @@
         }).then(response => {
           this.download(response.msg);
         })
+      },
+      //验证银行卡号是否存在
+      checkBankNumber(bankNum) {
+        return checkBankNum(bankNum)
       }
     }
   };
