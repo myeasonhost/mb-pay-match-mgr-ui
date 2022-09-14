@@ -213,9 +213,6 @@
         <el-form-item label="商家名称" prop="siteName" >
           <el-input :disabled="['show','balance'].includes(type)" v-model="form.siteName" placeholder="请输入商家名称" />
         </el-form-item>
-<!--        <el-form-item label="密码" prop="sitePwd"  v-if="['add'].includes(type)">-->
-<!--          <el-input :disabled="['show'].includes(type)" v-model="form.sitePwd" placeholder="请输入密码"  maxlength="16"/>-->
-<!--        </el-form-item>-->
         <el-form-item label="交易密码" prop="siteTransactionPwd"  v-if="['add'].includes(type)">
           <el-input :disabled="['show'].includes(type)" v-model="form.siteTransactionPwd" placeholder="请输入交易密码" maxlength="16" />
         </el-form-item>
@@ -356,7 +353,6 @@ export default {
         userId: undefined,
         siteId: undefined,
         siteAccount: undefined,
-        sitePwd: undefined,
         siteTransactionPwd: undefined,
         siteName: undefined,
         creditRating: undefined,
@@ -515,7 +511,6 @@ export default {
         userId: undefined,
         siteId: undefined,
         siteAccount: undefined,
-        sitePwd: undefined,
         siteTransactionPwd: undefined,
         siteName: undefined,
         creditRating: undefined,

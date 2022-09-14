@@ -7,7 +7,12 @@ export function getSiteInfoProfile() {
     method: 'get'
   })
 }
-
+export function getUserProfile() {
+  return request({
+    url: '/system/user/profile',
+    method: 'get'
+  })
+}
 export function updateMemberProfile(data) {
   return request({
     url: '/pay/siteinfo',
@@ -15,3 +20,18 @@ export function updateMemberProfile(data) {
     data: data
   })
 }
+export function updateUserProfile(userId,phonenumber,email,nickName,sex) {
+  const data = {
+    userId,
+    phonenumber,
+    email,
+    nickName,
+    sex
+  }
+  return request({
+    url: '/system/user/profile',
+    method: 'put',
+    data: data
+  })
+}
+

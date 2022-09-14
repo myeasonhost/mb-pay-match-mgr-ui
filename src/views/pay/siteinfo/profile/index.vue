@@ -4,7 +4,7 @@
       <el-col :span="24" :xs="24">
         <el-card class="box-card">
 
-          <el-descriptions class="margin-top" title="账号信息" :column="3" border>
+          <el-descriptions class="margin-top" title="商户信息" :column="3" border>
             <el-descriptions-item>
               <template slot="label">
                 商家账号
@@ -55,19 +55,6 @@
               <el-input :disabled="true" v-model="mbpaySiteInfo.chWithdrawRate"/>
             </el-descriptions-item>
 
-            <el-descriptions-item>
-              <template slot="label">
-                提现金额配置
-              </template>
-              <el-input :disabled="true" v-model="mbpaySiteInfo.withdrawAmountList"/>
-            </el-descriptions-item>
-
-            <el-descriptions-item>
-              <template slot="label">
-                拆分金额列表
-              </template>
-              <el-input :disabled="true" v-model="mbpaySiteInfo.withdrawSplitConfig"/>
-            </el-descriptions-item>
 
             <el-descriptions-item>
               <template slot="label">
@@ -87,44 +74,20 @@
 
         </el-card>
 
+
         <el-card class="box-card">
           <el-form ref="form" :model="mbpaySiteInfo" :rules="rules" label-width="110px">
             <el-descriptions class="margin-top" title="" :column="2" border :colon="false">
               <template slot=title>
-                个人资料 <span style="color: red">（谨慎修改用户信息，胡乱填写将封号处理）</span>
+                基础配置 <span style="color: red">（谨慎修改用户信息，胡乱填写将封号处理）</span>
               </template>
               <el-descriptions-item>
                 <template slot="label">
-                  姓
+                  姓名
                 </template>
-                <el-input v-model="mbpaySiteInfo.surname" placeholder="请输入姓" maxlength="50"/>
+                <el-input v-model="mbpaySiteInfo.nickName" placeholder="请输入名" maxlength="50"/>
               </el-descriptions-item>
-              <el-descriptions-item>
-                <template slot="label">
-                  名
-                </template>
-                <el-input v-model="mbpaySiteInfo.name" placeholder="请输入名" maxlength="50"/>
-              </el-descriptions-item>
-              <el-descriptions-item>
-                <template slot="label">
-                  证件类型
-                </template>
-                <el-select v-model="mbpaySiteInfo.documentType" placeholder="请选择证件类型">
-                  <el-option
-                    v-for="dict in dict.type.mbpay_document_type"
-                    :key="dict.value"
-                    :label="dict.label"
-                    :value="Number(dict.value)"
-                  >{{dict.label}}
-                  </el-option>
-                </el-select>
-              </el-descriptions-item>
-              <el-descriptions-item>
-                <template slot="label">
-                  证件号
-                </template>
-                <el-input v-model="mbpaySiteInfo.idNo" placeholder="请输入证件号"/>
-              </el-descriptions-item>
+
               <el-descriptions-item>
                 <template slot="label">
                   性别
@@ -150,6 +113,26 @@
                   邮箱
                 </template>
                 <el-input v-model="mbpaySiteInfo.email" placeholder="请输入邮箱" maxlength="32"/>
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template slot="label">
+                  证件类型
+                </template>
+                <el-select v-model="mbpaySiteInfo.documentType" placeholder="请选择证件类型">
+                  <el-option
+                    v-for="dict in dict.type.mbpay_document_type"
+                    :key="dict.value"
+                    :label="dict.label"
+                    :value="Number(dict.value)"
+                  >{{dict.label}}
+                  </el-option>
+                </el-select>
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template slot="label">
+                  证件号
+                </template>
+                <el-input v-model="mbpaySiteInfo.idNo" placeholder="请输入证件号"/>
               </el-descriptions-item>
               <el-descriptions-item>
                 <template slot="label">
@@ -181,13 +164,26 @@
                 </template>
                 <el-input v-model="mbpaySiteInfo.withdrawUrl" placeholder="请输入提现跳转" maxlength="200"/>
               </el-descriptions-item>
+              <el-descriptions-item>
+                <template slot="label">
+                  提现金额配置
+                </template>
+                <el-input v-model="mbpaySiteInfo.withdrawAmountList"/>
+              </el-descriptions-item>
 
+              <el-descriptions-item>
+                <template slot="label">
+                  拆分金额列表
+                </template>
+                <el-input v-model="mbpaySiteInfo.withdrawSplitConfig"/>
+              </el-descriptions-item>
             </el-descriptions>
             <el-descriptions :colon="false" style="
     padding-top: 10px;">
               <el-descriptions-item>
                 <template slot="label">
                   <el-button style="background-color: rgb(26, 179, 148);" type="primary"
+                             :v-hasPermi="['pay:siteinfo:edit']"
                              size="max" @click="submit"> 保存
                   </el-button>
                 </template>
@@ -202,15 +198,17 @@
 </template>
 
 <script>
-  import {getSiteInfoProfile, updateMemberProfile} from "@/api/pay/profile";
+  import {getSiteInfoProfile, getUserProfile, updateMemberProfile, updateUserProfile} from "@/api/pay/profile";
 
   export default {
     dicts: ['sys_user_sex', 'mbpay_document_type'],
     name: "Profile",
     components: {},
+
     data() {
       return {
-        mbpaySiteInfo: {} // 表单校验
+        mbpaySiteInfo: {} // 定义商户列表对象
+        , userInfo: {} // 定义用户对象
         , rules: {
           email: [
             {required: true, message: "邮箱地址不能为空", trigger: "blur"},
@@ -233,6 +231,7 @@
     },
     created() {
       this.getSiteInfo();
+      this.getUserInfo();
     }, // 表单参数
     form: {},
     methods: {
@@ -240,7 +239,9 @@
         this.$refs["form"].validate(valid => {
           if (valid) {
             updateMemberProfile(this.mbpaySiteInfo).then(response => {
-              this.$modal.msgSuccess("修改成功");
+              updateUserProfile(this.mbpaySiteInfo.userId, this.mbpaySiteInfo.phone, this.mbpaySiteInfo.email, this.mbpaySiteInfo.nickName, this.mbpaySiteInfo.gender).then(response => {
+                this.$modal.msgSuccess("修改成功");
+              });
             });
           }
         });
@@ -250,6 +251,12 @@
           this.mbpaySiteInfo = response.data;
         });
       },
+      getUserInfo() {
+        getUserProfile().then(response => {
+          this.userInfo = response.data;
+        });
+      },
+
       onCopy() {
         this.$message.success("内容已复制到剪切板")
       },
