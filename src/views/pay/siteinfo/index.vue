@@ -166,14 +166,14 @@
             size="mini"
             type="text"
             icon="el-icon-refresh"
-            @click="handleUpdPwd(scope.row,1)"
+            @click="handleUpdLoginPwd(scope.row)"
             v-hasPermi="['pay:siteinfo:updPwd']"
-          >重置密码</el-button>
+          >重置登录密码</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-refresh"
-            @click="handleUpdPwd(scope.row,2)"
+            @click="handleUpdPwd(scope.row)"
             v-hasPermi="['pay:siteinfo:updPwd']"
           >重置交易密码</el-button>
 
@@ -198,23 +198,24 @@
         <el-form-item label="商家ID" prop="siteId" v-if="['update', 'show','balance'].includes(type)" >
           <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteId" placeholder="请输入商家ID" />
         </el-form-item>
-        <el-form-item label="用户ID" prop="userId" v-if="['update', 'show','add','balance'].includes(type)" >
-<!--          <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.userId" placeholder="请输入用户ID" />-->
-          <el-select   :disabled="['update', 'show','balance'].includes(type)"  v-model="form.userId" placeholder="请选择绑定用户">
-            <el-option
-              v-for="dict in dict.type.mbpay_credit_rating"
-              :key="dict.value"
-              :label="dict.label"
-              :value="Number(dict.value)"
-            >{{dict.label}}</el-option>
-          </el-select>
+        <el-form-item label="绑定用户" prop="userId" v-if="['update', 'show','add','balance'].includes(type)">
+          <template>
+            <el-select  :disabled="['update', 'show','balance'].includes(type)" v-model="form.userId" clearable filterable placeholder="请选择">
+              <el-option
+                v-for="user in userList"
+                :key="user.userId"
+                :label="user.userName"
+                :value="user.userId">
+              </el-option>
+            </el-select>
+          </template>
         </el-form-item>
         <el-form-item label="商家名称" prop="siteName" >
           <el-input :disabled="['show','balance'].includes(type)" v-model="form.siteName" placeholder="请输入商家名称" />
         </el-form-item>
-        <el-form-item label="密码" prop="sitePwd"  v-if="['add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.sitePwd" placeholder="请输入密码"  maxlength="16"/>
-        </el-form-item>
+<!--        <el-form-item label="密码" prop="sitePwd"  v-if="['add'].includes(type)">-->
+<!--          <el-input :disabled="['show'].includes(type)" v-model="form.sitePwd" placeholder="请输入密码"  maxlength="16"/>-->
+<!--        </el-form-item>-->
         <el-form-item label="交易密码" prop="siteTransactionPwd"  v-if="['add'].includes(type)">
           <el-input :disabled="['show'].includes(type)" v-model="form.siteTransactionPwd" placeholder="请输入交易密码" maxlength="16" />
         </el-form-item>
@@ -240,12 +241,12 @@
         <el-form-item label="撮合提现费率" prop="chWithdrawRate" v-if="['update', 'show','add'].includes(type)">
           <el-input :disabled="['show'].includes(type)" v-model="form.chWithdrawRate" placeholder="请输入撮合提现费率（千分位）" />
         </el-form-item>
-        <el-form-item label="姓" prop="surname" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.surname" placeholder="请输入姓" maxlength="50"/>
-        </el-form-item>
-        <el-form-item label="名" prop="name" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.name" placeholder="请输入名" maxlength="50"/>
-        </el-form-item>
+<!--        <el-form-item label="姓" prop="surname" v-if="['update', 'show','add'].includes(type)">-->
+<!--          <el-input :disabled="['show'].includes(type)" v-model="form.surname" placeholder="请输入姓" maxlength="50"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="名" prop="name" v-if="['update', 'show','add'].includes(type)">-->
+<!--          <el-input :disabled="['show'].includes(type)" v-model="form.name" placeholder="请输入名" maxlength="50"/>-->
+<!--        </el-form-item>-->
         <el-form-item label="证件类型" prop="documentType" v-if="['update', 'show','add'].includes(type)">
           <el-select :disabled="['show'].includes(type)" v-model="form.documentType" placeholder="请选择证件类型">
             <el-option
@@ -259,23 +260,23 @@
         <el-form-item label="证件号" prop="idNo" v-if="['update', 'show','add'].includes(type)">
           <el-input :disabled="['show'].includes(type)" v-model="form.idNo" placeholder="请输入证件号" />
         </el-form-item>
-        <el-form-item label="性别" v-if="['update', 'show','add'].includes(type)">
-          <el-select :disabled="['show'].includes(type)" v-model="form.gender" placeholder="请选择性别">
-            <el-option
-              v-for="dict in dict.type.sys_user_sex"
-              :key="dict.value"
-              :label="dict.label"
-              :value="Number(dict.value)"
-            >{{dict.label}}</el-option>
-          </el-select>
-        </el-form-item>
+<!--        <el-form-item label="性别" v-if="['update', 'show','add'].includes(type)">-->
+<!--          <el-select :disabled="['show'].includes(type)" v-model="form.gender" placeholder="请选择性别">-->
+<!--            <el-option-->
+<!--              v-for="dict in dict.type.sys_user_sex"-->
+<!--              :key="dict.value"-->
+<!--              :label="dict.label"-->
+<!--              :value="Number(dict.value)"-->
+<!--            >{{dict.label}}</el-option>-->
+<!--          </el-select>-->
+<!--        </el-form-item>-->
 
-        <el-form-item label="手机号" prop="phone" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.phone" placeholder="请输入手机号"  maxlength="11" />
-        </el-form-item>
-        <el-form-item label="邮箱" prop="email" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.email" placeholder="请输入邮箱" maxlength="32"/>
-        </el-form-item>
+<!--        <el-form-item label="手机号" prop="phone" v-if="['update', 'show','add'].includes(type)">-->
+<!--          <el-input :disabled="['show'].includes(type)" v-model="form.phone" placeholder="请输入手机号"  maxlength="11" />-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="邮箱" prop="email" v-if="['update', 'show','add'].includes(type)">-->
+<!--          <el-input :disabled="['show'].includes(type)" v-model="form.email" placeholder="请输入邮箱" maxlength="32"/>-->
+<!--        </el-form-item>-->
         <el-form-item label="联系地址" prop="address" v-if="['update', 'show','add'].includes(type)">
           <el-input :disabled="['show'].includes(type)" v-model="form.address" placeholder="请输入联系地址" maxlength="200" />
         </el-form-item>
@@ -304,7 +305,7 @@
 </template>
 
 <script>
-import { listSiteInfo, userRules ,getSiteInfo, delSiteInfo,updPwdSiteInfo, addSiteInfo,changeSiteStatus, updateSiteInfo, updateSiteInfoBalance,exportSiteInfo } from "@/api/pay/siteinfo";
+import { listSiteInfo, userList , userRules ,getSiteInfo, delSiteInfo,updPwdSiteInfo,updLoginPwdSiteInfo, addSiteInfo,changeSiteStatus, updateSiteInfo, updateSiteInfoBalance,exportSiteInfo } from "@/api/pay/siteinfo";
 
 export default {
   name: "SiteInfo",
@@ -339,6 +340,8 @@ export default {
       total: 0,
       // 商户表格数据
       siteList: [],
+      //用户
+      userList:[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -382,7 +385,7 @@ export default {
       // 表单校验
       rules: {
         userId: [
-          { required: true, message: "用户ID不能为空", trigger: "blur" }
+          { required: true, message: "绑定用户不能为空", trigger: "blur" }
         ],
         siteName: [
           { required: true, message: "商家名称不能为空", trigger: "blur" },
@@ -460,6 +463,12 @@ export default {
         this.total = response.total;
         this.loading = false;
       });
+    },
+    // 用户列表
+    getuserList(type) {
+      userList(type).then(response => {
+        this.userList = response.data;
+      })
     },
     // 状态字典翻译
     sysStatusFormat(row, column) {
@@ -552,6 +561,7 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
+      this.getuserList(0);
       this.open = true;
       this.title = "添加商户";
       this.type = "add"
@@ -559,6 +569,7 @@ export default {
     /** 编辑按钮操作 */
     handleUpdate(row) {
       this.reset();
+      this.getuserList(1);
       const id = row.id || this.ids
       getSiteInfo(id).then(response => {
         this.form = response.data;
@@ -570,6 +581,7 @@ export default {
     /** 查看按钮操作 */
     handleShow(row) {
       this.reset();
+      this.getuserList(1);
       const id = row.id || this.ids
       getSiteInfo(id).then(response => {
         this.form = response.data;
@@ -632,14 +644,27 @@ export default {
         }
       });
     },
-    /** 重置密码按钮操作 */
-    handleUpdPwd(row,type) {
+    /** 重置登录密码按钮操作 */
+    handleUpdLoginPwd(row) {
       this.$confirm('确认将密码重置为默认密码123456？', " 重置密码", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(function() {
-        return updPwdSiteInfo(row.id,type);
+        return updLoginPwdSiteInfo(row.userId);
+      }).then(() => {
+        this.getList();
+        this.msgSuccess("重置成功");
+      })
+    },
+    /** 重置密码按钮操作 */
+    handleUpdPwd(row) {
+      this.$confirm('确认将密码重置为默认密码123456？', " 重置密码", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function() {
+        return updPwdSiteInfo(row.id);
       }).then(() => {
         this.getList();
         this.msgSuccess("重置成功");

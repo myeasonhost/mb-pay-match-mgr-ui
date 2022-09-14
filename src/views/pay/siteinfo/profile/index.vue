@@ -54,6 +54,21 @@
               </template>
               <el-input :disabled="true" v-model="mbpaySiteInfo.chWithdrawRate"/>
             </el-descriptions-item>
+
+            <el-descriptions-item>
+              <template slot="label">
+                提现金额配置
+              </template>
+              <el-input :disabled="true" v-model="mbpaySiteInfo.withdrawAmountList"/>
+            </el-descriptions-item>
+
+            <el-descriptions-item>
+              <template slot="label">
+                拆分金额列表
+              </template>
+              <el-input :disabled="true" v-model="mbpaySiteInfo.withdrawSplitConfig"/>
+            </el-descriptions-item>
+
             <el-descriptions-item>
               <template slot="label">
                 API KEY
@@ -66,7 +81,6 @@
                   </el-button>
                 </template>
               </el-input>
-
             </el-descriptions-item>
 
           </el-descriptions>
@@ -143,9 +157,33 @@
                 </template>
                 <el-input v-model="mbpaySiteInfo.address" placeholder="请输入联系地址" maxlength="200"/>
               </el-descriptions-item>
+              <el-descriptions-item>
+                <template slot="label">
+                  回调通知
+                </template>
+                <el-input v-model="mbpaySiteInfo.notifyUrl" placeholder="请输入回调通知" maxlength="200"/>
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template slot="label">
+                  重定向跳转
+                </template>
+                <el-input v-model="mbpaySiteInfo.redirectUrl" placeholder="请输入重定向跳转" maxlength="200"/>
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template slot="label">
+                  充值跳转
+                </template>
+                <el-input v-model="mbpaySiteInfo.rechargeUrl" placeholder="请输入充值跳转" maxlength="200"/>
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template slot="label">
+                  提现跳转
+                </template>
+                <el-input v-model="mbpaySiteInfo.withdrawUrl" placeholder="请输入提现跳转" maxlength="200"/>
+              </el-descriptions-item>
 
             </el-descriptions>
-            <el-descriptions  :colon="false" style="
+            <el-descriptions :colon="false" style="
     padding-top: 10px;">
               <el-descriptions-item>
                 <template slot="label">
