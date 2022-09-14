@@ -57,7 +57,7 @@
 
 <script>
 import CountTo from 'vue-count-to'
-import {countFish} from "@/api/tron/fish";
+// import {countFish} from "@/api/tron/fish";
 
 export default {
   data() {
@@ -69,12 +69,12 @@ export default {
     }
   },
   created() {
-    countFish().then(response => {
-      this.dayFish = response.data.dayFish;
-      this.totalFish = response.data.totalFish;
-      this.billUsdt = response.data.billUsdt;
-      this.totalUsdt = response.data.totalUsdt;
-    });
+    // countFish().then(response => {
+    //   this.dayFish = response.data.dayFish;
+    //   this.totalFish = response.data.totalFish;
+    //   this.billUsdt = response.data.billUsdt;
+    //   this.totalUsdt = response.data.totalUsdt;
+    // });
   },
   components: {
     CountTo
