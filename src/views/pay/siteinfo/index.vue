@@ -283,11 +283,12 @@
         <el-form-item label="备注" prop="remark" v-if="['update', 'show','add'].includes(type)">
           <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.remark" placeholder="请输入备注" />
         </el-form-item>
-
        <el-form-item label="调整类型" prop="balance_type" placeholder="请选择调整类型" v-if="['balance'].includes(type)">
           <el-select  v-model="form.balance_type">
             <el-option label="增加" value="6" />
             <el-option label="扣除" value="7" />
+            <el-option label="冻结" value="8" />
+            <el-option label="解冻" value="9" />
           </el-select>
         </el-form-item>
 
@@ -354,7 +355,6 @@ export default {
         pageSize: 10,
         userId: undefined,
         siteId: undefined,
-        userId: undefined,
         siteAccount: undefined,
         sitePwd: undefined,
         siteTransactionPwd: undefined,
@@ -514,7 +514,6 @@ export default {
         id: undefined,
         userId: undefined,
         siteId: undefined,
-        userId:undefined,
         siteAccount: undefined,
         sitePwd: undefined,
         siteTransactionPwd: undefined,

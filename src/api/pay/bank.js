@@ -51,3 +51,11 @@ export function exportBank(query) {
     params: query
   })
 }
+
+//校验银行卡号是否存在
+export function checkBankNum(bankNum) {
+  return request({
+    url: '/pay/bank/checkBankNum/' + bankNum,
+    method: 'get',
+  })
+}
