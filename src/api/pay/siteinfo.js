@@ -8,6 +8,13 @@ export function listSiteInfo(query) {
     params: query
   })
 }
+//下拉框 绑定用户使用
+export function userList(type) {
+  return request({
+    url: '/system/user/userList/'+type,
+    method: 'get'
+  })
+}
 // 角色状态修改
 export function changeSiteStatus(id,siteId, status) {
   const data = {
@@ -63,10 +70,17 @@ export function delSiteInfo(id) {
     method: 'delete'
   })
 }
-// 重置密码 type=1是登录密码 2是交易密码
-export function updPwdSiteInfo(id,type) {
+// 重置登录密码，登录密码使用的sys_user里面的
+export function updLoginPwdSiteInfo(id) {
   return request({
-    url: '/pay/siteinfo/updPwd/'+id+"/"+type,
+    url: '/system/user/updPwd/'+id,
+    method: 'put'
+  })
+}
+// 重置交易密码
+export function updPwdSiteInfo(id) {
+  return request({
+    url: '/pay/siteinfo/updPwd/'+id,
     method: 'put'
   })
 }
