@@ -55,24 +55,8 @@
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['mbpay:withdraw:export']"
-        >导出
-        </el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-
     <el-table ref="table" v-loading="loading" :data="withdrawList" @expand-change="expandChange" border
               border-color="#ff0000"
-              @selection-change="handleSelectionChange"
               :row-style="{
                       fontWeight: '600',
                       fontSize: '12px',
@@ -90,17 +74,16 @@
                     :row-style="{
                       fontSize: '5px',
                     }">
-            <el-table-column label="支付订单号" align="center" prop="id"/>
-            <el-table-column label="商户ID/玩家ID" align="center" prop="siteId" width="120">
+            <el-table-column label="拆分订单号" align="center" prop="matchId"/>
+            <el-table-column label="提现商户明细" align="left" prop="aSiteId" width="200">
               <template slot-scope="scope">
-                <div style="color: #13ce66;font-weight: bold;font-size: 13px;">{{ scope.row.siteId }}</div>
-                <div style="color: #f4516c;font-weight: bold;font-size: 13px;">{{ scope.row.userId }}</div>
+                <div style="color: #13ce66;">商户ID：{{ scope.row.asiteId }}</div>
+                <div style="color: #f4516c;">玩家ID：{{ scope.row.asiteUserId }}</div>
+                <div style="color: #f8ac59;">提单ID：{{ scope.row.asiteWithdrawId }}</div>
               </template>
             </el-table-column>
-            <el-table-column label="商户订单号" align="center" prop="orderId"/>
-            <el-table-column label="产品名" align="center" prop="productName"/>
-            <el-table-column label="实际收款" align="center" prop="coinAmount"/>
-            <el-table-column label="状态" align="center" prop="status">
+            <el-table-column label="拆分金额" align="center" prop="matchAmount"/>
+            <el-table-column label="状态" align="center" prop="matchStatus">
               <template slot-scope="scope">
                 <dict-tag :options="dict.type.mbpay_recharge_status" :value="scope.row.status"/>
               </template>
@@ -307,8 +290,10 @@
 </template>
 
 <script>
-import {exportWithdraw, getWithdraw, listWithdraw, updateWithdraw} from "@/api/mbpay/withdraw";
+import {listWithdraw} from "@/api/mbpay/withdraw";
 import {getRecharge, listRecharge, updateRecharge} from "@/api/mbpay/recharge";
+import {listPool} from "@/api/mbpay/pool";
+
 
 export default {
   name: "Withdraw",
@@ -353,7 +338,7 @@ export default {
         siteId: undefined,
         orderId: undefined,
         userId: undefined,
-        matchId: undefined,
+        parentId: undefined,
       },
       // 表单参数
       form: {},
@@ -396,8 +381,8 @@ export default {
       this.dataRow = row;
       if (expandedRows.length) {
         this.dataRow.loadingChild = true;
-        this.queryRechargeParams.matchId = row.id;
-        listRecharge(this.queryRechargeParams).then(response => {
+        this.queryRechargeParams.parentId = row.id;
+        listPool(this.queryRechargeParams).then(response => {
           this.dataRow.child = response.rows;
           this.dataRow.child.push({});
           this.dataRow.child.pop();

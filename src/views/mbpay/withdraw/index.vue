@@ -156,38 +156,38 @@
       <div/>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
-          <el-col :span="12">
+          <el-col :span="11">
             <el-form-item label="商家账号" prop="siteId">
               <el-input v-model="form.siteId" :disabled="true"/>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="13">
             <el-form-item label="玩家ID" prop="userId">
               <el-input v-model="form.userId" :disabled="true"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12">
+          <el-col :span="11">
             <el-form-item label="提现金额" prop="amount">
               <el-input v-model="form.amount" :disabled="true"/>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="实际打款" prop="coinAmount">
-              <el-input v-model="form.coinAmount" :disabled="true"/>
+          <el-col :span="13">
+            <el-form-item label="手续费" prop="currency">
+              <el-input v-model="form.currency" :disabled="true"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12">
+          <el-col :span="11">
             <el-form-item label="提现状态" prop="status">
               <dict-tag :options="dict.type.mbpay_withdraw_status" :value="form.status"/>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="手续费" prop="currency">
-              <el-input v-model="form.currency" :disabled="true"/>
+          <el-col :span="13">
+            <el-form-item label="提现时间" prop="currency">
+              <el-input v-model="form.withdrawTime" :disabled="true"/>
             </el-form-item>
           </el-col>
         </el-row>
