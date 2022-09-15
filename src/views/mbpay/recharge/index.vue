@@ -187,9 +187,6 @@
         <el-form-item label="收款银行" prop="orderId">
           <el-input v-model="form.orderId" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="收款支行" prop="userId">
-          <el-input v-model="form.userId" :disabled="true"/>
-        </el-form-item>
         <el-form-item label="评审意见" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入评审意见" />
         </el-form-item>

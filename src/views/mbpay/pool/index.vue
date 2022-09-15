@@ -75,27 +75,41 @@
                       fontSize: '5px',
                     }">
             <el-table-column label="拆分订单号" align="center" prop="matchId"/>
-            <el-table-column label="提现商户明细" align="left" prop="aSiteId" width="200">
+            <el-table-column label="拆单时间" align="center" prop="createTime" width="90">
               <template slot-scope="scope">
-                <div style="color: #13ce66;">商户ID：{{ scope.row.asiteId }}</div>
-                <div style="color: #f4516c;">玩家ID：{{ scope.row.asiteUserId }}</div>
-                <div style="color: #f8ac59;">提单ID：{{ scope.row.asiteWithdrawId }}</div>
+                <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="提现用户明细" align="left" prop="aSiteId" width="200">
+              <template slot-scope="scope">
+                <div style="color: #666666;">商户ID：{{ scope.row.asiteId }}</div>
+                <div style="color: #666666;">玩家ID：{{ scope.row.asiteUserId }}</div>
+                <div style="color: #666666;">提单ID：{{ scope.row.asiteWithdrawId }}</div>
               </template>
             </el-table-column>
             <el-table-column label="拆分金额" align="center" prop="matchAmount"/>
             <el-table-column label="状态" align="center" prop="matchStatus">
               <template slot-scope="scope">
-                <dict-tag :options="dict.type.mbpay_recharge_status" :value="scope.row.status"/>
+                <dict-tag :options="dict.type.mbpay_match_status" :value="scope.row.matchStatus"/>
               </template>
             </el-table-column>
-            <el-table-column label="审核人" align="center" prop="applyBy"/>
-            <el-table-column label="审核时间" align="center" prop="applyTime" width="90"/>
-            <el-table-column label="下单时间" align="center" prop="createTime" width="90"/>
-            <el-table-column label="备注" align="center" prop="remark"/>
+            <el-table-column label="充值用户明细" align="left" prop="aSiteId" width="200">
+              <template slot-scope="scope">
+                <div style="color: #13ce66;">{{ scope.row.bsiteId==null?"":"商户ID："+scope.row.bsiteId }}</div>
+                <div style="color: #13ce66;">{{ scope.row.bsiteUserId==null?"":"玩家ID："+scope.row.bsiteUserId }}</div>
+                <div style="color: #13ce66;">{{ scope.row.bsiteOrderId==null?"":"订单ID："+scope.row.bsiteOrderId }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="匹配时间" align="center" prop="bpayTime" width="90">
+              <template slot-scope="scope">
+                <span>{{ parseTime(scope.row.bpayTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+              </template>
+            </el-table-column>
+
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
               <template slot-scope="scope">
                 <el-button
-                  v-if="scope.row.status!=5 && scope.row.status!=4 && scope.row.status!=7"
+                  v-if="scope.row.matchStatus!=0"
                   size="mini"
                   type="text"
                   icon="el-icon-search"
@@ -104,7 +118,7 @@
                 >查看凭证
                 </el-button>
                 <el-button
-                  v-if="scope.row.status==4 || scope.row.status==7"
+                  v-if="scope.row.status==4"
                   size="mini"
                   type="text"
                   icon="el-icon-s-custom"
@@ -113,7 +127,7 @@
                 >转代付
                 </el-button>
                 <el-button
-                  v-if="scope.row.status==5"
+                  v-if="scope.row.status==1"
                   size="mini"
                   type="text"
                   icon="el-icon-edit"
@@ -153,9 +167,9 @@
           <dict-tag :options="dict.type.mbpay_withdraw_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="提现时间" align="center" prop="withdrawTime" width="100">
+      <el-table-column label="提现时间" align="center" prop="withdrawTime" width="90">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.withdrawTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.withdrawTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="提款人明细" align="left" prop="amount" width="200">
@@ -172,9 +186,9 @@
         </template>
       </el-table-column>
       <el-table-column label="审核人" align="center" prop="applyBy"/>
-      <el-table-column label="审核时间" align="center" prop="applyTime" width="100">
+      <el-table-column label="审核时间" align="center" prop="applyTime" width="90">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.applyTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.applyTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
 
@@ -269,9 +283,6 @@
         <el-form-item label="收款银行" prop="orderId">
           <el-input v-model="form.orderId" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="收款支行" prop="userId">
-          <el-input v-model="form.userId" :disabled="true"/>
-        </el-form-item>
         <el-form-item label="评审意见" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入评审意见" />
         </el-form-item>
@@ -296,8 +307,8 @@ import {listPool} from "@/api/mbpay/pool";
 
 
 export default {
-  name: "Withdraw",
-  dicts: ['mbpay_withdraw_status', 'mbpay_recharge_status'],
+  name: "pool",
+  dicts: ['mbpay_withdraw_status', 'mbpay_recharge_status', 'mbpay_match_status'],
   components: {},
   data() {
     return {
@@ -423,7 +434,7 @@ export default {
     /** 修改按钮操作 */
     handleUpdateChild(row) {
       this.reset();
-      const id = row.id || this.ids
+      const id = row.brechargeId;
       getRecharge(id).then(response => {
         this.form = response.data;
         this.open = true;
