@@ -92,7 +92,7 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
-            v-if="scope.row.status!=5 && scope.row.status!=4 && scope.row.status!=7"
+            v-if="scope.row.status==6"
             size="mini"
             type="text"
             icon="el-icon-search"
@@ -179,13 +179,13 @@
           </el-col>
         </el-row>
         <el-form-item label="收款户主" prop="productName">
-          <el-input v-model="form.productName" :disabled="true"/>
+          <el-input v-model="form.userName" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="收款卡号" prop="bankCard">
-          <el-input v-model="form.orderId" :disabled="true"/>
+        <el-form-item label="收款卡号" prop="userBankCard">
+          <el-input v-model="form.userBankCard" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="收款银行" prop="orderId">
-          <el-input v-model="form.orderId" :disabled="true"/>
+        <el-form-item label="收款银行" prop="userBankName">
+          <el-input v-model="form.userBankName" :disabled="true"/>
         </el-form-item>
         <el-form-item label="评审意见" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入评审意见" />
