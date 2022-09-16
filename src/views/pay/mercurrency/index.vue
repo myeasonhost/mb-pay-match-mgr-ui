@@ -378,7 +378,7 @@
       },
       //验证银行卡号是否存在
       checkAddresss(bankNum) {
-        return checkAddress(bankNum)
+        return checkAddress(bankNum,this.form.id)
       }
     }
   };

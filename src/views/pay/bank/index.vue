@@ -125,7 +125,10 @@
             单笔限额：{{ scope.row.singleLimit == null ? "0.00" : scope.row.singleLimit }}
           </div>
           <div style="color: #ff0000;font-family: 'Arial Black';font-size: small;">
-            单日收款额度：{{ scope.row.dayReceiptAmount == null ? "0.00" : scope.row.dayReceiptAmount }}
+            当日收款金额：{{ scope.row.dayReceiptAmount == null ? "0.00" : scope.row.dayReceiptAmount }}
+          </div>
+          <div style="color: #ff0000;font-family: 'Arial Black';font-size: small;">
+            本月收款金额：{{ scope.row.monthReceiptAmount == null ? "0.00" : scope.row.monthReceiptAmount }}
           </div>
           <div style="color: #1890ff;font-family: 'Arial Black';font-size: small;">
             累计收款金额：{{ scope.row.totalReceiptAmount == null ? "0.00" : scope.row.totalReceiptAmount }}
@@ -343,6 +346,7 @@
           monthLimit: undefined,
           singleLimit: undefined,
           dayReceiptAmount: undefined,
+          monthReceiptAmount: undefined,
           totalReceiptAmount: undefined,
           operCode: undefined,
           status: undefined,
@@ -418,12 +422,15 @@
           monthLimit: undefined,
           singleLimit: undefined,
           dayReceiptAmount: undefined,
+          monthReceiptAmount: undefined,
           totalReceiptAmount: undefined,
           operCode: this.$store.state.user.name,
           status: "1",
           remark: undefined,
           createTime: undefined,
-          updateTime: undefined
+          updateTime: undefined,
+          partDay: undefined,
+          partMon: undefined
         };
         this.resetForm("form");
       },
@@ -509,7 +516,7 @@
       },
       //验证银行卡号是否存在
       checkBankNumber(bankNum) {
-        return checkBankNum(bankNum)
+        return checkBankNum(bankNum,this.form.id)
       }
     }
   };

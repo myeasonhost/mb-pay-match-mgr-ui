@@ -53,9 +53,9 @@ export function exportBank(query) {
 }
 
 //校验银行卡号是否存在
-export function checkBankNum(bankNum) {
+export function checkBankNum(bankNum,id) {
   return request({
-    url: '/pay/bank/checkBankNum/' + bankNum,
+    url: '/pay/bank/checkBankNum/' + bankNum + '/' + id,
     method: 'get',
   })
 }

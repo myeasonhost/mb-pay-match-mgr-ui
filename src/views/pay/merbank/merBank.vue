@@ -478,7 +478,7 @@
       },
       //验证银行卡号是否存在
       checkBankNumber(bankNum) {
-        return checkBankNum(bankNum)
+        return checkBankNum(bankNum,this.form.id)
       }
     }
   };

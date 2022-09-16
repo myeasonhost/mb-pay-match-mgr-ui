@@ -53,9 +53,9 @@ export function exportCurrency(query) {
 }
 
 //校验虚拟币地址是否存在
-export function checkAddress(address) {
+export function checkAddress(address,id) {
   return request({
-    url: '/pay/currency/checkAddress/' + address,
+    url: '/pay/currency/checkAddress/' + address + '/' + id,
     method: 'get',
   })
 }
