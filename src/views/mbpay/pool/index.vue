@@ -311,7 +311,7 @@
 </template>
 
 <script>
-import {listWithdraw} from "@/api/mbpay/withdraw";
+import {listWithdraw,listWithdraw2} from "@/api/mbpay/withdraw";
 import {getRecharge, listRecharge, updateRecharge} from "@/api/mbpay/recharge";
 import {listPool} from "@/api/mbpay/pool";
 
@@ -387,8 +387,8 @@ export default {
     /** 查询提现订单列表 */
     getList() {
       this.loading = true;
-      this.queryParams.status = 3, //默认获取 待撮合的状态列表
-        listWithdraw(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      // this.queryParams.status = 3, //默认获取 待撮合的状态列表
+        listWithdraw2(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           response.rows.map(row => {
             row.child = [];
             row.loadingChild = true;

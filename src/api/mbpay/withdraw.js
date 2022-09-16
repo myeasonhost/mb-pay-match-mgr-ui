@@ -9,6 +9,14 @@ export function listWithdraw(query) {
   })
 }
 
+export function listWithdraw2(query) {
+  return request({
+    url: '/mbpay/withdraw/list2',
+    method: 'get',
+    params: query
+  })
+}
+
 // 查询提现订单详细
 export function getWithdraw(id) {
   return request({
