@@ -124,7 +124,7 @@
                   type="text"
                   icon="el-icon-search"
                   @click="handleUpdateChild(scope.row)"
-                  v-hasPermi="['mbpay:recharge:edit']"
+                  v-hasPermi="['mbpay:pool:query']"
                 >查看凭证
                 </el-button>
                 <el-button
@@ -210,7 +210,7 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['mbpay:withdraw:edit']"
+            v-hasPermi="['mbpay:recharge:edit']"
           >审批
           </el-button>
         </template>
@@ -220,7 +220,7 @@
             type="text"
             icon="el-icon-thumb"
             @click="toogleExpand(scope.row)"
-            v-hasPermi="['mbpay:withdraw:edit']"
+            v-hasPermi="['mbpay:recharge:query']"
           >拆单详情
           </el-button>
         </template>

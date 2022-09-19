@@ -55,20 +55,6 @@
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['mbpay:withdraw:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-
     <el-table v-loading="loading" :data="withdrawList" @selection-change="handleSelectionChange">
       <el-table-column label="提现订单号" align="center" prop="id"/>
       <el-table-column label="商户ID/玩家ID" align="center" prop="siteId" width="120">
@@ -205,7 +191,7 @@
 </template>
 
 <script>
-import {exportWithdraw, getWithdraw, listWithdraw, updateWithdraw} from "@/api/mbpay/withdraw";
+import {getWithdraw, listWithdraw, updateWithdraw} from "@/api/mbpay/withdraw";
 
 export default {
   name: "Withdraw",
@@ -303,7 +289,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 修改按钮操作 */
@@ -330,19 +316,6 @@ export default {
           }
         }
       });
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有提现订单数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return exportWithdraw(queryParams);
-        }).then(response => {
-          this.download(response.msg);
-        })
     }
   }
 };

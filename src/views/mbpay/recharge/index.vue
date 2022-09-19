@@ -97,7 +97,7 @@
             type="text"
             icon="el-icon-search"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['mbpay:recharge:edit']"
+            v-hasPermi="['mbpay:recharge:query']"
           >查看凭证
           </el-button>
           <el-button
