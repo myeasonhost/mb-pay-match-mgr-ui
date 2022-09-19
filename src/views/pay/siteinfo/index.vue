@@ -192,106 +192,149 @@
     <!-- 添加或编辑商户对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="110px">
-        <el-form-item label="商家账号" prop="siteAccount"  v-if="['update', 'show','add','balance'].includes(type)">
-          <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteAccount" placeholder="请输入商家账号;4-20位字母数字组合"  />
-        </el-form-item>
-        <el-form-item label="商家ID" prop="siteId" v-if="['update', 'show','balance'].includes(type)" >
-          <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteId" placeholder="请输入商家ID" />
-        </el-form-item>
-        <el-form-item label="绑定用户" prop="userId" v-if="['update', 'show','add','balance'].includes(type)">
-          <template>
-            <el-select  :disabled="['update', 'show','balance'].includes(type)" v-model="form.userId" clearable filterable placeholder="请选择">
-              <el-option
-                v-for="user in userList"
-                :key="user.userId"
-                :label="user.userName"
-                :value="user.userId">
-              </el-option>
-            </el-select>
-          </template>
-        </el-form-item>
-        <el-form-item label="商家名称" prop="siteName" >
-          <el-input :disabled="['show','balance'].includes(type)" v-model="form.siteName" placeholder="请输入商家名称" />
-        </el-form-item>
-        <el-form-item label="交易密码" prop="siteTransactionPwd"  v-if="['add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.siteTransactionPwd" placeholder="请输入交易密码" maxlength="16" />
-        </el-form-item>
-        <el-form-item label="信用等级" prop="creditRating" v-if="['update', 'show','add'].includes(type)">
-          <el-select :disabled="['show'].includes(type)" v-model="form.creditRating" placeholder="请选择信用等级">
-            <el-option
-              v-for="dict in dict.type.mbpay_credit_rating"
-              :key="dict.value"
-              :label="dict.label"
-              :value="Number(dict.value)"
-            >{{dict.label}}</el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="充值费率"  prop="chargeRate" v-if="['update', 'show','add'].includes(type)">
-          <el-input  :disabled="['show'].includes(type)" v-model="form.chargeRate" placeholder="请输入充值费率（千分位）" />
-        </el-form-item>
-        <el-form-item label="提现费率" prop="withdrawRate" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.withdrawRate" placeholder="请输入提现费率（千分位）" />
-        </el-form-item>
-        <el-form-item label="撮合充值费率" prop="chChargeRate" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.chChargeRate" placeholder="请输入撮合充值费率（千分位）" />
-        </el-form-item>
-        <el-form-item label="撮合提现费率" prop="chWithdrawRate" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.chWithdrawRate" placeholder="请输入撮合提现费率（千分位）" />
-        </el-form-item>
-<!--        <el-form-item label="姓" prop="surname" v-if="['update', 'show','add'].includes(type)">-->
-<!--          <el-input :disabled="['show'].includes(type)" v-model="form.surname" placeholder="请输入姓" maxlength="50"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="名" prop="name" v-if="['update', 'show','add'].includes(type)">-->
-<!--          <el-input :disabled="['show'].includes(type)" v-model="form.name" placeholder="请输入名" maxlength="50"/>-->
-<!--        </el-form-item>-->
-        <el-form-item label="证件类型" prop="documentType" v-if="['update', 'show','add'].includes(type)">
-          <el-select :disabled="['show'].includes(type)" v-model="form.documentType" placeholder="请选择证件类型">
-            <el-option
-              v-for="dict in dict.type.mbpay_document_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="Number(dict.value)"
-            >{{dict.label}}</el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="证件号" prop="idNo" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.idNo" placeholder="请输入证件号" />
-        </el-form-item>
-<!--        <el-form-item label="性别" v-if="['update', 'show','add'].includes(type)">-->
-<!--          <el-select :disabled="['show'].includes(type)" v-model="form.gender" placeholder="请选择性别">-->
-<!--            <el-option-->
-<!--              v-for="dict in dict.type.sys_user_sex"-->
-<!--              :key="dict.value"-->
-<!--              :label="dict.label"-->
-<!--              :value="Number(dict.value)"-->
-<!--            >{{dict.label}}</el-option>-->
-<!--          </el-select>-->
-<!--        </el-form-item>-->
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="商家账号" prop="siteAccount"  v-if="['update', 'show','add','balance'].includes(type)">
+              <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteAccount" placeholder="请输入商家账号;4-20位字母数字组合"  />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="商家ID" prop="siteId" v-if="['update', 'show','balance'].includes(type)" >
+              <el-input :disabled="['update', 'show','balance'].includes(type)" v-model="form.siteId" placeholder="请输入商家ID" />
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-<!--        <el-form-item label="手机号" prop="phone" v-if="['update', 'show','add'].includes(type)">-->
-<!--          <el-input :disabled="['show'].includes(type)" v-model="form.phone" placeholder="请输入手机号"  maxlength="11" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="邮箱" prop="email" v-if="['update', 'show','add'].includes(type)">-->
-<!--          <el-input :disabled="['show'].includes(type)" v-model="form.email" placeholder="请输入邮箱" maxlength="32"/>-->
-<!--        </el-form-item>-->
-        <el-form-item label="联系地址" prop="address" v-if="['update', 'show','add'].includes(type)">
-          <el-input :disabled="['show'].includes(type)" v-model="form.address" placeholder="请输入联系地址" maxlength="200" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark" v-if="['update', 'show','add'].includes(type)">
-          <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.remark" placeholder="请输入备注" />
-        </el-form-item>
-       <el-form-item label="调整类型" prop="balance_type" placeholder="请选择调整类型" v-if="['balance'].includes(type)">
-          <el-select  v-model="form.balance_type">
-            <el-option label="增加" value="6" />
-            <el-option label="扣除" value="7" />
-            <el-option label="冻结" value="8" />
-            <el-option label="解冻" value="9" />
-          </el-select>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="登录账号" prop="userId" v-if="['update', 'show','add','balance'].includes(type)">
+              <template>
+                <el-select  :disabled="['update', 'show','balance'].includes(type)" v-model="form.userId" clearable filterable placeholder="请选择">
+                  <el-option
+                    v-for="user in userList"
+                    :key="user.userId"
+                    :label="user.userName"
+                    :value="user.userId">
+                  </el-option>
+                </el-select>
+              </template>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="商家名称" prop="siteName" >
+              <el-input :disabled="['show','balance'].includes(type)" v-model="form.siteName" placeholder="请输入商家名称" />
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-        <el-form-item label="金额" prop="balance" v-if="['balance'].includes(type)">
-          <el-input  v-model="form.balance"   placeholder="请输入金额"  maxlength="11" />
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="交易密码" prop="siteTransactionPwd"  v-if="['add'].includes(type)">
+              <el-input :disabled="['show'].includes(type)" v-model="form.siteTransactionPwd" placeholder="请输入交易密码" maxlength="16" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="信用等级" prop="creditRating" v-if="['update', 'show','add'].includes(type)">
+              <el-select :disabled="['show'].includes(type)" v-model="form.creditRating" placeholder="请选择信用等级">
+                <el-option
+                  v-for="dict in dict.type.mbpay_credit_rating"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="Number(dict.value)"
+                >{{dict.label}}</el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="充值费率"  prop="chargeRate" v-if="['update', 'show','add'].includes(type)">
+              <el-input  :disabled="['show'].includes(type)" v-model="form.chargeRate" placeholder="请输入充值费率（千分位）" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="提现费率" prop="withdrawRate" v-if="['update', 'show','add'].includes(type)">
+              <el-input :disabled="['show'].includes(type)" v-model="form.withdrawRate" placeholder="请输入提现费率（千分位）" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="撮合充值费率" prop="chChargeRate" v-if="['update', 'show','add'].includes(type)">
+              <el-input :disabled="['show'].includes(type)" v-model="form.chChargeRate" placeholder="请输入撮合充值费率（千分位）" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="撮合提现费率" prop="chWithdrawRate" v-if="['update', 'show','add'].includes(type)">
+              <el-input :disabled="['show'].includes(type)" v-model="form.chWithdrawRate" placeholder="请输入撮合提现费率（千分位）" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="证件类型" prop="documentType" v-if="['update', 'show','add'].includes(type)">
+              <el-select :disabled="['show'].includes(type)" v-model="form.documentType" placeholder="请选择证件类型">
+                <el-option
+                  v-for="dict in dict.type.mbpay_document_type"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="Number(dict.value)"
+                >{{dict.label}}</el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="证件号" prop="idNo" v-if="['update', 'show','add'].includes(type)">
+              <el-input :disabled="['show'].includes(type)" v-model="form.idNo" placeholder="请输入证件号" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="联系地址" prop="address" v-if="['update', 'show','add'].includes(type)">
+              <el-input :disabled="['show'].includes(type)" v-model="form.address" placeholder="请输入联系地址" maxlength="200" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="备注" prop="remark" v-if="['update', 'show','add'].includes(type)">
+              <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.remark" placeholder="请输入备注" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="提现金额配置" prop="withdrawAmountList" v-if="['update', 'show','add'].includes(type)">
+              <el-input type="textarea"  :disabled="['show'].includes(type)" v-model="form.withdrawAmountList" placeholder="" maxlength="200" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="拆分金额列表" prop="withdrawSplitConfig" v-if="['update', 'show','add'].includes(type)">
+              <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.withdrawSplitConfig" placeholder="" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="调整类型" prop="balance_type" placeholder="请选择调整类型" v-if="['balance'].includes(type)">
+              <el-select  v-model="form.balance_type">
+                <el-option label="增加" value="6" />
+                <el-option label="扣除" value="7" />
+                <el-option label="冻结" value="8" />
+                <el-option label="解冻" value="9" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="金额" prop="balance" v-if="['balance'].includes(type)">
+              <el-input  v-model="form.balance"   placeholder="请输入金额"  maxlength="11" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button v-if="!['show','balance'].includes(type)" type="primary" @click="submitForm">确 定</el-button>
@@ -381,7 +424,7 @@ export default {
       // 表单校验
       rules: {
         userId: [
-          { required: true, message: "绑定用户不能为空", trigger: "blur" }
+          { required: true, message: "登录账号不能为空", trigger: "blur" }
         ],
         siteName: [
           { required: true, message: "商家名称不能为空", trigger: "blur" },
