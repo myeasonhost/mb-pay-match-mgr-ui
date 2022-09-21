@@ -63,7 +63,7 @@
           plain
           size="mini"
           @click="handleFiatCharge"
-          v-hasPermi="['pay:info:charge']"
+          v-hasPermi="['pay:info:add']"
         >法币充值
         </el-button>
       </el-col>
@@ -73,7 +73,7 @@
           plain
           size="mini"
           @click="handleUsdtCharge"
-          v-hasPermi="['pay:info:usdtcharge']"
+          v-hasPermi="['pay:info:add']"
         >USDT充值
         </el-button>
       </el-col>
@@ -145,7 +145,7 @@
           <dict-tag :options="dict.type.mbpay_charge_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" />
+      <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom"
                        :sort-orders="['descending', 'ascending']" width="180">
         <template slot-scope="scope">
@@ -210,20 +210,49 @@
         </el-form-item>
         <el-form-item label="转账截图" prop="payimageUrl" v-if="['nextFiatCharge'].includes(type)" width="300px">
           <el-upload
-            class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
-            <img v-if="imageUrl" :src="form.payimageUrl" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            multiple
+            :action="uploadImgUrl"
+            list-type="picture-card"
+            :on-success="handleUploadSuccess"
+            :before-upload="handleBeforeUpload"
+            :limit="limit"
+            :on-error="handleUploadError"
+            :on-exceed="handleExceed"
+            ref="imageUpload"
+            :on-remove="handleDelete"
+            :show-file-list="true"
+            :headers="headers"
+            :file-list="fileList"
+            :on-preview="handlePictureCardPreview"
+            :class="{hide: this.fileList.length >= this.limit}"
+          >
+            <i class="el-icon-plus"></i>
           </el-upload>
+
+          <!-- 上传提示 -->
+          <div class="el-upload__tip" slot="tip" v-if="showTip">
+            请上传
+            <template v-if="fileSize"> 大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b></template>
+            <template v-if="fileType"> 格式为 <b style="color: #f56c6c">{{ fileType.join("/") }}</b></template>
+            的文件
+          </div>
+          <el-dialog
+            :visible.sync="dialogVisible"
+            title="预览"
+            width="800"
+            append-to-body
+          >
+            <img
+              :src="dialogImageUrl"
+              style="display: block; max-width: 100%; margin: 0 auto"
+            />
+          </el-dialog>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="handleNextFiatCharge" v-if="['fiatCharge'].includes(type)">下一步</el-button>
-        <el-button @click="cancel" v-if="['nextFiatCharge'].includes(type)">取 消</el-button>
-        <el-button type="primary" @click="submitForm" v-if="['nextFiatCharge'].includes(type)">提交申请</el-button>
+        <el-button @click="cancel(1)" v-if="['nextFiatCharge'].includes(type)">取 消</el-button>
+        <el-button type="primary" @click="submitForm(0,1)" v-if="['nextFiatCharge'].includes(type)">提交申请</el-button>
       </div>
     </el-dialog>
 
@@ -248,14 +277,43 @@
         </el-form-item>
         <el-form-item label="转账截图" prop="payimageUrl" v-if="['nextUsdtCharge'].includes(type)" width="300px">
           <el-upload
-            class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
-            <img v-if="imageUrl" :src="form.payimageUrl" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            multiple
+            :action="uploadImgUrl"
+            list-type="picture-card"
+            :on-success="handleUploadSuccess"
+            :before-upload="handleBeforeUpload"
+            :limit="limit"
+            :on-error="handleUploadError"
+            :on-exceed="handleExceed"
+            ref="imageUpload"
+            :on-remove="handleDelete"
+            :show-file-list="true"
+            :headers="headers"
+            :file-list="fileList"
+            :on-preview="handlePictureCardPreview"
+            :class="{hide: this.fileList.length >= this.limit}"
+          >
+            <i class="el-icon-plus"></i>
           </el-upload>
+
+          <!-- 上传提示 -->
+          <div class="el-upload__tip" slot="tip" v-if="showTip">
+            请上传
+            <template v-if="fileSize"> 大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b></template>
+            <template v-if="fileType"> 格式为 <b style="color: #f56c6c">{{ fileType.join("/") }}</b></template>
+            的文件
+          </div>
+          <el-dialog
+            :visible.sync="dialogVisible"
+            title="预览"
+            width="800"
+            append-to-body
+          >
+            <img
+              :src="dialogImageUrl"
+              style="display: block; max-width: 100%; margin: 0 auto"
+            />
+          </el-dialog>
         </el-form-item>
         <el-form-item label="协议" prop="protocol" v-if="['usdtCharge'].includes(type)">
           <el-radio-group v-model="form.protocol">
@@ -271,6 +329,7 @@
         <el-form-item label="到账金额" prop="chargeAmount" v-if="['usdtCharge'].includes(type)">
           <el-input v-model="form.chargeAmount" disabled/>
           <div style="color: #f4516c;font-family: 'Arial Black';font-size: 10px;">
+
             1USDT=6.9CNY
             <!--            1USDT={{form.rate}}-->
           </div>
@@ -278,8 +337,8 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="handleNextUsdtCharge" v-if="['usdtCharge'].includes(type)">下一步</el-button>
-        <el-button @click="cancel" v-if="['nextUsdtCharge'].includes(type)">取 消</el-button>
-        <el-button type="primary" @click="submitForm" v-if="['nextUsdtCharge'].includes(type)">提交申请</el-button>
+        <el-button @click="cancel(2)" v-if="['nextUsdtCharge'].includes(type)">取 消</el-button>
+        <el-button type="primary" @click="submitForm(0,2)" v-if="['nextUsdtCharge'].includes(type)">提交申请</el-button>
       </div>
     </el-dialog>
 
@@ -297,56 +356,65 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="success" @click="submitForm(1)">审批通过</el-button>
-        <el-button type="danger" @click="submitForm(2)">审批失败</el-button>
-        <el-button @click="cancel">取 消</el-button>
+        <el-button type="success" @click="submitForm(1,3)">审批通过</el-button>
+        <el-button type="danger" @click="submitForm(2,3)">审批失败</el-button>
+        <el-button @click="cancel(3)">取 消</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <style>
-  .avatar-uploader .el-upload {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .avatar-uploader .el-upload:hover {
-    border-color: #409EFF;
-  }
-
-  .avatar-uploader-icon {
-    font-size: 28px;
-    color: #8c939d;
-    width: 178px;
-    height: 178px;
-    line-height: 178px;
-    text-align: center;
-  }
-
-  .avatar {
-    width: 178px;
-    height: 178px;
-    display: block;
+  .hide .el-upload--picture-card {
+    display: none;
   }
 </style>
 
 <script>
-  import {listInfo, getInfo, delInfo, addInfo, updateInfo, exportInfo, getSiteBanks} from "@/api/pay/info";
-  import {listCurrency} from "@/api/pay/currency";
+  import {listInfo, getInfo, getCurrencys, addInfo, updateInfo, exportInfo, getSiteBanks} from "@/api/pay/info";
   import QRCode from "qrcodejs2";
+  import {getToken} from "@/utils/auth";
 
   export default {
     name: "Info",
     dicts: ['mbpay_charge_status'],
     components: {},
+    props: {
+      value: [String, Object, Array],
+      // 图片数量限制
+      limit: {
+        type: Number,
+        default: 1,
+      },
+      // 大小限制(MB)
+      fileSize: {
+        type: Number,
+        default: 2,
+      },
+      // 文件类型, 例如['png', 'jpg', 'jpeg']
+      fileType: {
+        type: Array,
+        default: () => ["png", "jpg", "jpeg"],
+      },
+      // 是否显示提示
+      isShowTip: {
+        type: Boolean,
+        default: true
+      }
+    },
     data() {
       return {
-        //上传图片地址
-        imageUrl: '',
+        number: 0,
+        uploadList: [],
+        dialogImageUrl: "",
+        dialogVisible: false,
+        hideUpload: false,
+        baseUrl: process.env.VUE_APP_BASE_API,
+        uploadImgUrl: process.env.VUE_APP_BASE_API + "/pay/info/picture", // 上传的图片服务器地址
+        headers: {
+          Authorization: "Bearer " + getToken(),
+        },
+        fileList: [],
         // 遮罩层
         loading: true,
         // 选中数组
@@ -431,6 +499,38 @@
         this.statusOptions = response.data;
       });
     },
+    watch: {
+      value: {
+        handler(val) {
+          if (val) {
+            // 首先将值转为数组
+            const list = Array.isArray(val) ? val : this.value.split(',');
+            // 然后将数组转为对象数组
+            this.fileList = list.map(item => {
+              if (typeof item === "string") {
+                if (item.indexOf(this.baseUrl) === -1) {
+                  item = {name: this.baseUrl + item, url: this.baseUrl + item};
+                } else {
+                  item = {name: item, url: item};
+                }
+              }
+              return item;
+            });
+          } else {
+            this.fileList = [];
+            return [];
+          }
+        },
+        deep: true,
+        immediate: true
+      }
+    },
+    computed: {
+      // 是否显示提示
+      showTip() {
+        return this.isShowTip && (this.fileType || this.fileSize);
+      },
+    },
     methods: {
       /** 查询充值管理列表 */
       getList() {
@@ -445,21 +545,17 @@
       currencyFormat(row, column) {
         return this.selectDictLabel(this.currencyOptions, row.currency);
       },
-      // 协议字典翻译
-      protocolFormat(row, column) {
-        return this.selectDictLabel(this.protocolOptions, row.protocol);
-      },
-      // 状态字典翻译
-      statusFormat(row, column) {
-        return this.selectDictLabel(this.statusOptions, row.status);
-      },
       // 取消按钮
-      cancel() {
-        this.open = false;
-        this.usdtOpen = false;
-        this.updOpen = false;
+      cancel(type) {
+        if (type === 1) {//法币充值
+          this.open = false;
+        } else if (type === 2) {//usdt充值
+          this.usdtOpen = false;
+          this.cleanCode();
+        } else {//审批
+          this.updOpen = false;
+        }
         this.reset();
-        this.cleanCode();
       },
       // 表单重置
       reset() {
@@ -547,7 +643,7 @@
         });
       },
       /** 提交按钮 */
-      submitForm(status) {
+      submitForm(status, type) {
         this.$refs["form"].validate(valid => {
           if (valid) {
             if (this.form.id != null) {
@@ -559,30 +655,19 @@
               });
             } else {
               console.log(this.form)
-              addInfo(this.form).then(response => {
+             /* addInfo(this.form).then(response => {
                 this.msgSuccess("新增成功");
-                this.open = false;
-                this.usdtOpen = false;
-                this.cleanCode();
+                if (type === 1) {
+                  this.open = false;
+                } else {
+                  this.usdtOpen = false;
+                  this.cleanCode();
+                }
                 this.getList();
-              });
+              });*/
             }
           }
         });
-      },
-      /** 删除按钮操作 */
-      handleDelete(row) {
-        const ids = row.id || this.ids;
-        this.$confirm('是否确认删除充值管理编号为"' + ids + '"的数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function () {
-          return delInfo(ids);
-        }).then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
-        })
       },
       /** 导出按钮操作 */
       handleExport() {
@@ -629,21 +714,93 @@
       onError() {
         this.$message.error('抱歉，复制失败！')
       },
-      handleAvatarSuccess(res, file) {
-        this.imageUrl = URL.createObjectURL(file.raw);
-        this.form.payimageUrl = URL.createObjectURL(file.raw);
+      // 上传前loading加载
+      handleBeforeUpload(file) {
+        let isImg = false;
+        if (this.fileType.length) {
+          let fileExtension = "";
+          if (file.name.lastIndexOf(".") > -1) {
+            fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
+          }
+          isImg = this.fileType.some(type => {
+            if (file.type.indexOf(type) > -1) return true;
+            if (fileExtension && fileExtension.indexOf(type) > -1) return true;
+            return false;
+          });
+        } else {
+          isImg = file.type.indexOf("image") > -1;
+        }
+
+        if (!isImg) {
+          this.$modal.msgError(`文件格式不正确, 请上传${this.fileType.join("/")}图片格式文件!`);
+          return false;
+        }
+        if (this.fileSize) {
+          const isLt = file.size / 1024 / 1024 < this.fileSize;
+          if (!isLt) {
+            this.$modal.msgError(`上传头像图片大小不能超过 ${this.fileSize} MB!`);
+            return false;
+          }
+        }
+        this.$modal.loading("正在上传图片，请稍候...");
+        this.number++;
       },
-      beforeAvatarUpload(file) {
-        let types = ['image/jpeg', 'image/jpg', 'image/gif', 'image/bmp', 'image/png'];
-        const isImage = types.includes(file.type);
-        const isLtSize = file.size / 1024 / 1024 < 2;
-        if (!isImage) {
-          this.$message.error('上传图片只能是 JPG、JPEG、gif、bmp、PNG 格式!');
+      // 文件个数超出
+      handleExceed() {
+        this.$modal.msgError(`上传文件数量不能超过 ${this.limit} 个!`);
+      },
+      // 上传成功回调
+      handleUploadSuccess(res, file) {
+        if (res.code === 200) {
+          this.uploadList.push({name: res.fileName, url: res.url});
+          this.form.payimageUrl = res.url;
+          this.uploadedSuccessfully();
+        } else {
+          this.number--;
+          this.$modal.closeLoading();
+          this.$modal.msgError(res.msg);
+          this.$refs.imageUpload.handleRemove(file);
+          this.uploadedSuccessfully();
         }
-        if (!isLtSize) {
-          this.$message.error('上传图片大小不能超过 2MB!');
+      },
+      // 删除图片
+      handleDelete(file) {
+        const findex = this.fileList.map(f => f.name).indexOf(file.name);
+        if (findex > -1) {
+          this.fileList.splice(findex, 1);
+          this.$emit("input", this.listToString(this.fileList));
         }
-        return isImage && isLtSize;
+      },
+      // 上传失败
+      handleUploadError() {
+        this.$modal.msgError("上传图片失败，请重试");
+        this.$modal.closeLoading();
+      },
+      // 上传结束处理
+      uploadedSuccessfully() {
+        if (this.number > 0 && this.uploadList.length === this.number) {
+          this.fileList = this.fileList.concat(this.uploadList);
+          this.uploadList = [];
+          this.number = 0;
+          this.$emit("input", this.listToString(this.fileList));
+          this.$modal.closeLoading();
+        }
+      },
+      // 预览
+      handlePictureCardPreview(file) {
+        this.dialogImageUrl = file.url;
+        this.dialogVisible = true;
+      },
+      // 对象转成指定字符串分隔
+      listToString(list, separator) {
+        let strs = "";
+        separator = separator || ",";
+        for (let i in list) {
+          if (list[i].url) {
+            strs += list[i].url.replace(this.baseUrl, "") + separator;
+          }
+        }
+        return strs != '' ? strs.substr(0, strs.length - 1) : '';
       },
       /** USDT充值计算到账金额 */
       calculateAmount() {
@@ -656,10 +813,9 @@
           site_id: 'admin',
           currency: 'USDT',
           protocol: this.form.protocol,
+          status:1
         };
-        listCurrency(params).then((response) => {
-          console.log(params)
-          console.log(response.rows)
+        getCurrencys(params).then((response) => {
           if (response.rows.length > 0) {
             this.form = {
               currency: this.form.currency,

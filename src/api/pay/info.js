@@ -61,3 +61,12 @@ export function getSiteBanks(query) {
   })
 }
 
+// 获取虚拟币信息
+export function getCurrencys(query) {
+  return request({
+    url: '/pay/currency/getCurrencys',
+    method: 'post',
+    params: query
+  })
+}
+
