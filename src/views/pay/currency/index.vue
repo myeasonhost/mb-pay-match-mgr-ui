@@ -414,7 +414,7 @@
       },
       //验证银行卡号是否存在
       checkAddresss(bankNum) {
-        return checkAddress(bankNum,this.form.id)
+        return checkAddress(bankNum,this.form.id === undefined ? 0 : this.form.id)
       }
     }
   };

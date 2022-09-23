@@ -101,3 +101,21 @@ export function userRules(query) {
   })
 }
 
+//修改交易密碼
+export function updAcctPwd(query) {
+  return request({
+    url: '/pay/siteinfo/updAcctPwd',
+    method: 'put',
+    params: query
+  })
+}
+
+//校验交易密码
+export function checkPassword(query) {
+  return request({
+    url: '/pay/siteinfo/checkPassword',
+    method: 'get',
+    params: query
+  })
+}
+

@@ -89,11 +89,15 @@
         </template>
       </el-table-column>
       <el-table-column label="订单号" align="center" prop="orderId" width="200"/>
-      <el-table-column label="币种" align="center" prop="currency" :formatter="currencyFormat"/>
-      <el-table-column label="充值金额" align="center" prop="chargeAmount">
+      <el-table-column label="币种" align="center" prop="currency"/>
+      <el-table-column label="充值明细" align="center" prop="chargeAmount" width="130">
         <template slot-scope="scope">
-          <div style="color: #f4516c;font-weight: bold;font-family: 'Arial Black';font-size: 15px;">
-            {{ scope.row.chargeAmount }}
+          <div style="color: #1890ff;font-family: 'Arial Black';font-size: small;">
+            充值金额：{{ scope.row.chargeAmount == null ? "0.00" : scope.row.chargeAmount }}
+          </div>
+          <div style="color: #f8ac59;font-style: italic;font-size: small;">
+            汇率：{{ scope.row.currencyRate == null ? "0.00" : scope.row.currencyRate }}
+            / {{ scope.row.currency == null ? "0.00" : scope.row.currency }}
           </div>
         </template>
       </el-table-column>
@@ -184,26 +188,31 @@
           <div><br/></div>
           <div>
             银行卡名称: {{ form.bankName }}
+            &nbsp;
             <i class="el-icon-document-copy" v-clipboard:copy="form.bankName" v-clipboard:success="onCopy"
                v-clipboard:error="onError"></i>
           </div>
           <div>
             姓名: {{ form.userName }}
+            &nbsp;
             <i class="el-icon-document-copy" v-clipboard:copy="form.userName" v-clipboard:success="onCopy"
                v-clipboard:error="onError"></i>
           </div>
           <div>
             银行账户: {{ form.bankNum }}
+            &nbsp;
             <i class="el-icon-document-copy" v-clipboard:copy="form.bankNum" v-clipboard:success="onCopy"
                v-clipboard:error="onError"></i>
           </div>
           <div>
             支行名称: {{ form.branchName }}
+            &nbsp;
             <i class="el-icon-document-copy" v-clipboard:copy="form.branchName" v-clipboard:success="onCopy"
                v-clipboard:error="onError"></i>
           </div>
           <div>
             银行编码: {{ form.bankCode }}
+            &nbsp;
             <i class="el-icon-document-copy" v-clipboard:copy="form.bankCode" v-clipboard:success="onCopy"
                v-clipboard:error="onError"></i>
           </div>
@@ -269,6 +278,7 @@
           </div>
           <div>
             地址: {{ form.address }}
+            &nbsp;
             <i class="el-icon-document-copy" v-clipboard:copy="form.address" v-clipboard:success="onCopy"
                v-clipboard:error="onError"></i>
           </div>
@@ -329,9 +339,7 @@
         <el-form-item label="到账金额" prop="chargeAmount" v-if="['usdtCharge'].includes(type)">
           <el-input v-model="form.chargeAmount" disabled/>
           <div style="color: #f4516c;font-family: 'Arial Black';font-size: 10px;">
-
-            1USDT=6.9CNY
-            <!--            1USDT={{form.rate}}-->
+            1USDT={{form.currencyRate}}CNY
           </div>
         </el-form-item>
       </el-form>
@@ -352,7 +360,7 @@
           <el-image :src="form.payimageUrl"></el-image>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注" @change="calculateAmount"/>
+          <el-input v-model="form.remark" placeholder="请输入备注"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -374,6 +382,7 @@
   import {listInfo, getInfo, getCurrencys, addInfo, updateInfo, exportInfo, getSiteBanks} from "@/api/pay/info";
   import QRCode from "qrcodejs2";
   import {getToken} from "@/utils/auth";
+  import {getSiteInfoProfile} from "@/api/pay/profile";
 
   export default {
     name: "Info",
@@ -414,6 +423,8 @@
         headers: {
           Authorization: "Bearer " + getToken(),
         },
+        // 定义商户列表对象
+        mbpaySiteInfo: {},
         fileList: [],
         // 遮罩层
         loading: true,
@@ -467,7 +478,7 @@
             {required: true, message: "请上传图片", trigger: "blur"}
           ],
           chargeAmount: [
-            {required: true, message: "请输入充值金额", trigger: "blur"}
+            {required: true, message: "请输入充值金额", trigger: "blur"},
           ]
         },
         // usdt表单校验
@@ -476,7 +487,7 @@
             {required: true, message: "请上传图片", trigger: "blur"}
           ],
           usdtCount: [
-            {required: true, message: "请输入USDT数量", trigger: "blur"}
+            {required: true, message: "请输入USDT数量", trigger: "blur"},
           ]
         },
         // 审批表单校验
@@ -565,7 +576,8 @@
           siteId: undefined,
           siteName: undefined,
           orderId: undefined,
-          currency: "CNY",
+          currency: undefined,
+          currencyRate: undefined,
           chargeAmount: undefined,
           userName: undefined,
           bankName: undefined,
@@ -576,8 +588,6 @@
           addrName: undefined,
           protocol: undefined,
           address: undefined,
-          rate: undefined,
-          rateAmount: undefined,
           payimageUrl: undefined,
           operCode: undefined,
           remark: undefined,
@@ -605,6 +615,11 @@
       },
       /** 法币充值按钮操作 */
       handleFiatCharge() {
+        this.getSiteInfo();
+        if (this.mbpaySiteInfo === undefined) {
+          this.$message.error("该账号未绑定商户!");
+          return;
+        }
         this.reset();
         this.open = true;
         this.type = "fiatCharge";
@@ -612,6 +627,11 @@
       },
       /** 法币充值下一步操作 */
       handleNextFiatCharge() {
+        var reg = /^[1-9]{1}[0-9]{0,15}$/
+        if (reg.test(this.form.chargeAmount) === false) {
+          this.$message.error('请输入整数充值金额!')
+          return;
+        }
         this.getSiteBanks();
         this.open = true;
         this.type = "nextFiatCharge";
@@ -619,13 +639,27 @@
       },
       /** USDT充值按钮操作 */
       handleUsdtCharge() {
+        this.getSiteInfo();
+        if (this.mbpaySiteInfo === undefined) {
+          this.$message.error("该账号未绑定商户!");
+          return;
+        }
         this.reset();
+        //获取汇率
+        this.getConfigKey("mbpay-currency-exchange-rate").then(response => {
+          this.form.currencyRate = JSON.parse(response.msg).USDT;
+        });
         this.usdtOpen = true;
         this.type = "usdtCharge";
         this.title = "充值";
       },
       /** USDT充值下一步操作 */
       handleNextUsdtCharge() {
+        var reg = /^[1-9]{1}[0-9]{0,15}$/
+        if (reg.test(this.form.usdtCount) === false) {
+          this.$message.error('请输入整数USDT数量!')
+          return;
+        }
         this.getUsdtList();
         this.usdtOpen = true;
         this.type = "nextUsdtCharge";
@@ -637,9 +671,8 @@
         const id = row.id || this.ids
         getInfo(id).then(response => {
           this.form = response.data;
-          console.log(this.form)
           this.updOpen = true;
-          this.title = "审核";
+          this.title = "审批";
         });
       },
       /** 提交按钮 */
@@ -654,8 +687,7 @@
                 this.getList();
               });
             } else {
-              console.log(this.form)
-             /* addInfo(this.form).then(response => {
+              addInfo(this.form).then(response => {
                 this.msgSuccess("新增成功");
                 if (type === 1) {
                   this.open = false;
@@ -664,7 +696,7 @@
                   this.cleanCode();
                 }
                 this.getList();
-              });*/
+              });
             }
           }
         });
@@ -686,14 +718,18 @@
       getSiteBanks() {
         let params = {
           site_id: 'admin',
-          currency: this.form.currency,
+          currency: 'RMB',
           amount: this.form.chargeAmount,
           type: '1'
         };
         getSiteBanks(params).then((response) => {
           if (response.rows.length > 0) {
+            //获取汇率
+            this.getConfigKey("mbpay-currency-exchange-rate").then(response => {
+              this.form.currencyRate = JSON.parse(response.msg).CNY;
+            });
             this.form = {
-              currency: this.form.currency,
+              currency: 'CNY',
               chargeAmount: this.form.chargeAmount,
               userName: response.rows[0].userName,
               bankName: response.rows[0].bankName,
@@ -805,7 +841,8 @@
       /** USDT充值计算到账金额 */
       calculateAmount() {
         //usdt数量 * 汇率
-        this.form.chargeAmount = this.form.usdtCount * 6.9;
+        let amount = this.form.usdtCount * 6.9;
+        this.form.chargeAmount = amount.toFixed(2);
       },
       /** 查询虚拟币收款列表 */
       getUsdtList() {
@@ -818,7 +855,9 @@
         getCurrencys(params).then((response) => {
           if (response.rows.length > 0) {
             this.form = {
-              currency: this.form.currency,
+              currency: 'USDT',
+              chargeAmount: this.form.chargeAmount,
+              currencyRate: this.form.currencyRate,
               usdtCount: this.form.usdtCount,
               addrName: response.rows[0].addrName,
               protocol: response.rows[0].protocol,
@@ -842,6 +881,11 @@
       //清除二维码
       cleanCode() {
         this.$refs.qrcode.innerHTML = "";
+      },
+      getSiteInfo() {
+        getSiteInfoProfile().then(response => {
+          this.mbpaySiteInfo = response.data;
+        });
       }
     }
   };
