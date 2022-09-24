@@ -39,7 +39,53 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :span="18" :xs="24">
+      <el-col :span="8" :xs="24">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>商户信息</span>
+          </div>
+          <div>
+            <ul class="list-group list-group-striped">
+              <li class="list-group-item">
+                商家账号
+                <div class="pull-right">{{ mbpaySiteInfo.siteAccount }}</div>
+              </li>
+              <li class="list-group-item">
+                商家ID
+                <div class="pull-right">{{ mbpaySiteInfo.siteId }}</div>
+              </li>
+              <li class="list-group-item">
+                商家名称
+                <div class="pull-right">{{ mbpaySiteInfo.siteName }}</div>
+              </li>
+              <li class="list-group-item">
+                充值费率
+                <div class="pull-right">{{ mbpaySiteInfo.chargeRate }}%</div>
+              </li>
+              <li class="list-group-item">
+                提现费率
+                <div class="pull-right">{{ mbpaySiteInfo.withdrawRate }}%</div>
+              </li>
+              <li class="list-group-item">
+                撮合充值费率
+                <div class="pull-right">{{ mbpaySiteInfo.chChargeRate }}%</div>
+              </li>
+              <li class="list-group-item">
+                撮合提现费率
+                <div class="pull-right">{{ mbpaySiteInfo.chWithdrawRate }}%</div>
+              </li>
+              <li class="list-group-item">
+                API KEY
+                <div class="pull-right">{{ mbpaySiteInfo.apiKey }}
+                  <i class="el-icon-document-copy" v-clipboard:copy="mbpaySiteInfo.apiKey" v-clipboard:success="onCopy"
+                     v-clipboard:error="onError"></i>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="10" :xs="24">
         <el-card>
           <div slot="header" class="clearfix">
             <span>基本资料</span>
@@ -50,6 +96,9 @@
             </el-tab-pane>
             <el-tab-pane label="修改密码" name="resetPwd">
               <resetPwd />
+            </el-tab-pane>
+            <el-tab-pane label="修改交易密码" name="resetAcctPwd">
+              <resetAcctPwd />
             </el-tab-pane>
           </el-tabs>
         </el-card>
@@ -62,14 +111,17 @@
 import userAvatar from "./userAvatar";
 import userInfo from "./userInfo";
 import resetPwd from "./resetPwd";
+import resetAcctPwd from "./resetAcctPwd";
 import { getUserProfile } from "@/api/system/user";
+import {getSiteInfoProfile} from "@/api/pay/profile";
 
 export default {
   name: "Profile",
-  components: { userAvatar, userInfo, resetPwd },
+  components: { userAvatar, userInfo, resetPwd, resetAcctPwd},
   data() {
     return {
       user: {},
+      mbpaySiteInfo: {},
       roleGroup: {},
       postGroup: {},
       activeTab: "userinfo"
@@ -77,6 +129,7 @@ export default {
   },
   created() {
     this.getUser();
+    this.getSiteInfo();
   },
   methods: {
     getUser() {
@@ -85,7 +138,18 @@ export default {
         this.roleGroup = response.roleGroup;
         this.postGroup = response.postGroup;
       });
-    }
+    },
+    getSiteInfo() {
+      getSiteInfoProfile().then(response => {
+        this.mbpaySiteInfo = response.data;
+      });
+    },
+    onCopy() {
+      this.$message.success("内容已复制到剪切板")
+    },
+    onError() {
+      this.$message.error('抱歉，复制失败！')
+    },
   }
 };
 </script>
