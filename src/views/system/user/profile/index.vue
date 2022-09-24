@@ -75,9 +75,16 @@
                 <div class="pull-right">{{ mbpaySiteInfo.chWithdrawRate }}%</div>
               </li>
               <li class="list-group-item">
-                API KEY
-                <div class="pull-right">{{ mbpaySiteInfo.apiKey }}
-                  <i class="el-icon-document-copy" v-clipboard:copy="mbpaySiteInfo.apiKey" v-clipboard:success="onCopy"
+                appKey
+                <div class="pull-right">{{ mbpaySiteInfo.appKey }}
+                  <i class="el-icon-document-copy" v-clipboard:copy="mbpaySiteInfo.appKey" v-clipboard:success="onCopy"
+                     v-clipboard:error="onError"></i>
+                </div>
+              </li>
+              <li class="list-group-item">
+                appSecret
+                <div class="pull-right">{{ mbpaySiteInfo.appSecret }}
+                  <i class="el-icon-document-copy" v-clipboard:copy="mbpaySiteInfo.appSecret" v-clipboard:success="onCopy"
                      v-clipboard:error="onError"></i>
                 </div>
               </li>
