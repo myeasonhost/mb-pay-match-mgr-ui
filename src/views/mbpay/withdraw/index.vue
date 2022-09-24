@@ -81,6 +81,14 @@
       <el-table-column label="提现状态" align="center" prop="status" >
         <template slot-scope="scope">
           <dict-tag :options="dict.type.mbpay_withdraw_status" :value="scope.row.status"/>
+          <dict-tag :options="dict.type.mbpay_notify_status" :value="scope.row.notifySucceed"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="回调次数" align="center" prop="notifyTimes">
+        <template slot-scope="scope">
+          <div style="color: green;font-family: 'Arial Black';font-size: small;">
+            {{ scope.row.notifyTimes == null ? "0" : scope.row.notifyTimes }}
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="提现时间" align="center" prop="withdrawTime" width="100">

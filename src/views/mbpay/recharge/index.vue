@@ -83,6 +83,14 @@
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.mbpay_recharge_status" :value="scope.row.status"/>
+          <dict-tag :options="dict.type.mbpay_notify_status" :value="scope.row.notifySucceed"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="回调次数" align="center" prop="notifyTimes">
+        <template slot-scope="scope">
+          <div style="color: green;font-family: 'Arial Black';font-size: small;">
+            {{ scope.row.notifyTimes == null ? "0" : scope.row.notifyTimes }}
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="审核人" align="center" prop="applyBy"/>
@@ -208,7 +216,7 @@ import {listRecharge, getRecharge, updateRecharge} from "@/api/mbpay/recharge";
 
 export default {
   name: "Recharge",
-  dicts: ['mbpay_recharge_status'],
+  dicts: ['mbpay_recharge_status','mbpay_notify_status'],
   components: {},
   data() {
     return {

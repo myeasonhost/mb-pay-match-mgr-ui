@@ -132,7 +132,7 @@
             type="text"
             icon="el-icon-search"
             @click="handleShow(scope.row)"
-            v-hasPermi="['pay:siteinfo:edit']"
+            v-hasPermi="['pay:siteinfo:query']"
           >查看</el-button>
           <el-button
             size="mini"
