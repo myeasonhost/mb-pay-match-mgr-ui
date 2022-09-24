@@ -59,6 +59,14 @@
                 <div class="pull-right">{{ mbpaySiteInfo.siteName }}</div>
               </li>
               <li class="list-group-item">
+                当前余额
+                <div class="pull-right">{{ mbpaySiteInfo.balance }}</div>
+              </li>
+              <li class="list-group-item">
+                冻结金额
+                <div class="pull-right">{{ mbpaySiteInfo.freeBalance }}</div>
+              </li>
+              <li class="list-group-item">
                 充值费率
                 <div class="pull-right">{{ mbpaySiteInfo.chargeRate }}%</div>
               </li>
