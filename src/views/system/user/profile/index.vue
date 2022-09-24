@@ -39,7 +39,7 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :span="8" :xs="24">
+      <el-col :span="8" :xs="24" v-if="mbpaySiteInfo">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
             <span>商户信息</span>
@@ -112,7 +112,7 @@
             <el-tab-pane label="修改密码" name="resetPwd">
               <resetPwd />
             </el-tab-pane>
-            <el-tab-pane label="修改交易密码" name="resetAcctPwd">
+            <el-tab-pane label="修改交易密码" name="resetAcctPwd" v-if="mbpaySiteInfo">
               <resetAcctPwd />
             </el-tab-pane>
           </el-tabs>

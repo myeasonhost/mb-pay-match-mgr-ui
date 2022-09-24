@@ -52,12 +52,39 @@
         </div>
       </div>
     </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('shoppings')">
+        <div class="card-panel-icon-wrapper icon-money">
+          <svg-icon icon-class="money" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            当前余额
+          </div>
+          <count-to :start-val="0" :end-val="balance" :duration="3600" class="card-panel-num" />
+        </div>
+      </div>
+    </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('shoppings')">
+        <div class="card-panel-icon-wrapper icon-money">
+          <svg-icon icon-class="money" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            冻结余额
+          </div>
+          <count-to :start-val="0" :end-val="freeBalance" :duration="3600" class="card-panel-num" />
+        </div>
+      </div>
+    </el-col>
   </el-row>
 </template>
 
 <script>
 import CountTo from 'vue-count-to'
 // import {countFish} from "@/api/tron/fish";
+import {getSiteInfoProfile} from "@/api/pay/profile";
 
 export default {
   data() {
@@ -65,10 +92,13 @@ export default {
       dayFish: undefined,
       totalFish: undefined,
       billUsdt: undefined,
-      totalUsdt: undefined
+      totalUsdt: undefined,
+      balance:0,
+      freeBalance:0
     }
   },
   created() {
+    this.getSiteInfo();
     // countFish().then(response => {
     //   this.dayFish = response.data.dayFish;
     //   this.totalFish = response.data.totalFish;
@@ -82,6 +112,14 @@ export default {
   methods: {
     handleSetLineChartData(type) {
       this.$emit('handleSetLineChartData', type)
+    },
+    getSiteInfo() {
+      getSiteInfoProfile().then(response => {
+        if(response.data !== undefined){
+          this.balance = response.data.balance;
+          this.freeBalance = response.data.freeBalance;
+        }
+      });
     }
   }
 }
