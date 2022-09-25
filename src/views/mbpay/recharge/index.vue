@@ -127,6 +127,15 @@
           >转代付
           </el-button>
           <el-button
+            v-if="scope.row.status==0"
+            size="mini"
+            type="text"
+            icon="el-icon-delete"
+            @click="handleDelete(scope.row)"
+            v-hasPermi="['mbpay:recharge:edit']"
+          >取消订单
+          </el-button>
+          <el-button
             v-if="scope.row.status==5"
             size="mini"
             type="text"
@@ -221,7 +230,7 @@
 </template>
 
 <script>
-import {listRecharge, getRecharge, updateRecharge,notifyRecharge} from "@/api/mbpay/recharge";
+import {listRecharge, getRecharge, updateRecharge, notifyRecharge,deleteRecharge} from "@/api/mbpay/recharge";
 
 export default {
   name: "Recharge",
@@ -355,6 +364,22 @@ export default {
         this.$message({
           type: 'info',
           message: '已取消手动'
+        });
+      });
+      this.open = false;
+    },
+    /** 取消订单按钮操作 */
+    handleDelete(row) {
+      this.reset();
+      const id = row.id;
+      this.$confirm('此操作将删除用户已经下单, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteRecharge(id).then(response => {
+          this.getList();
+          this.msgSuccess('取消成功!');
         });
       });
       this.open = false;

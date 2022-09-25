@@ -9,45 +9,19 @@ export function listPool(query) {
   })
 }
 
-// 查询撮合池详细
-export function getPool(matchId) {
+// 查询充值订单详细
+export function getPool(id) {
   return request({
-    url: '/mbpay/pool/' + matchId,
+    url: '/mbpay/pool/' + id,
     method: 'get'
   })
 }
 
-// 新增撮合池
-export function addPool(data) {
+// 查询撮合池详细
+export function daifu(data) {
   return request({
-    url: '/mbpay/pool',
+    url: '/mbpay/recharge/daifu',
     method: 'post',
     data: data
-  })
-}
-
-// 修改撮合池
-export function updatePool(data) {
-  return request({
-    url: '/mbpay/pool',
-    method: 'put',
-    data: data
-  })
-}
-
-// 删除撮合池
-export function delPool(matchId) {
-  return request({
-    url: '/mbpay/pool/' + matchId,
-    method: 'delete'
-  })
-}
-
-// 导出撮合池
-export function exportPool(query) {
-  return request({
-    url: '/mbpay/pool/export',
-    method: 'get',
-    params: query
   })
 }

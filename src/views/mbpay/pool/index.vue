@@ -95,9 +95,15 @@
             </el-table-column>
             <el-table-column label="充值用户明细" align="left" prop="aSiteId" width="150">
               <template slot-scope="scope">
-                <div style="color: #13ce66;">{{ scope.row.bsiteId==null?"":"商户ID："+scope.row.bsiteId }}</div>
-                <div style="color: #13ce66;">{{ scope.row.bsiteUserId==null?"":"玩家ID："+scope.row.bsiteUserId }}</div>
-                <div style="color: #13ce66;">{{ scope.row.bsiteOrderId==null?"":"订单ID："+scope.row.bsiteOrderId }}</div>
+                <div style="color: #13ce66;">{{ scope.row.bsiteId == null ? "" : "商户ID：" + scope.row.bsiteId }}</div>
+                <div style="color: #13ce66;">{{
+                    scope.row.bsiteUserId == null ? "" : "玩家ID：" + scope.row.bsiteUserId
+                  }}
+                </div>
+                <div style="color: #13ce66;">{{
+                    scope.row.bsiteOrderId == null ? "" : "订单ID：" + scope.row.bsiteOrderId
+                  }}
+                </div>
               </template>
             </el-table-column>
             <el-table-column label="匹配时间" align="center" prop="bpayTime" width="90">
@@ -128,7 +134,7 @@
                 >查看凭证
                 </el-button>
                 <el-button
-                  v-if="scope.row.rechargeStatus==3 || scope.row.rechargeStatus==4 || scope.row.rechargeStatus==7"
+                  v-if="scope.row.matchStatus==0"
                   size="mini"
                   type="text"
                   icon="el-icon-s-custom"
@@ -294,7 +300,7 @@
           <el-input v-model="form.userBankName" :disabled="true"/>
         </el-form-item>
         <el-form-item label="评审意见" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入评审意见" />
+          <el-input v-model="form.remark" placeholder="请输入评审意见"/>
         </el-form-item>
         <el-form-item label="图片凭证" prop="payimageUrl" width="300px">
           <el-image :src="form.payimageUrl"></el-image>
@@ -307,14 +313,77 @@
       </div>
     </el-dialog>
 
+    <!-- 代付对话框 -->
+    <el-dialog :title="title" :visible.sync="openAdmin" width="500px" append-to-body>
+      <el-form ref="formAdmin" :model="formAdmin" :rules="rules" label-width="90px">
+        <el-form-item label="待付金额" prop="amount">
+          <el-input v-model="formAdmin.amount" disabled/>
+        </el-form-item>
+        <el-form-item label="银行卡信息" prop="bankName">
+          <div><br/></div>
+          <div>
+            姓名: {{ formAdmin.userName }}
+            &nbsp;
+            <i class="el-icon-document-copy" v-clipboard:copy="formAdmin.userName" v-clipboard:success="onCopy"
+               v-clipboard:error="onError"></i>
+          </div>
+          <div>
+            银行卡名称: {{ formAdmin.userBankName }}
+            &nbsp;
+            <i class="el-icon-document-copy" v-clipboard:copy="formAdmin.bankName" v-clipboard:success="onCopy"
+               v-clipboard:error="onError"></i>
+          </div>
+          <div>
+            银行账户: {{ formAdmin.userBankCard }}
+            &nbsp;
+            <i class="el-icon-document-copy" v-clipboard:copy="formAdmin.bankNum" v-clipboard:success="onCopy"
+               v-clipboard:error="onError"></i>
+          </div>
+        </el-form-item>
+        <el-form-item label="转账截图" prop="payimageUrl" width="300px">
+          <el-upload
+            list-type="picture-card"
+            accept=".jpg, .png"
+            ref="imageUpload"
+            :action="upload.url"
+            :headers="upload.headers"
+            :on-progress="handleFileUploadProgress"
+            :on-success="handleFileSuccess"
+            :limit="1"
+            :auto-upload="false">
+            <i slot="default" class="el-icon-plus"></i>
+            <div slot="file" slot-scope="{file}">
+              <img class="el-upload-list__item-thumbnail" :src="file.url" alt="">
+              <span class="el-upload-list__item-actions">
+                  <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
+                    <i class="el-icon-zoom-in"></i>
+                  </span>
+                  <span v-if="!upload.disabled" class="el-upload-list__item-delete" @click="handleRemove(file)">
+                    <i class="el-icon-delete"></i>
+                  </span>
+                </span>
+            </div>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+          </el-upload>
+          <el-dialog :visible.sync="upload.dialogVisible">
+            <img width="100%" :src="upload.dialogImageUrl" alt="">
+          </el-dialog>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancel(1)">取 消</el-button>
+        <el-button type="primary" @click="submitAdminForm()">完成转账</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
-import {listWithdraw,listWithdraw2} from "@/api/mbpay/withdraw";
-import {getRecharge, listRecharge, updateRecharge} from "@/api/mbpay/recharge";
-import {listPool} from "@/api/mbpay/pool";
-
+import {getWithdraw, listWithdraw2} from "@/api/mbpay/withdraw";
+import {getRecharge, updateRecharge} from "@/api/mbpay/recharge";
+import {listPool, daifu} from "@/api/mbpay/pool";
+import {getToken} from "@/utils/auth";
 
 export default {
   name: "pool",
@@ -336,6 +405,21 @@ export default {
       total: 0,
       // 提现订单表格数据
       withdrawList: [],
+      //图片属性
+      // 上传参数
+      upload: {
+        // 是否禁用上传
+        isUploading: false,
+        disabled: false,
+        dialogImageUrl: '',
+        dialogVisible: false,
+        // 设置上传的请求头部
+        headers: {Authorization: "Bearer " + getToken()},
+        // 上传的地址
+        url: process.env.VUE_APP_BASE_API + "/pay/info/picture",
+        // 上传的文件列表
+        fileList: []
+      },
       // 充值订单表格数据
       dataRow: [], // 当前行的数据列表(由于子表格是内嵌的，所以也有子表格的所有数据)
       // 日期范围
@@ -344,6 +428,7 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      openAdmin: false,
       // 查询参数1
       queryParams: {
         pageNum: 1,
@@ -363,6 +448,7 @@ export default {
       },
       // 表单参数
       form: {},
+      formAdmin: {},
       // 表单校验
       rules: {
         siteId: [
@@ -377,6 +463,9 @@ export default {
         remark: [
           {required: true, message: "评审意见不能为空", trigger: "blur"}
         ],
+        payimageUrl: [
+          {required: true, message: "请上传图片", trigger: "blur"}
+        ],
       }
     };
   },
@@ -388,15 +477,15 @@ export default {
     getList() {
       this.loading = true;
       // this.queryParams.status = 3, //默认获取 待撮合的状态列表
-        listWithdraw2(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-          response.rows.map(row => {
-            row.child = [];
-            row.loadingChild = true;
-          });
-          this.withdrawList = response.rows;
-          this.total = response.total;
-          this.loading = false;
+      listWithdraw2(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        response.rows.map(row => {
+          row.child = [];
+          row.loadingChild = true;
         });
+        this.withdrawList = response.rows;
+        this.total = response.total;
+        this.loading = false;
+      });
     },
     expandChange(row, expandedRows) {
       this.dataRow = row;
@@ -418,6 +507,7 @@ export default {
     // 取消按钮
     cancel() {
       this.open = false;
+      this.openAdmin = false;
       this.reset();
     },
     // 表单重置
@@ -448,7 +538,7 @@ export default {
       getRecharge(id).then(response => {
         this.form = response.data;
         this.open = true;
-        if (this.form.status==5){
+        if (this.form.status == 5) {
           this.title = "审核订单";
         } else {
           this.title = "订单凭证详情";
@@ -458,8 +548,15 @@ export default {
     },
     handleAdminChild(row) {
       this.reset();
-      this.msgSuccess("请客户手动转账");
-      this.open = false;
+      const id = row.parentId;
+      getWithdraw(id).then(response => {
+        this.formAdmin = response.data;
+        this.formAdmin.amount = row.matchAmount;  //row.amount=父类金额， row.matchAmount=拆分金额
+        this.formAdmin.notifyTimes = row.matchId; //借用字段
+
+        this.openAdmin = true;
+        this.title = "代付转账明细";
+      });
     },
     /** 提交按钮 */
     submitForm(status) {
@@ -475,6 +572,43 @@ export default {
           }
         }
       });
+    },
+    submitAdminForm() {
+      // this.$refs.imageUpload.submit();
+      daifu(this.formAdmin).then(response => {
+        this.msgSuccess("代付成功");
+        this.openAdmin = false;
+        this.getList();
+      });
+    },
+    onCopy() {
+      this.$message.success("内容已复制到剪切板")
+    },
+    onError() {
+      this.$message.error('抱歉，复制失败！')
+    },
+    handleRemove(file) {
+      this.$refs.imageUpload.handleRemove(file);
+    },
+    handlePictureCardPreview(file) {
+      this.loading = false;
+      this.upload.dialogImageUrl = file.url;
+      this.upload.dialogVisible = true;
+    },
+    // 文件上传中处理
+    handleFileUploadProgress(event, file, fileList) {
+      this.upload.isUploading = true;
+    },
+    // 文件上传成功处理
+    handleFileSuccess(response, file, fileList) {
+      this.upload.isUploading = false;
+      this.formAdmin.withdrawUrl = response.url; //借用字段
+      daifu(this.formAdmin).then(response => {
+        this.msgSuccess("代付成功");
+        this.openAdmin = false;
+        this.getList();
+      });
+      // this.msgSuccess(response.msg);
     }
   }
 };
