@@ -17,20 +17,19 @@ export function getRecharge(id) {
   })
 }
 
-// 新增充值订单
-export function addRecharge(data) {
-  return request({
-    url: '/mbpay/recharge',
-    method: 'post',
-    data: data
-  })
-}
-
 // 修改充值订单
 export function updateRecharge(data) {
   return request({
     url: '/mbpay/recharge',
     method: 'put',
     data: data
+  })
+}
+
+// 订单通知
+export function notifyRecharge(id) {
+  return request({
+    url: '/mbpay/recharge/' + id,
+    method: 'put'
   })
 }

@@ -34,11 +34,11 @@ export function updateWithdraw(data) {
   })
 }
 
-// 导出提现订单
-export function exportWithdraw(query) {
+// 通知提现订单
+export function notifyWithdraw(id) {
   return request({
-    url: '/mbpay/withdraw/export',
-    method: 'get',
-    params: query
+    url: '/mbpay/withdraw/' + id,
+    method: 'put'
   })
 }
+

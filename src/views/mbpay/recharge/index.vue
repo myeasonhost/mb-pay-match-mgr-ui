@@ -97,7 +97,7 @@
       <el-table-column label="审核时间" align="center" prop="applyTime" width="100"/>
       <el-table-column label="下单时间" align="center" prop="createTime" width="100"/>
       <el-table-column label="备注" align="center" prop="remark"/>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="100">
         <template slot-scope="scope">
           <el-button
             v-if="scope.row.status==6"
@@ -107,6 +107,15 @@
             @click="handleUpdate(scope.row)"
             v-hasPermi="['mbpay:recharge:query']"
           >查看凭证
+          </el-button>
+          <el-button
+            v-if="scope.row.status==6 && scope.row.notifySucceed==2"
+            size="mini"
+            type="text"
+            icon="el-icon-phone-outline"
+            @click="handleNotify(scope.row)"
+            v-hasPermi="['mbpay:recharge:edit']"
+          >手动通知
           </el-button>
           <el-button
             v-if="scope.row.status==4 || scope.row.status==7"
@@ -212,7 +221,7 @@
 </template>
 
 <script>
-import {listRecharge, getRecharge, updateRecharge} from "@/api/mbpay/recharge";
+import {listRecharge, getRecharge, updateRecharge,notifyRecharge} from "@/api/mbpay/recharge";
 
 export default {
   name: "Recharge",
@@ -328,6 +337,27 @@ export default {
       this.dateRange = [];
       this.resetForm("queryForm");
       this.handleQuery();
+    },
+    /** 手动通知按钮操作 */
+    handleNotify(row) {
+      this.reset();
+      const id = row.id;
+      this.$confirm('此操作将手动告知商户端进行上分操作, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        notifyRecharge(id).then(response => {
+          this.getList();
+          this.msgSuccess('通知已发送!');
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消手动'
+        });
+      });
+      this.open = false;
     },
     /** 修改按钮操作 */
     handleAdmin(row) {

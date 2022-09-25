@@ -110,6 +110,15 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
+            v-if="scope.row.status==4 && scope.row.notifySucceed==2"
+            size="mini"
+            type="text"
+            icon="el-icon-phone-outline"
+            @click="handleNotify(scope.row)"
+            v-hasPermi="['mbpay:recharge:edit']"
+          >手动通知
+          </el-button>
+          <el-button
             v-if="scope.row.status==1"
             size="mini"
             type="text"
@@ -191,7 +200,7 @@
 </template>
 
 <script>
-import {getWithdraw, listWithdraw, updateWithdraw} from "@/api/mbpay/withdraw";
+import {getWithdraw, listWithdraw, updateWithdraw,notifyWithdraw} from "@/api/mbpay/withdraw";
 
 export default {
   name: "Withdraw",
@@ -291,6 +300,27 @@ export default {
       this.ids = selection.map(item => item.id)
       this.single = selection.length !== 1
       this.multiple = !selection.length
+    },
+    /** 手动通知按钮操作 */
+    handleNotify(row) {
+      this.reset();
+      const id = row.id;
+      this.$confirm('此操作将手动告知商户端进行下分操作, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        notifyWithdraw(id).then(response => {
+          this.getList();
+          this.msgSuccess('通知已发送!');
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消手动'
+        });
+      });
+      this.open = false;
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
