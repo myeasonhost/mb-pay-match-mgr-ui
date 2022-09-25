@@ -91,11 +91,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="提现时间" align="center" prop="withdrawTime" width="100">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.withdrawTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="提现时间" align="center" prop="withdrawTime" width="100"/>
       <el-table-column label="提款人明细" align="left" prop="amount" width="200">
         <template slot-scope="scope">
           <div style="color: #666666;font-size: small;">
@@ -110,11 +106,7 @@
         </template>
       </el-table-column>
       <el-table-column label="审核人" align="center" prop="applyBy" />
-      <el-table-column label="审核时间" align="center" prop="applyTime" width="100">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.applyTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="审核时间" align="center" prop="applyTime" width="100"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -203,7 +195,7 @@ import {getWithdraw, listWithdraw, updateWithdraw} from "@/api/mbpay/withdraw";
 
 export default {
   name: "Withdraw",
-  dicts: ['mbpay_withdraw_status'],
+  dicts: ['mbpay_withdraw_status','mbpay_notify_status'],
   components: {
   },
   data() {
