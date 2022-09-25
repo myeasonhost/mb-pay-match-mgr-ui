@@ -119,3 +119,12 @@ export function checkPassword(query) {
   })
 }
 
+// 商户首页统计信息 我的余额
+export function getCountFishBalance(query) {
+  return request({
+    url: '/pay/siteinfo/getCountFishBalance',
+    method: 'get',
+    params: query
+  })
+}
+

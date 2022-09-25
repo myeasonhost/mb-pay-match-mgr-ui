@@ -42,3 +42,12 @@ export function notifyWithdraw(id) {
   })
 }
 
+// 商户首页统计信息 提现订单
+export function getCountFishWithdraw(query) {
+  return request({
+    url: '/mbpay/withdraw/getCountFishWithdraw',
+    method: 'get',
+    params: query
+  })
+}
+

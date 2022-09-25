@@ -33,3 +33,12 @@ export function notifyRecharge(id) {
     method: 'put'
   })
 }
+
+// 商户首页统计信息 充值订单
+export function getCountFishCharge(query) {
+  return request({
+    url: '/mbpay/recharge/getCountFishCharge',
+    method: 'get',
+    params: query
+  })
+}
