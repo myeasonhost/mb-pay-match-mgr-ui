@@ -596,6 +596,9 @@
           updateTime: undefined
         };
         this.resetForm("form");
+        this.fileList = [];
+        this.uploadList = [];
+        this.number = 0;
       },
       /** 搜索按钮操作 */
       handleQuery() {
@@ -789,7 +792,8 @@
       handleUploadSuccess(res, file) {
         if (res.code === 200) {
           this.uploadList.push({name: res.fileName, url: res.url});
-          this.form.payimageUrl = res.url;
+          this.$set(this.form, 'payimageUrl', res.url);
+          //this.form.payimageUrl = res.url;
           this.uploadedSuccessfully();
         } else {
           this.number--;
@@ -805,6 +809,7 @@
         if (findex > -1) {
           this.fileList.splice(findex, 1);
           this.$emit("input", this.listToString(this.fileList));
+          this.form.payimageUrl = '';
         }
       },
       // 上传失败
