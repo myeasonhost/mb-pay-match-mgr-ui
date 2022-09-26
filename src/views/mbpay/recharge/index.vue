@@ -118,15 +118,6 @@
           >手动通知
           </el-button>
           <el-button
-            v-if="scope.row.status==4 || scope.row.status==7"
-            size="mini"
-            type="text"
-            icon="el-icon-s-custom"
-            @click="handleAdmin(scope.row)"
-            v-hasPermi="['mbpay:recharge:edit']"
-          >转代付
-          </el-button>
-          <el-button
             v-if="scope.row.status==0"
             size="mini"
             type="text"
@@ -382,12 +373,6 @@ export default {
           this.msgSuccess('取消成功!');
         });
       });
-      this.open = false;
-    },
-    /** 修改按钮操作 */
-    handleAdmin(row) {
-      this.reset();
-      this.msgSuccess("请客户手动转账");
       this.open = false;
     },
     /** 修改按钮操作 */

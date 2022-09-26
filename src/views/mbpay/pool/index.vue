@@ -95,12 +95,12 @@
             </el-table-column>
             <el-table-column label="充值用户明细" align="left" prop="aSiteId" width="150">
               <template slot-scope="scope">
-                <div style="color: #13ce66;">{{ scope.row.bsiteId == null ? "" : "商户ID：" + scope.row.bsiteId }}</div>
-                <div style="color: #13ce66;">{{
+                <div style="color: #4AB7BD;">{{ scope.row.bsiteId == null ? "" : "商户ID：" + scope.row.bsiteId }}</div>
+                <div style="color: #4AB7BD;">{{
                     scope.row.bsiteUserId == null ? "" : "玩家ID：" + scope.row.bsiteUserId
                   }}
                 </div>
-                <div style="color: #13ce66;">{{
+                <div style="color: #4AB7BD;">{{
                     scope.row.bsiteOrderId == null ? "" : "订单ID：" + scope.row.bsiteOrderId
                   }}
                 </div>
@@ -125,13 +125,22 @@
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
               <template slot-scope="scope">
                 <el-button
-                  v-if="scope.row.rechargeStatus==6"
+                  v-if="scope.row.rechargeStatus==6 || scope.row.rechargeStatus==8"
                   size="mini"
                   type="text"
                   icon="el-icon-search"
                   @click="handleUpdateChild(scope.row)"
                   v-hasPermi="['mbpay:pool:query']"
                 >查看凭证
+                </el-button>
+                <el-button
+                  v-if="scope.row.rechargeStatus==4"
+                  size="mini"
+                  type="text"
+                  icon="el-icon-s-custom"
+                  @click="handleAdminChild(scope.row)"
+                  v-hasPermi="['mbpay:recharge:edit']"
+                >转代付
                 </el-button>
                 <el-button
                   v-if="scope.row.matchStatus==0"
@@ -261,7 +270,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="玩家ID" prop="userId">
+            <el-form-item label="玩家ID" prop="userId" v-if="form.userId">
               <el-input v-model="form.userId" :disabled="true"/>
             </el-form-item>
           </el-col>
@@ -315,6 +324,15 @@
 
     <!-- 代付对话框 -->
     <el-dialog :title="title" :visible.sync="openAdmin" width="500px" append-to-body>
+      <div style="color: green;font-weight: bold;font-size: 10px;margin-bottom: 20px;">
+        <div>
+          <i class="el-icon-warning"></i>
+          <span>&nbsp;&nbsp;&nbsp;温馨提示：请仔细核对商户余额，确保转账成功</span>
+        </div>
+        <div style="color: #f4516c;font-size: 8px;">&nbsp;&nbsp;&nbsp;（1）如果信息匹配，线下转账，上传转账凭证；</div>
+        <div style="color: #f4516c;font-size: 8px;">&nbsp;&nbsp;&nbsp;（2）如果商户金额不足，请不要转账；</div>
+      </div>
+      <div/>
       <el-form ref="formAdmin" :model="formAdmin" :rules="rules" label-width="90px">
         <el-form-item label="待付金额" prop="amount">
           <el-input v-model="formAdmin.amount" disabled/>
@@ -349,20 +367,11 @@
             :headers="upload.headers"
             :on-progress="handleFileUploadProgress"
             :on-success="handleFileSuccess"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
             :limit="1"
-            :auto-upload="false">
+            :auto-upload="true">
             <i slot="default" class="el-icon-plus"></i>
-            <div slot="file" slot-scope="{file}">
-              <img class="el-upload-list__item-thumbnail" :src="file.url" alt="">
-              <span class="el-upload-list__item-actions">
-                  <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
-                    <i class="el-icon-zoom-in"></i>
-                  </span>
-                  <span v-if="!upload.disabled" class="el-upload-list__item-delete" @click="handleRemove(file)">
-                    <i class="el-icon-delete"></i>
-                  </span>
-                </span>
-            </div>
             <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
           </el-upload>
           <el-dialog :visible.sync="upload.dialogVisible">
@@ -574,7 +583,6 @@ export default {
       });
     },
     submitAdminForm() {
-      // this.$refs.imageUpload.submit();
       daifu(this.formAdmin).then(response => {
         this.msgSuccess("代付成功");
         this.openAdmin = false;
@@ -588,7 +596,7 @@ export default {
       this.$message.error('抱歉，复制失败！')
     },
     handleRemove(file) {
-      this.$refs.imageUpload.handleRemove(file);
+      // this.$refs.imageUpload.handleRemove(file);
     },
     handlePictureCardPreview(file) {
       this.loading = false;
@@ -598,17 +606,14 @@ export default {
     // 文件上传中处理
     handleFileUploadProgress(event, file, fileList) {
       this.upload.isUploading = true;
+      console.info(file);
     },
     // 文件上传成功处理
     handleFileSuccess(response, file, fileList) {
+      console.info(response);
       this.upload.isUploading = false;
       this.formAdmin.withdrawUrl = response.url; //借用字段
-      daifu(this.formAdmin).then(response => {
-        this.msgSuccess("代付成功");
-        this.openAdmin = false;
-        this.getList();
-      });
-      // this.msgSuccess(response.msg);
+
     }
   }
 };

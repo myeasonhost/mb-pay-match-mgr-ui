@@ -119,15 +119,6 @@
           >手动通知
           </el-button>
           <el-button
-            v-if="scope.row.status==3"
-            size="mini"
-            type="text"
-            icon="el-icon-s-custom"
-            @click="handleAdmin(scope.row)"
-            v-hasPermi="['mbpay:withdraw:edit']"
-          >转代付
-          </el-button>
-          <el-button
             v-if="scope.row.status==1"
             size="mini"
             type="text"
@@ -329,12 +320,6 @@ export default {
           message: '已取消手动'
         });
       });
-      this.open = false;
-    },
-    /** 修改按钮操作 */
-    handleAdmin(row) {
-      this.reset();
-      this.msgSuccess("请客户手动转账");
       this.open = false;
     },
     /** 修改按钮操作 */
