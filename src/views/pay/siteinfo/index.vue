@@ -75,18 +75,18 @@
     </el-row>
     <el-table v-loading="loading" :data="siteList" @selection-change="handleSelectionChange">
       <!--      <el-table-column type="selection" width="55" align="center"  />-->
-      <el-table-column label="序号" align="center" prop="id" v-if="false"/>
-      <el-table-column label="商家账号" align="center" prop="siteAccount">
+      <!--<el-table-column label="序号" align="center" prop="id" v-if="false"/>-->
+      <el-table-column label="商家账号" align="center" prop="siteAccount" width="150">
         <template slot-scope="scope">
           <div style="font-weight: bold;font-size: 13px;">{{ scope.row.siteAccount }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="商家名称" align="center" prop="siteName">
+      <el-table-column label="商家名称" align="center" prop="siteName" width="150">
         <template slot-scope="scope">
           <div style="">{{ scope.row.siteName }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="商家ID" align="center" prop="siteId">
+      <el-table-column label="商家ID" align="center" prop="siteId" width="150">
         <template slot-scope="scope">
           <div style="color: rgb(13,206,98); font-weight: bold; font-size: 13px;">{{ scope.row.siteId }}</div>
         </template>
@@ -97,7 +97,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="费率" align="center" prop="chChargeRate">
+      <el-table-column label="费率" align="center" prop="chChargeRate" width="150">
         <template slot-scope="scope">
           <div style="color: #1890ff;font-family: 'Arial Black';font-size: small;">
             充值费率：{{ scope.row.chargeRate == null ? "0.00" : scope.row.chargeRate }} %
@@ -113,19 +113,19 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="当前余额" align="center" prop="balance"/>
-      <el-table-column label="冻结金额" align="center" prop="freeBalance"/>
+      <el-table-column label="当前余额" align="center" prop="balance"  width="150"/>
+      <el-table-column label="冻结金额" align="center" prop="freeBalance"  width="150"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.mbpay_site_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime">
+      <el-table-column label="创建时间" align="center" prop="createTime"  width="150">
         <template slot-scope="scope">
           <div>{{ parseTime(scope.row.createTime) }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark"/>
+      <el-table-column label="备注" align="center" prop="remark" width="150"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button

@@ -263,9 +263,9 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <!--        <el-form-item label="备注" prop="remark">
-                  <el-input v-model="form.remark" placeholder="请输入备注" />
-                </el-form-item>-->
+        <el-form-item label="提现金额配置" prop="withdrawAmountList">
+          <el-input v-model="form.withdrawAmountList" placeholder="请输入提现金额"/>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -298,9 +298,9 @@
       const checkBankNum = (rule, value, callback) => {
         if (value) {
           this.checkBankNumber(value).then(response => {
-            if(response.code === 200){
+            if (response.code === 200) {
               callback()
-            }else{
+            } else {
               callback(new Error("银行账户已存在，请重新输入"))
             }
           }).catch(err => {
@@ -424,6 +424,7 @@
           dayReceiptAmount: undefined,
           monthReceiptAmount: undefined,
           totalReceiptAmount: undefined,
+          withdrawAmountList: undefined,
           operCode: this.$store.state.user.name,
           status: "1",
           remark: undefined,
@@ -516,7 +517,7 @@
       },
       //验证银行卡号是否存在
       checkBankNumber(bankNum) {
-        return checkBankNum(bankNum,this.form.id === undefined ? 0 : this.form.id)
+        return checkBankNum(bankNum, this.form.id === undefined ? 0 : this.form.id)
       }
     }
   };
