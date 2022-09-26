@@ -256,6 +256,7 @@
       refresh() {
         this.isClick = true;
         this.getInfo();
+        this.$message.success("刷新成功")
         setTimeout(()=>{
           this.isClick = false;
           },5000);
