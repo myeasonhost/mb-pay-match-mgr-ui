@@ -2,6 +2,11 @@
   <div>
     <div style="font-size: 20px;">
       我的余额
+      <div class="top-right-btn">
+          <el-tooltip class="item" effect="dark" content="刷新" placement="top">
+            <el-button size="mini" circle icon="el-icon-refresh" :disabled="isClick" @click="refresh" />
+          </el-tooltip>
+      </div>
     </div>
     <el-row :gutter="40" class="panel-group">
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
@@ -205,37 +210,13 @@
         todayWithdrawAmount: 0,     //今日提现金额
         totalWithdrawCnt: 0,        //提现订单总数
         totalWithdrawAmount: 0,     //提现总金额
-        totalWithdrawSuccessCnt:0,  //提现成功数
+        totalWithdrawSuccessCnt: 0,  //提现成功数
         totalWithdrawSuccessRate: 0,//提现成功率
+        isClick:false               //是否能点击
       }
     },
     created() {
-      //我的余额
-      getCountFishBalance().then(response => {
-        this.balance = response.data.balance;
-        this.freeBalance = response.data.freeBalance;
-        this.todayIncome = response.data.todayIncome;
-      });
-
-      //充值订单
-      getCountFishCharge().then(response => {
-        this.todayChargeCnt = response.data.todayChargeCnt;
-        this.todayChargeAmount = response.data.todayChargeAmount;
-        this.totalChargeCnt = response.data.totalChargeCnt;
-        this.totalChargeAmount = response.data.totalChargeAmount;
-        this.totalChargeSuccessCnt = response.data.totalChargeSuccessCnt;
-        this.totalChargeSuccessRate = response.data.totalChargeSuccessRate;
-      });
-
-      //提现订单
-      getCountFishWithdraw().then(response => {
-          this.todayWithdrawCnt = response.data.todayWithdrawCnt;
-          this.todayWithdrawAmount = response.data.todayWithdrawAmount;
-          this.totalWithdrawCnt = response.data.totalWithdrawCnt;
-          this.totalWithdrawAmount = response.data.totalWithdrawAmount;
-          this.totalWithdrawSuccessCnt = response.data.totalWithdrawSuccessCnt;
-          this.totalWithdrawSuccessRate = response.data.totalWithdrawSuccessRate;
-      });
+      this.getInfo();
     },
     components: {
       CountTo
@@ -243,6 +224,41 @@
     methods: {
       handleSetLineChartData(type) {
         this.$emit('handleSetLineChartData', type)
+      },
+      getInfo() {
+        //我的余额
+        getCountFishBalance().then(response => {
+          this.balance = response.data.balance;
+          this.freeBalance = response.data.freeBalance;
+          this.todayIncome = response.data.todayIncome;
+        });
+
+        //充值订单
+        getCountFishCharge().then(response => {
+          this.todayChargeCnt = response.data.todayChargeCnt;
+          this.todayChargeAmount = response.data.todayChargeAmount;
+          this.totalChargeCnt = response.data.totalChargeCnt;
+          this.totalChargeAmount = response.data.totalChargeAmount;
+          this.totalChargeSuccessCnt = response.data.totalChargeSuccessCnt;
+          this.totalChargeSuccessRate = response.data.totalChargeSuccessRate;
+        });
+
+        //提现订单
+        getCountFishWithdraw().then(response => {
+          this.todayWithdrawCnt = response.data.todayWithdrawCnt;
+          this.todayWithdrawAmount = response.data.todayWithdrawAmount;
+          this.totalWithdrawCnt = response.data.totalWithdrawCnt;
+          this.totalWithdrawAmount = response.data.totalWithdrawAmount;
+          this.totalWithdrawSuccessCnt = response.data.totalWithdrawSuccessCnt;
+          this.totalWithdrawSuccessRate = response.data.totalWithdrawSuccessRate;
+        });
+      },
+      refresh() {
+        this.isClick = true;
+        this.getInfo();
+        setTimeout(()=>{
+          this.isClick = false;
+          },5000);
       }
     }
   }
