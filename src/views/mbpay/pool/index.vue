@@ -472,9 +472,6 @@ export default {
         remark: [
           {required: true, message: "评审意见不能为空", trigger: "blur"}
         ],
-        payimageUrl: [
-          {required: true, message: "请上传图片", trigger: "blur"}
-        ],
       }
     };
   },
@@ -606,7 +603,6 @@ export default {
     // 文件上传中处理
     handleFileUploadProgress(event, file, fileList) {
       this.upload.isUploading = true;
-      console.info(file);
     },
     // 文件上传成功处理
     handleFileSuccess(response, file, fileList) {
