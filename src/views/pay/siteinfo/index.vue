@@ -324,8 +324,10 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="备注" prop="remark" v-if="['update', 'show','add'].includes(type)" size="mini">
-          <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.remark" placeholder="请输入备注"/>
+        <el-form-item label="IP白名单" prop="whiteIp" v-if="['update', 'show','add'].includes(type)"
+                      size="mini">
+          <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.whiteIp" placeholder="请输入IP地址,多个IP用逗号隔开"
+                    maxlength="200"/>
         </el-form-item>
         <el-form-item label="提现金额配置" prop="withdrawAmountList" v-if="['update', 'show','add'].includes(type)"
                       size="mini">
@@ -337,6 +339,15 @@
                       size="mini">
           <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.withdrawSplitConfig"
                     placeholder="" :rows="7"/>
+        </el-form-item>
+        <el-form-item label="充值跳转" prop="rechargeUrl" v-if="['update', 'show','add'].includes(type)" size="mini">
+          <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.rechargeUrl" placeholder="请输入充值跳转"/>
+        </el-form-item>
+        <el-form-item label="客服跳转" prop="clientUrl" v-if="['update', 'show','add'].includes(type)" size="mini">
+          <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.clientUrl" placeholder="请输入客服跳转"/>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark" v-if="['update', 'show','add'].includes(type)" size="mini">
+          <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.remark" placeholder="请输入备注"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -590,7 +601,10 @@
           status: undefined,
           remark: undefined,
           createTime: undefined,
-          updateTime: undefined
+          updateTime: undefined,
+          rechargeUrl: undefined,
+          clientUrl: undefined,
+          whiteIp: undefined
         };
         this.resetForm("form");
       },

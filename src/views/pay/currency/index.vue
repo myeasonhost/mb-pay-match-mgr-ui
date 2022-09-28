@@ -188,6 +188,19 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 谷歌验证码对话框 -->
+    <el-dialog title="谷歌验证码" :visible.sync="openGoogleCode" width="450px" append-to-body>
+      <el-form ref="formPassword" :model="formGoogleCode" :rules="googleCodeRules" label-width="100px">
+        <el-form-item label="谷歌验证码" prop="googleCode">
+          <el-input v-model="formGoogleCode.googleCode" placeholder="请输入谷歌验证码"/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFormGoogleCode">确 定</el-button>
+        <el-button @click="cancelGoogleCode">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -201,6 +214,8 @@
     exportCurrency,
     checkAddress
   } from "@/api/pay/currency";
+  import {getSiteInfoProfile} from "@/api/pay/profile";
+  import {checkGoogleCode} from "@/api/pay/siteinfo";
 
   export default {
     name: "Currency",
@@ -240,6 +255,9 @@
         }
       }
       return {
+        // 定义商户列表对象
+        mbpaySiteInfo: {},
+        googleEnabled:false,
         // 遮罩层
         loading: true,
         // 选中数组
@@ -258,6 +276,7 @@
         title: "",
         // 是否显示弹出层
         open: false,
+        openGoogleCode: false,
         // 查询参数
         queryParams: {
           pageNum: 1,
@@ -273,6 +292,7 @@
         },
         // 表单参数
         form: {},
+        formGoogleCode: {},
         // 表单校验
         rules: {
           currency: [
@@ -294,11 +314,17 @@
             {min: 20, max: 50, message: "长度20-50个字符", trigger: "blur"},
             {required: true, trigger: "blur", validator: checkAddress}//自定义规则
           ]
+        },
+        googleCodeRules: {
+          googleCode: [
+            {required: true,message: "请输入谷歌验证码", trigger: 'blur'}
+          ],
         }
       };
     },
     created() {
       this.getList();
+      this.getSiteInfo();
     },
     methods: {
       /** 查询虚拟币收款列表 */
@@ -351,19 +377,29 @@
       },
       /** 新增按钮操作 */
       handleAdd() {
-        this.reset();
-        this.open = true;
         this.title = "添加虚拟币收款";
+        if(this.googleEnabled){
+          this.resetGoogleCode();
+          this.openGoogleCode = true;
+        }else {
+          this.reset();
+          this.open = true;
+        }
       },
       /** 修改按钮操作 */
       handleUpdate(row) {
-        this.reset();
-        const id = row.id || this.ids
-        getCurrency(id).then(response => {
-          this.form = response.data;
-          this.open = true;
-          this.title = "修改虚拟币收款";
-        });
+        this.title = "修改虚拟币收款";
+        if(this.googleEnabled){
+          this.resetGoogleCode();
+          this.openGoogleCode = true;
+        }else {
+          this.reset();
+          const id = row.id || this.ids
+          getCurrency(id).then(response => {
+            this.form = response.data;
+            this.open = true;
+          });
+        }
       },
       /** 提交按钮 */
       submitForm() {
@@ -415,7 +451,41 @@
       //验证银行卡号是否存在
       checkAddresss(bankNum) {
         return checkAddress(bankNum,this.form.id === undefined ? 0 : this.form.id)
-      }
+      },
+      //商户信息
+      getSiteInfo() {
+        getSiteInfoProfile().then(response => {
+          this.mbpaySiteInfo = response.data;
+          if (this.mbpaySiteInfo !== undefined) {
+            this.googleEnabled = this.mbpaySiteInfo.googleEnabled;
+          }
+        });
+      },
+      submitFormGoogleCode() {
+        let params = {
+          googleCode: this.formGoogleCode.googleCode,
+        };
+        checkGoogleCode(params).then(response => {
+          if(response.code === 200){
+            // 成功以后
+            this.cancelGoogleCode();
+            this.googleEnabled = false;
+            this.open = true;
+          }
+        });
+      },
+      // 取消按钮
+      cancelGoogleCode() {
+        this.openGoogleCode = false;
+        this.resetGoogleCode();
+      },
+      // 表单重置
+      resetGoogleCode() {
+        this.formGoogleCode = {
+          googleCode: undefined
+        };
+        this.resetForm("formGoogleCode");
+      },
     }
   };
 </script>

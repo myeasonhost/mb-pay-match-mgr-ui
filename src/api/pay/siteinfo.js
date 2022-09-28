@@ -128,3 +128,11 @@ export function getCountFishBalance(query) {
   })
 }
 
+//校验谷歌验证密码
+export function checkGoogleCode(query) {
+  return request({
+    url: '/pay/siteinfo/checkGoogleCode',
+    method: 'get',
+    params: query
+  })
+}
