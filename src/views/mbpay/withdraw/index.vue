@@ -191,7 +191,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="success" @click="submitForm(4)" v-if="form.status==1">审批通过</el-button>
+        <el-button type="success" @click="submitForm(3)" v-if="form.status==1">审批通过</el-button>
         <el-button type="danger" @click="submitForm(2)" v-if="form.status==1">审批失败</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>

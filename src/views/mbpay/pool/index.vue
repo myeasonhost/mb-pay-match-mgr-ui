@@ -381,7 +381,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancel(1)">取 消</el-button>
-        <el-button type="primary" @click="submitAdminForm()">完成转账</el-button>
+        <el-button type="primary" @click="submitAdminForm(3)">完成转账</el-button>
       </div>
     </el-dialog>
 
@@ -569,7 +569,7 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            this.form.status = status;
+            this.form.status = status; //借用字段，使用撮合池状态
             updateRecharge(this.form).then(response => {
               this.msgSuccess("审批处理完成");
               this.open = false;
@@ -579,7 +579,8 @@ export default {
         }
       });
     },
-    submitAdminForm() {
+    submitAdminForm(matchStatus) {
+      this.formAdmin.status = matchStatus;
       daifu(this.formAdmin).then(response => {
         this.msgSuccess("代付成功");
         this.openAdmin = false;
