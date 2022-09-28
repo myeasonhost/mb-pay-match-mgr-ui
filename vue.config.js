@@ -1,5 +1,7 @@
 'use strict'
 const path = require('path')
+var os = require('os'); var ip = ''; var ifaces = os.networkInterfaces() // 获取本机ip
+
 
 function resolve(dir) {
   return path.join(__dirname, dir)
@@ -10,7 +12,16 @@ const CompressionPlugin = require('compression-webpack-plugin')
 const name = process.env.VUE_APP_TITLE || '商户管理系统' // 网页标题
 
 const port = process.env.port || process.env.npm_config_port || 80 // 端口
-
+out:
+for (var i in ifaces) {
+  for (var j in ifaces[i]) {
+    var val = ifaces[i][j]
+    if (val.family === 'IPv4' && val.address !== '127.0.0.1') {
+      ip = val.address
+      break out
+    }
+  }
+}
 // vue.config.js 配置说明
 //官方vue.config.js 参考文档 https://cli.vuejs.org/zh/config/#css-loaderoptions
 // 这里只列一部分，具体配置参考文档
@@ -29,7 +40,7 @@ module.exports = {
   productionSourceMap: false,
   // webpack-dev-server 相关配置
   devServer: {
-    host: '0.0.0.0',
+    host: ip,
     port: port,
     open: true,
     proxy: {
