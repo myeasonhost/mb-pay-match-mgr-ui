@@ -91,7 +91,7 @@
     <el-table v-loading="loading" :data="bankList" @selection-change="handleSelectionChange">
       <el-table-column label="序号" align="center" prop="id"/>
       <el-table-column label="商户ID" align="center" prop="siteId" width="200"/>
-      <el-table-column label="银行卡明细" align="left" prop="bankName" width="200">
+      <el-table-column label="银行卡明细" align="left" prop="bankName" width="250">
         <template slot-scope="scope">
           <div style="color: #666666;font-family: 'Arial Black';font-size: small;">
             银行卡名称：{{ scope.row.bankName }}
@@ -113,7 +113,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="限额与收款明细" align="left" prop="dayLimit" width="200">
+      <el-table-column label="银行卡收款限制" align="left" prop="dayLimit" width="200">
         <template slot-scope="scope">
           <div style="color: #ff6600;font-family: 'Arial Black';font-size: small;">
             每日限额：{{ scope.row.dayLimit == null ? "0.00" : scope.row.dayLimit }}
@@ -124,6 +124,13 @@
           <div style="color: #cc0000;font-family: 'Arial Black';font-size: small;">
             单笔限额：{{ scope.row.singleLimit == null ? "0.00" : scope.row.singleLimit }}
           </div>
+          <div style="color: #1890ff;font-family: 'Arial Black';font-size: small;">
+            每日收款次数限制：{{ scope.row.todayReceiptCntLimit == null ? "0" : scope.row.todayReceiptCntLimit }}
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="收款明细" align="left" prop="dayReceiptAmount" width="200">
+        <template slot-scope="scope">
           <div style="color: #ff0000;font-family: 'Arial Black';font-size: small;">
             当日收款金额：{{ scope.row.dayReceiptAmount == null ? "0.00" : scope.row.dayReceiptAmount }}
           </div>
@@ -131,7 +138,7 @@
             本月收款金额：{{ scope.row.monthReceiptAmount == null ? "0.00" : scope.row.monthReceiptAmount }}
           </div>
           <div style="color: #1890ff;font-family: 'Arial Black';font-size: small;">
-            累计收款金额：{{ scope.row.totalReceiptAmount == null ? "0.00" : scope.row.totalReceiptAmount }}
+            单日收款次数：{{ scope.row.todayAlreadyReceiptCnt == null ? "0.00" : scope.row.todayAlreadyReceiptCnt }}
           </div>
         </template>
       </el-table-column>
@@ -178,8 +185,8 @@
     />
 
     <!-- 添加或修改收款银行对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="700px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="135px">
         <el-row>
           <el-col :span="12">
             <el-form-item label="银行卡名称" prop="bankName">
@@ -263,9 +270,18 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="充值金额配置" prop="withdrawAmountList">
-          <el-input v-model="form.withdrawAmountList" placeholder="请输入充值金额"/>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="充值金额配置" prop="withdrawAmountList">
+              <el-input v-model="form.withdrawAmountList" placeholder="请输入充值金额"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="每次收款次数限制" prop="todayReceiptCntLimit">
+              <el-input v-model="form.todayReceiptCntLimit" placeholder="请输入次数限制"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -398,14 +414,20 @@
             {required: true, message: "请选择币种", trigger: "blur"}
           ],
           dayLimit: [
-            {trigger: "blur", validator: checkAmount}//自定义规则
+            {required: true,trigger: "blur", validator: checkAmount}//自定义规则
           ],
           monthLimit: [
-            {trigger: "blur", validator: checkAmount}//自定义规则
+            {required: true,trigger: "blur", validator: checkAmount}//自定义规则
           ],
           singleLimit: [
-            {trigger: "blur", validator: checkAmount}//自定义规则
-          ]
+            {required: true,trigger: "blur", validator: checkAmount}//自定义规则
+          ],
+          status: [
+            {required: true, message: "请选择状态", trigger: "blur"}
+          ],
+          todayReceiptCntLimit: [
+            {required: true, message: "请输入次数", trigger: "blur"}
+          ],
         },
         googleCodeRules: {
           googleCode: [
@@ -457,7 +479,8 @@
           createTime: undefined,
           updateTime: undefined,
           partDay: undefined,
-          partMon: undefined
+          partMon: undefined,
+          todayReceiptCntLimit:undefined
         };
         this.resetForm("form");
       },
