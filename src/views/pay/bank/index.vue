@@ -272,12 +272,7 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="充值金额配置" prop="withdrawAmountList">
-              <el-input v-model="form.withdrawAmountList" placeholder="请输入充值金额"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="每次收款次数限制" prop="todayReceiptCntLimit">
+            <el-form-item label="每日收款次数限制" prop="todayReceiptCntLimit">
               <el-input v-model="form.todayReceiptCntLimit" placeholder="请输入次数限制"/>
             </el-form-item>
           </el-col>
