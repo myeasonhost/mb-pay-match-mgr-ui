@@ -17,10 +17,19 @@ export function getPool(id) {
   })
 }
 
-// 查询撮合池详细
+// 人工代付
 export function daifu(data) {
   return request({
     url: '/mbpay/recharge/daifu',
+    method: 'post',
+    data: data
+  })
+}
+
+// 代付合并
+export function daifuAll(data) {
+  return request({
+    url: '/mbpay/recharge/daifuAll',
     method: 'post',
     data: data
   })

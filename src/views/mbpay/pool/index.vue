@@ -143,7 +143,7 @@
                 >转代付
                 </el-button>
                 <el-button
-                  v-if="scope.row.matchStatus==0"
+                  v-if="scope.row.matchStatus==0 || scope.row.matchStatus==4"
                   size="mini"
                   type="text"
                   icon="el-icon-s-custom"
@@ -221,15 +221,14 @@
         <template slot-scope="scope">
           <el-button
             v-if="scope.row.status==1"
-            size="mini"
+            size="small"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['mbpay:recharge:edit']"
           >审批
           </el-button>
-        </template>
-        <template slot-scope="scope">
+          <br>
           <el-button
             size="small"
             type="text"
@@ -238,8 +237,17 @@
             v-hasPermi="['mbpay:recharge:query']"
           >拆单详情
           </el-button>
+          <br>
+          <el-button
+            v-if="scope.row.status==3"
+            size="small"
+            type="text"
+            icon="el-icon-s-custom"
+            @click="handleAdminAll(scope.row)"
+            v-hasPermi="['mbpay:recharge:edit']"
+          >代付合并
+          </el-button>
         </template>
-
       </el-table-column>
     </el-table>
 
@@ -335,7 +343,10 @@
       <div/>
       <el-form ref="formAdmin" :model="formAdmin" :rules="rules" label-width="90px">
         <el-form-item label="待付金额" prop="amount">
-          <el-input v-model="formAdmin.amount" disabled/>
+          <div style="color: red;font-size: 20px;font-family: 'Arial Black';">&nbsp;&nbsp;&nbsp;{{
+              formAdminAll.amount
+            }}
+          </div>
         </el-form-item>
         <el-form-item label="银行卡信息" prop="bankName">
           <div><br/></div>
@@ -385,13 +396,82 @@
       </div>
     </el-dialog>
 
+    <!-- 代付合并对话框 -->
+    <el-dialog :title="title" :visible.sync="openAdminAll" width="500px" append-to-body>
+      <div style="color: green;font-weight: bold;font-size: 10px;margin-bottom: 20px;">
+        <div>
+          <i class="el-icon-warning"></i>
+          <span>&nbsp;&nbsp;&nbsp;温馨提示：此功能是将所有【撮合超时】的子单，一致性通过合并代付完成转账</span>
+        </div>
+        <div style="color: #f4516c;font-size: 8px;">&nbsp;&nbsp;&nbsp;（1）如果信息匹配，线下转账，上传转账凭证；</div>
+        <div style="color: #f4516c;font-size: 8px;">&nbsp;&nbsp;&nbsp;（2）如果商户金额不足，请不要转账；</div>
+      </div>
+      <div/>
+      <el-form ref="formAdminAll" :model="formAdminAll" :rules="rules" label-width="90px">
+        <el-form-item label="待付总金额" prop="amount">
+          <span style="color: red;font-size: 20px;font-family: 'Arial Black';">&nbsp;&nbsp;&nbsp;{{
+              formAdminAll.subAmountSum
+            }}</span>
+          <span style="color: red;font-size: 10px;font-family: 'Arial Black';">&nbsp;&nbsp;&nbsp;{{
+              formAdminAll.subAmountShow
+            }}</span>
+
+        </el-form-item>
+        <el-form-item label="银行卡信息" prop="bankName">
+          <div><br/></div>
+          <div>
+            姓名: {{ formAdminAll.userName }}
+            &nbsp;
+            <i class="el-icon-document-copy" v-clipboard:copy="formAdminAll.userName" v-clipboard:success="onCopy"
+               v-clipboard:error="onError"></i>
+          </div>
+          <div>
+            银行卡名称: {{ formAdminAll.userBankName }}
+            &nbsp;
+            <i class="el-icon-document-copy" v-clipboard:copy="formAdminAll.userBankName" v-clipboard:success="onCopy"
+               v-clipboard:error="onError"></i>
+          </div>
+          <div>
+            银行账户: {{ formAdminAll.userBankCard }}
+            &nbsp;
+            <i class="el-icon-document-copy" v-clipboard:copy="formAdminAll.userBankCard" v-clipboard:success="onCopy"
+               v-clipboard:error="onError"></i>
+          </div>
+        </el-form-item>
+        <el-form-item label="转账截图" prop="payimageUrl" width="300px">
+          <el-upload
+            list-type="picture-card"
+            accept=".jpg, .png"
+            ref="imageUpload"
+            :action="upload.url"
+            :headers="upload.headers"
+            :on-progress="handleFileUploadProgress"
+            :on-success="handleFileSuccess"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+            :limit="1"
+            :auto-upload="true">
+            <i slot="default" class="el-icon-plus"></i>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+          </el-upload>
+          <el-dialog :visible.sync="upload.dialogVisible">
+            <img width="100%" :src="upload.dialogImageUrl" alt="">
+          </el-dialog>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancel(1)">取 消</el-button>
+        <el-button type="primary" @click="submitAdminAllForm(3)">完成转账</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 import {getWithdraw, listWithdraw2} from "@/api/mbpay/withdraw";
 import {getRecharge, updateRecharge} from "@/api/mbpay/recharge";
-import {listPool, daifu} from "@/api/mbpay/pool";
+import {listPool, daifu, daifuAll} from "@/api/mbpay/pool";
 import {getToken} from "@/utils/auth";
 
 export default {
@@ -438,6 +518,7 @@ export default {
       // 是否显示弹出层
       open: false,
       openAdmin: false,
+      openAdminAll: false,
       // 查询参数1
       queryParams: {
         pageNum: 1,
@@ -458,6 +539,7 @@ export default {
       // 表单参数
       form: {},
       formAdmin: {},
+      formAdminAll: {},
       // 表单校验
       rules: {
         siteId: [
@@ -514,6 +596,7 @@ export default {
     cancel() {
       this.open = false;
       this.openAdmin = false;
+      this.openAdminAll = false;
       this.reset();
     },
     // 表单重置
@@ -562,7 +645,39 @@ export default {
 
         this.openAdmin = true;
         this.title = "代付转账明细";
+
+        if (this.$refs.imageUpload) {
+          this.$refs.imageUpload.clearFiles();
+        }
       });
+    },
+    handleAdminAll(row) {
+      this.reset();
+      this.queryRechargeParams.parentId = row.id;
+      listPool(this.queryRechargeParams).then(response => {
+        let subAmountSum = 0;
+        let subAmountShow = new Array();
+        response.rows.map(m => {
+          if (m.matchStatus == 4) {
+            subAmountSum += m.matchAmount;
+            subAmountShow.push(m.matchAmount);
+          }
+        });
+        this.formAdminAll = row;
+        this.formAdminAll.subAmountSum = subAmountSum;
+        if (subAmountShow.length) {
+          this.formAdminAll.subAmountShow = subAmountShow;
+        } else {
+          this.formAdminAll.subAmountShow = "";
+        }
+        this.openAdminAll = true;
+        this.title = "代付合并明细";
+
+        if (this.$refs.imageUpload) {
+          this.$refs.imageUpload.clearFiles();
+        }
+      });
+
     },
     /** 提交按钮 */
     submitForm(status) {
@@ -587,6 +702,19 @@ export default {
         this.getList();
       });
     },
+    submitAdminAllForm(matchStatus) {
+      this.formAdminAll.status = matchStatus;
+      if (this.formAdminAll.subAmountSum){
+        daifuAll(this.formAdminAll).then(response => {
+          this.msgSuccess("代付合并成功");
+          this.openAdminAll = false;
+          this.getList();
+        });
+      }else{
+        this.msgError("没有合并的拆单金额");
+      }
+
+    },
     onCopy() {
       this.$message.success("内容已复制到剪切板")
     },
@@ -597,9 +725,14 @@ export default {
       // this.$refs.imageUpload.handleRemove(file);
     },
     handlePictureCardPreview(file) {
-      this.loading = false;
-      this.upload.dialogImageUrl = file.url;
-      this.upload.dialogVisible = true;
+      if (file) {
+        this.loading = false;
+        this.upload.dialogImageUrl = file.url;
+        this.upload.dialogVisible = true;
+        this.formAdmin.withdrawUrl = file.response.url; //借用字段
+        this.formAdminAll.withdrawUrl = file.response.url; //借用字段
+
+      }
     },
     // 文件上传中处理
     handleFileUploadProgress(event, file, fileList) {
@@ -610,7 +743,7 @@ export default {
       console.info(response);
       this.upload.isUploading = false;
       this.formAdmin.withdrawUrl = response.url; //借用字段
-
+      this.formAdminAll.withdrawUrl = response.url; //借用字段
     }
   }
 };
