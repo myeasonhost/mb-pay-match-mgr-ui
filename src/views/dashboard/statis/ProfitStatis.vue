@@ -71,7 +71,7 @@
 
 <script>
   import CountTo from 'vue-count-to'
-  import {getStatisProfit} from "@/api/pay/statis";
+  import {getStatisProfit,getStatisProfitHead} from "@/api/pay/statis";
 
   export default {
     components: {
@@ -97,6 +97,7 @@
     },
     mounted() {
       this.monthDate = this.getNowTime();
+      this.getHeadInfo();
       this.$nextTick(() => {
         this.drawLine()
       });
@@ -121,11 +122,6 @@
         };
         //盈利统计
         getStatisProfit(params).then(response => {
-          this.totalProfit = response.data.totalProfit;
-          this.monthProfit = response.data.monthProfit;
-          this.todayProfit = response.data.todayProfit;
-          this.yesterdayProfit = response.data.yesterdayProfit;
-          this.upFromYesterday = response.data.upFromYesterday;
           this.dateList = response.data.dateList;
           this.profitAmountList = response.data.profitAmountList;
           this.chargeProfitAmount = response.data.chargeProfitAmount;
@@ -270,6 +266,16 @@
               },
             ]
           })
+        });
+      },
+      getHeadInfo() {
+        //头部数据
+        getStatisProfitHead().then(response => {
+          this.totalProfit = response.data.totalProfit;
+          this.monthProfit = response.data.monthProfit;
+          this.todayProfit = response.data.todayProfit;
+          this.yesterdayProfit = response.data.yesterdayProfit;
+          this.upFromYesterday = response.data.upFromYesterday;
         });
       }
     }

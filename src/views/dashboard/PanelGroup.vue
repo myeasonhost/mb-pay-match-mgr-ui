@@ -28,7 +28,7 @@
       getUser() {
         getUserProfile().then(response => {
           this.user = response.data;
-          if (response.data.roles[0].roleKey === 'admin') {
+          if (response.data.roles[0].roleKey.startsWith('admin')) {
             this.is_show = 2;
           } else {
             this.is_show = 1;

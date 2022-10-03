@@ -485,3 +485,9 @@
   }
 </script>
 
+<style lang="scss" scoped>
+  .card-panel-num {
+    font-size: 20px;
+    color: red;
+  }
+</style>

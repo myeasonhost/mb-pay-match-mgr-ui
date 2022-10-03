@@ -1,5 +1,13 @@
 import request from '@/utils/request'
 
+// 查询盈利统计（头部）
+export function getStatisProfitHead() {
+  return request({
+    url: '/mbpay/statis/getStatisProfitHead',
+    method: 'post',
+  })
+}
+
 // 查询盈利统计
 export function getStatisProfit(query) {
   return request({
