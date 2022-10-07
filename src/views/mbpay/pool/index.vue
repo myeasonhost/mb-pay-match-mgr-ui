@@ -344,7 +344,7 @@
       <el-form ref="formAdmin" :model="formAdmin" :rules="rules" label-width="90px">
         <el-form-item label="待付金额" prop="amount">
           <div style="color: red;font-size: 20px;font-family: 'Arial Black';">&nbsp;&nbsp;&nbsp;{{
-              formAdminAll.amount
+              formAdmin.amount
             }}
           </div>
         </el-form-item>
@@ -663,6 +663,10 @@ export default {
             subAmountShow.push(m.matchAmount);
           }
         });
+        if (!subAmountSum){
+          this.msgError("只有超时的金额，才能代付合并");
+          return;
+        }
         this.formAdminAll = row;
         this.formAdminAll.subAmountSum = subAmountSum;
         if (subAmountShow.length) {
