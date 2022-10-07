@@ -126,7 +126,7 @@
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" width="150"/>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="150">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -184,7 +184,22 @@
             v-hasPermi="['pay:siteinfo:updPwd']"
           >重置交易密码
           </el-button>
-
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-refresh"
+            @click="resetApiKey(scope.row)"
+            v-hasPermi="['pay:siteinfo:resetApiKey']"
+          >重置ApiSecret
+          </el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-refresh"
+            @click="resetGoogle(scope.row)"
+            v-hasPermi="['pay:siteinfo:resetGoogle']"
+          >重置Google
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -373,7 +388,9 @@
     changeSiteStatus,
     updateSiteInfo,
     updateSiteInfoBalance,
-    exportSiteInfo
+    exportSiteInfo,
+    resetApiKey,
+    resetGoogle
   } from "@/api/pay/siteinfo";
 
   export default {
@@ -732,6 +749,32 @@
           type: "warning"
         }).then(function () {
           return updPwdSiteInfo(row.id);
+        }).then(() => {
+          this.getList();
+          this.msgSuccess("重置成功");
+        })
+      },
+      /** 重置ApiKey操作 */
+      resetApiKey(row) {
+        this.$confirm('确认重置ApiSecret?', " 重置ApiSecret", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function () {
+          return resetApiKey(row.id);
+        }).then(() => {
+          this.getList();
+          this.msgSuccess("重置成功");
+        })
+      },
+      /** 重置Google操作 */
+      resetGoogle(row) {
+        this.$confirm('确认重置GoogleSecret？', " 重置GoogleSecret", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function () {
+          return resetGoogle(row.id);
         }).then(() => {
           this.getList();
           this.msgSuccess("重置成功");

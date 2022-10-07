@@ -136,3 +136,17 @@ export function checkGoogleCode(query) {
     params: query
   })
 }
+// 重置ApiSecret
+export function resetApiKey(id) {
+  return request({
+    url: '/pay/siteinfo/resetApiKey/'+id,
+    method: 'put'
+  })
+}
+// 重置Google
+export function resetGoogle(id) {
+  return request({
+    url: '/pay/siteinfo/resetGoogle/'+id,
+    method: 'put'
+  })
+}

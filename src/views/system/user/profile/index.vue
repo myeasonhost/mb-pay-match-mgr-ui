@@ -83,6 +83,13 @@
                 <div class="pull-right">{{ mbpaySiteInfo.chWithdrawRate }}%</div>
               </li>
               <li class="list-group-item">
+                googleSecret
+                <div class="pull-right">{{ mbpaySiteInfo.googleSecretCode }}
+                  <i class="el-icon-document-copy" v-clipboard:copy="mbpaySiteInfo.googleSecretCode" v-clipboard:success="onCopy"
+                     v-clipboard:error="onError"></i>
+                </div>
+              </li>
+              <li class="list-group-item">
                 appKey
                 <div class="pull-right">{{ mbpaySiteInfo.appKey }}
                   <i class="el-icon-document-copy" v-clipboard:copy="mbpaySiteInfo.appKey" v-clipboard:success="onCopy"
