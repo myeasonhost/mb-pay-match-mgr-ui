@@ -207,8 +207,20 @@
         <el-form-item label="评审意见" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入评审意见" />
         </el-form-item>
-        <el-form-item label="图片凭证" prop="payimageUrl" width="300px">
+        <el-form-item label="图片凭证1" prop="payimageUrl" width="300px">
           <el-image :src="form.payimageUrl"></el-image>
+        </el-form-item>
+        <el-form-item label="图片凭证2" prop="payimageUrl" width="300px">
+          <el-image :src="form.payimageUrl2"></el-image>
+        </el-form-item>
+        <el-form-item label="图片凭证3" prop="payimageUrl" width="300px">
+          <el-image :src="form.payimageUrl3"></el-image>
+        </el-form-item>
+        <el-form-item label="图片凭证4" prop="payimageUrl" width="300px">
+          <el-image :src="form.payimageUrl4"></el-image>
+        </el-form-item>
+        <el-form-item label="图片凭证5" prop="payimageUrl" width="300px">
+          <el-image :src="form.payimageUrl5"></el-image>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

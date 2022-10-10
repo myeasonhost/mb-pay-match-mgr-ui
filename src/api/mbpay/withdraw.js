@@ -42,6 +42,14 @@ export function notifyWithdraw(id) {
   })
 }
 
+// 取消提现订单
+export function notifyCancel(id) {
+  return request({
+    url: '/mbpay/withdraw/cancel/' + id,
+    method: 'put'
+  })
+}
+
 // 商户首页统计信息 提现订单
 export function getCountFishWithdraw(query) {
   return request({
