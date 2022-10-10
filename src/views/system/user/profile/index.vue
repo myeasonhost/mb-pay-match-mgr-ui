@@ -122,6 +122,9 @@
             <el-tab-pane label="修改交易密码" name="resetAcctPwd" v-if="mbpaySiteInfo">
               <resetAcctPwd />
             </el-tab-pane>
+            <el-tab-pane label="修改提现列表" name="siteInfo" v-if="mbpaySiteInfo">
+              <siteInfo :mbpaySiteInfo="mbpaySiteInfo" />
+            </el-tab-pane>
           </el-tabs>
         </el-card>
       </el-col>
@@ -134,12 +137,13 @@ import userAvatar from "./userAvatar";
 import userInfo from "./userInfo";
 import resetPwd from "./resetPwd";
 import resetAcctPwd from "./resetAcctPwd";
+import siteInfo from "./siteInfo";
 import { getUserProfile } from "@/api/system/user";
 import {getSiteInfoProfile} from "@/api/pay/profile";
 
 export default {
   name: "Profile",
-  components: { userAvatar, userInfo, resetPwd, resetAcctPwd},
+  components: { userAvatar, userInfo, resetPwd, resetAcctPwd,siteInfo},
   data() {
     return {
       user: {},

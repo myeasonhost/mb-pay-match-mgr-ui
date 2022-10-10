@@ -150,3 +150,12 @@ export function resetGoogle(id) {
     method: 'put'
   })
 }
+
+//修改提现列表
+export function updateWithdrawList(data) {
+  return request({
+    url: '/pay/siteinfo/updateWithdrawList',
+    method: 'put',
+    data: data
+  })
+}
