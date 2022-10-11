@@ -160,6 +160,15 @@
                   v-hasPermi="['mbpay:recharge:edit']"
                 >审批
                 </el-button>
+                <el-button
+                  v-if="scope.row.matchStatus==0 || scope.row.matchStatus==4"
+                  size="small"
+                  type="text"
+                  icon="el-icon-s-unfold"
+                  @click="handleUnFold(scope.row)"
+                  v-hasPermi="['mbpay:recharge:edit']"
+                >手动拆单
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -245,7 +254,15 @@
             icon="el-icon-s-custom"
             @click="handleAdminAll(scope.row)"
             v-hasPermi="['mbpay:recharge:edit']"
-          >代付合并
+          >合并代付
+          </el-button>
+          <el-button
+            size="small"
+            type="text"
+            icon="el-icon-s-fold"
+            @click="handleFold(scope.row)"
+            v-hasPermi="['mbpay:recharge:edit']"
+          >合并拆单
           </el-button>
         </template>
       </el-table-column>
@@ -322,16 +339,16 @@
         <el-form-item label="图片凭证1" prop="payimageUrl" width="300px">
           <el-image :src="form.payimageUrl"></el-image>
         </el-form-item>
-        <el-form-item label="图片凭证2" prop="payimageUrl" width="300px">
+        <el-form-item label="图片凭证2" prop="payimageUrl2" width="300px">
           <el-image :src="form.payimageUrl2"></el-image>
         </el-form-item>
-        <el-form-item label="图片凭证3" prop="payimageUrl" width="300px">
+        <el-form-item label="图片凭证3" prop="payimageUrl3" width="300px">
           <el-image :src="form.payimageUrl3"></el-image>
         </el-form-item>
-        <el-form-item label="图片凭证4" prop="payimageUrl" width="300px">
+        <el-form-item label="图片凭证4" prop="payimageUrl4" width="300px">
           <el-image :src="form.payimageUrl4"></el-image>
         </el-form-item>
-        <el-form-item label="图片凭证5" prop="payimageUrl" width="300px">
+        <el-form-item label="图片凭证5" prop="payimageUrl5" width="300px">
           <el-image :src="form.payimageUrl5"></el-image>
         </el-form-item>
       </el-form>
@@ -476,14 +493,92 @@
         <el-button type="primary" @click="submitAdminAllForm(3)">完成转账</el-button>
       </div>
     </el-dialog>
+    <!-- 拆单合并对话框 -->
+    <el-dialog :title="title" :visible.sync="openFold" width="500px" append-to-body>
+      <div style="color: green;font-weight: bold;font-size: 10px;margin-bottom: 20px;">
+        <div>
+          <i class="el-icon-warning"></i>
+          <span>&nbsp;&nbsp;&nbsp;温馨提示：此功能是将所有【等待撮合】【撮合超时】的子单，多单合并拼成一单</span>
+        </div>
+      </div>
+      <div/>
+      <el-form ref="formFold" :model="formFold" :rules="rules" label-width="90px">
+        <el-form-item label="合并总金额" prop="amount">
+          <span style="color: red;font-size: 20px;font-family: 'Arial Black';">&nbsp;&nbsp;&nbsp;{{
+              formFold.subAmountSum
+            }}</span>
+        </el-form-item>
+        <el-form-item label="合并总明细" prop="subAmount">
+          <div>
+            <div style="color: gray;font-size: 10px;font-family: 'Arial Black';">&nbsp;笔数：{{ formFold.subAmountNum }}
+            </div>
+            <div style="color: gray;font-size: 10px;font-family: 'Arial Black';">&nbsp;子金额：{{
+                formFold.subAmountShow
+              }}
+            </div>
+          </div>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancel(1)">取 消</el-button>
+        <el-button type="primary" @click="submitFoldForm()">确认合并</el-button>
+      </div>
+    </el-dialog>
 
+    <!-- 手动拆单对话框 -->
+    <el-dialog :title="title" :visible.sync="openUnFold" width="500px" append-to-body>
+      <div style="color: green;font-weight: bold;font-size: 10px;margin-bottom: 20px;">
+        <div>
+          <i class="el-icon-warning"></i>
+          <span>&nbsp;&nbsp;&nbsp;温馨提示：此功能是将所有【等待撮合】【撮合超时】的单，一单拆分成多单</span>
+        </div>
+      </div>
+      <div/>
+      <el-form ref="formUnFold" :model="formUnFold" :rules="rules" label-width="90px">
+        <el-form-item label="拆单总金额" prop="amount">
+          <span style="color: red;font-size: 20px;font-family: 'Arial Black';">&nbsp;&nbsp;&nbsp;{{
+              formUnFold.matchAmount
+            }}</span>
+        </el-form-item>
+        <el-row :gutter="20">
+          <el-col :span="15">
+            <el-form-item label="拆分金额1" prop="subAmount">
+              <el-input v-model="formUnFold.subAmount" width="50px" size="mini"
+                        type='number' min="0" onkeyup="value=value.replace(/^0{1,}/g,'')"
+                        placeholder="请输入拆分金额"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4" style="padding-left: 5px;">
+            <el-button size="mini" type="primary" icon="el-icon-plus" round @click="addInput"/>
+          </el-col>
+        </el-row>
+        <div v-for="(item,index) in dynamicItemArr" :key="index">
+          <el-row :gutter="20">
+            <el-col :span="15">
+              <el-form-item :label="'拆分金额'+(index+2)" prop="subAmount">
+                <el-input v-model="item.subAmount" width="50px" size="mini" type='number' min="0"
+                          onkeyup="value=value.replace(/^0{1,}/g,'')"
+                          placeholder="请输入拆分金额"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="4" style="padding: 5px;">
+              <el-button size="small" type="danger" icon="el-icon-delete" round @click="deleteInput(item,index)"/>
+            </el-col>
+          </el-row>
+        </div>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancel(1)">取 消</el-button>
+        <el-button type="primary" @click="submitUnFoldForm()">确认拆分</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import {getWithdraw, listWithdraw2} from "@/api/mbpay/withdraw";
 import {getRecharge, updateRecharge} from "@/api/mbpay/recharge";
-import {listPool, daifu, daifuAll} from "@/api/mbpay/pool";
+import {listPool, getPool, daifu, daifuAll, fold, unfold} from "@/api/mbpay/pool";
 import {getToken} from "@/utils/auth";
 
 export default {
@@ -531,6 +626,8 @@ export default {
       open: false,
       openAdmin: false,
       openAdminAll: false,
+      openFold: false,
+      openUnFold: false,
       // 查询参数1
       queryParams: {
         pageNum: 1,
@@ -552,6 +649,12 @@ export default {
       form: {},
       formAdmin: {},
       formAdminAll: {},
+      formFold: {},
+      dynamicItemArr: [],
+      formUnFold: {
+        subAmount: undefined,
+        dynamicItemArr: []
+      },
       // 表单校验
       rules: {
         siteId: [
@@ -566,6 +669,9 @@ export default {
         remark: [
           {required: true, message: "评审意见不能为空", trigger: "blur"}
         ],
+        subAmount: [
+          {required: true, message: "拆分金额不能为空", trigger: "blur"}
+        ],
       }
     };
   },
@@ -573,6 +679,14 @@ export default {
     this.getList();
   },
   methods: {
+    addInput() {
+      this.dynamicItemArr.push({
+        subAmount: ""
+      });
+    },
+    deleteInput(item, index) {
+      this.dynamicItemArr.splice(index, 1);
+    },
     /** 查询提现订单列表 */
     getList() {
       this.loading = true;
@@ -609,6 +723,8 @@ export default {
       this.open = false;
       this.openAdmin = false;
       this.openAdminAll = false;
+      this.openFold = false;
+      this.openUnFold = false;
       this.reset();
     },
     // 表单重置
@@ -621,6 +737,19 @@ export default {
         status: "0",
       };
       this.resetForm("form");
+
+      this.formAdmin = {};
+      this.resetForm("formAdmin");
+
+      this.formAdminAll = {};
+      this.resetForm("formAdminAll");
+
+      this.formFold = {};
+      this.resetForm("formFold");
+
+      this.formUnFold = {};
+      this.resetForm("formUnFold");
+
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -663,6 +792,7 @@ export default {
         }
       });
     },
+    /**合并代付*/
     handleAdminAll(row) {
       this.reset();
       this.queryRechargeParams.parentId = row.id;
@@ -675,7 +805,7 @@ export default {
             subAmountShow.push(m.matchAmount);
           }
         });
-        if (!subAmountSum){
+        if (!subAmountSum) {
           this.msgError("只有超时的金额，才能代付合并");
           return;
         }
@@ -693,7 +823,49 @@ export default {
           this.$refs.imageUpload.clearFiles();
         }
       });
+    },
+    /**合并拆单**/
+    handleFold(row) {
+      this.reset();
+      this.queryRechargeParams.parentId = row.id;
+      listPool(this.queryRechargeParams).then(response => {
+        let subAmountSum = 0;
+        let subAmountShow = new Array();
+        let subAmountNum = 0;
+        response.rows.map(m => {
+          if (m.matchStatus == 4 || m.matchStatus == 0) {
+            subAmountSum += m.matchAmount;
+            subAmountShow.push(m.matchAmount);
+            subAmountNum++;
+          }
+        });
+        if (!subAmountSum) {
+          this.msgError("只有未匹配或者超时的金额，才能拆单合并");
+          return;
+        }
+        this.formFold = row;
+        this.formFold.subAmountSum = subAmountSum;
+        this.formFold.subAmountNum = subAmountNum;
+        if (subAmountShow.length) {
+          this.formFold.subAmountShow = subAmountShow;
+        } else {
+          this.formFold.subAmountShow = "";
+        }
+        this.openFold = true;
+        this.title = "合并拆单明细";
 
+      });
+    },
+    /**手动拆单**/
+    handleUnFold(row) {
+      this.reset();
+      this.formUnFold.row = row;
+      this.dynamicItemArr = [];
+      getPool(row.matchId).then(response => {
+        this.formUnFold = response.data;
+        this.openUnFold = true;
+        this.title = "手动拆单明细";
+      })
     },
     /** 提交按钮 */
     submitForm(status) {
@@ -720,16 +892,54 @@ export default {
     },
     submitAdminAllForm(matchStatus) {
       this.formAdminAll.status = matchStatus;
-      if (this.formAdminAll.subAmountSum){
+      if (this.formAdminAll.subAmountSum) {
         daifuAll(this.formAdminAll).then(response => {
           this.msgSuccess("代付合并成功");
           this.openAdminAll = false;
           this.getList();
         });
-      }else{
+      } else {
         this.msgError("没有合并的拆单金额");
       }
 
+    },
+    submitFoldForm() {
+      fold(this.formFold).then(response => {
+        this.msgSuccess("合并拆分成功");
+        this.openFold = false;
+        this.getList();
+        // this.expandChange(this.formFold, 1);
+      });
+    },
+    submitUnFoldForm() {
+      let subAmountList = new Array();
+      let subAmount1 = this.formUnFold.subAmount ? this.formUnFold.subAmount : 0;
+      if (subAmount1) {
+        subAmountList.push(subAmount1);
+      }
+      if (this.dynamicItemArr.length > 0) {
+        this.dynamicItemArr.map(item => {
+          if (item.subAmount) {
+            subAmount1 = Number(subAmount1) + Number(item.subAmount);
+            subAmountList.push(item.subAmount);
+          }
+        })
+      }
+      if (subAmountList.length == 0) {
+        this.$message.error('输入金额大于0！');
+        return;
+      }
+      if (this.formUnFold.matchAmount != subAmount1) {
+        this.$message.error('拆分金额=' + subAmount1 + "不等于总金额=" + this.formUnFold.matchAmount);
+        return;
+      }
+      this.formUnFold.subAmountList = subAmountList.join(",");
+      unfold(this.formUnFold).then(response => {
+        this.msgSuccess("手动拆分成功");
+        this.openUnFold = false;
+        this.getList();
+        // this.expandChange(this.formUnFold.row, 1);
+      });
     },
     onCopy() {
       this.$message.success("内容已复制到剪切板")

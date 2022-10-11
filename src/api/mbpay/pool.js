@@ -34,3 +34,21 @@ export function daifuAll(data) {
     data: data
   })
 }
+
+// 拆单合并
+export function fold(data) {
+  return request({
+    url: '/mbpay/recharge/fold',
+    method: 'post',
+    data: data
+  })
+}
+
+// 手动拆单
+export function unfold(data) {
+  return request({
+    url: '/mbpay/recharge/unfold',
+    method: 'post',
+    data: data
+  })
+}
