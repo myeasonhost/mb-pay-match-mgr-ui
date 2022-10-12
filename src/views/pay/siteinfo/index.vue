@@ -113,14 +113,14 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="当前余额" align="center" prop="balance"  width="150"/>
-      <el-table-column label="冻结金额" align="center" prop="freeBalance"  width="150"/>
+      <el-table-column label="当前余额" align="center" prop="balance" width="150"/>
+      <el-table-column label="冻结金额" align="center" prop="freeBalance" width="150"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.mbpay_site_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime"  width="150">
+      <el-table-column label="创建时间" align="center" prop="createTime" width="150">
         <template slot-scope="scope">
           <div>{{ parseTime(scope.row.createTime) }}</div>
         </template>
@@ -135,6 +135,14 @@
             @click="handleShow(scope.row)"
             v-hasPermi="['pay:siteinfo:query']"
           >查看
+          </el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-search"
+            @click="handleSecret(scope.row)"
+            v-hasPermi="['pay:siteinfo:query']"
+          >查看Secret
           </el-button>
           <el-button
             size="mini"
@@ -341,7 +349,8 @@
         </el-row>
         <el-form-item label="IP白名单" prop="whiteIp" v-if="['update', 'show','add'].includes(type)"
                       size="mini">
-          <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.whiteIp" placeholder="请输入IP地址,多个IP用逗号隔开"
+          <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.whiteIp"
+                    placeholder="请输入IP地址,多个IP用逗号隔开"
                     maxlength="200"/>
         </el-form-item>
         <el-form-item label="提现金额配置" prop="withdrawAmountList" v-if="['update', 'show','add'].includes(type)"
@@ -356,7 +365,8 @@
                     placeholder="" :rows="7"/>
         </el-form-item>
         <el-form-item label="充值跳转" prop="rechargeUrl" v-if="['update', 'show','add'].includes(type)" size="mini">
-          <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.rechargeUrl" placeholder="请输入充值跳转"/>
+          <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.rechargeUrl"
+                    placeholder="请输入充值跳转"/>
         </el-form-item>
         <el-form-item label="客服跳转" prop="clientUrl" v-if="['update', 'show','add'].includes(type)" size="mini">
           <el-input type="textarea" :disabled="['show'].includes(type)" v-model="form.clientUrl" placeholder="请输入客服跳转"/>
@@ -370,6 +380,32 @@
         </el-button>
         <el-button v-if="['balance'].includes(type)" type="primary" @click="balanceForm" size="small">调整余额</el-button>
         <el-button @click="cancel" size="small">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="Secret" :visible.sync="openSecret" width="450px" append-to-body>
+      <div style="font-size: 15px">
+        GoogleSecret: {{ form.googleSecretCode }}
+        &nbsp
+        <i class="el-icon-document-copy" v-clipboard:copy="form.googleSecretCode" v-clipboard:success="onCopy"
+           v-clipboard:error="onError"></i>
+      </div>
+      <div><br/></div>
+      <div style="font-size: 15px">
+        AppKey: {{ form.appKey }}
+        &nbsp;
+        <i class="el-icon-document-copy" v-clipboard:copy="form.appKey" v-clipboard:success="onCopy"
+           v-clipboard:error="onError"></i>
+      </div>
+      <div><br/></div>
+      <div style="font-size: 15px">
+        AppSecret: {{ form.appSecret }}
+        &nbsp;
+        <i class="el-icon-document-copy" v-clipboard:copy="form.appSecret" v-clipboard:success="onCopy"
+           v-clipboard:error="onError"></i>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelSecret">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -431,6 +467,7 @@
         title: "",
         // 是否显示弹出层
         open: false,
+        openSecret: false,
         // 当前编辑类型
         type: '',
         // 查询参数
@@ -621,7 +658,7 @@
           updateTime: undefined,
           rechargeUrl: undefined,
           clientUrl: undefined,
-          whiteIp: undefined
+          whiteIp: undefined,
         };
         this.resetForm("form");
       },
@@ -672,6 +709,16 @@
           this.open = true;
           this.title = "查看商户";
           this.type = "show"
+        });
+      },
+      /** 查看按钮操作 */
+      handleSecret(row) {
+        this.reset();
+        const id = row.id || this.ids
+        getSiteInfo(id).then(response => {
+          this.form = response.data;
+          console.log(this.form)
+          this.openSecret = true;
         });
       },
       /** 提交按钮 */
@@ -804,7 +851,18 @@
         }).then(response => {
           this.download(response.msg);
         })
-      }
+      },
+      onCopy() {
+        this.$message.success("内容已复制到剪切板")
+      },
+      onError() {
+        this.$message.error('抱歉，复制失败！')
+      },
+      // 取消按钮
+      cancelSecret() {
+        this.openSecret = false;
+        this.reset();
+      },
     }
   };
 </script>
