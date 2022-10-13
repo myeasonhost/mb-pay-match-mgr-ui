@@ -336,19 +336,19 @@
         <el-form-item label="评审意见" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入评审意见"/>
         </el-form-item>
-        <el-form-item label="图片凭证1" prop="payimageUrl" width="300px">
+        <el-form-item label="图片凭证1" prop="payimageUrl" width="300px" v-if="form.payimageUrl!=null">
           <el-image :src="form.payimageUrl"></el-image>
         </el-form-item>
-        <el-form-item label="图片凭证2" prop="payimageUrl2" width="300px">
+        <el-form-item label="图片凭证2" prop="payimageUrl2" width="300px" v-if="form.payimageUrl2!=null">
           <el-image :src="form.payimageUrl2"></el-image>
         </el-form-item>
-        <el-form-item label="图片凭证3" prop="payimageUrl3" width="300px">
+        <el-form-item label="图片凭证3" prop="payimageUrl3" width="300px" v-if="form.payimageUrl3!=null">
           <el-image :src="form.payimageUrl3"></el-image>
         </el-form-item>
-        <el-form-item label="图片凭证4" prop="payimageUrl4" width="300px">
+        <el-form-item label="图片凭证4" prop="payimageUrl4" width="300px" v-if="form.payimageUrl4!=null">
           <el-image :src="form.payimageUrl4"></el-image>
         </el-form-item>
-        <el-form-item label="图片凭证5" prop="payimageUrl5" width="300px">
+        <el-form-item label="图片凭证5" prop="payimageUrl5" width="300px" v-if="form.payimageUrl5!=null">
           <el-image :src="form.payimageUrl5"></el-image>
         </el-form-item>
       </el-form>
