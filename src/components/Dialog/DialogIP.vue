@@ -3,7 +3,7 @@
     <el-dialog
       title="IP白名单"
       :visible.sync="dialogVisible"
-      width="600px">
+      width="600px"  @close="closeFn">
       <el-table
         border
         :data="list.filter(data => !search || data.ip.toLowerCase().includes(search.toLowerCase()))"
