@@ -208,6 +208,13 @@
             v-hasPermi="['pay:siteinfo:resetGoogle']"
           >重置Google
           </el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleIPWhite(scope.row)"
+          >IP白名单
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -408,6 +415,7 @@
         <el-button @click="cancelSecret">取 消</el-button>
       </div>
     </el-dialog>
+    <Dialog ref="ipWhite" @success="successFn"></Dialog>
   </div>
 </template>
 
@@ -426,13 +434,15 @@
     updateSiteInfoBalance,
     exportSiteInfo,
     resetApiKey,
-    resetGoogle
+    resetGoogle,
+    updWhiteIp
   } from "@/api/pay/siteinfo";
+  import Dialog from '../../../components/Dialog/DialogIP'
 
   export default {
     name: "SiteInfo",
     dicts: ['mbpay_site_status', 'mbpay_document_type', 'sys_user_sex', 'mbpay_credit_rating'],
-    components: {},
+    components: {Dialog},
     data() {
       //失去焦点的时候校验商家账号是否存在
       var checkSiteAccount = (rule, value, callback) => {
@@ -717,7 +727,6 @@
         const id = row.id || this.ids
         getSiteInfo(id).then(response => {
           this.form = response.data;
-          console.log(this.form)
           this.openSecret = true;
         });
       },
@@ -862,6 +871,23 @@
       cancelSecret() {
         this.openSecret = false;
         this.reset();
+      },
+      /** IP白名单 */
+      handleIPWhite(row) {
+        const id = row.id || this.ids
+        getSiteInfo(id).then(response => {
+          this.$refs.ipWhite.open(id, response.data.whiteIp);
+        });
+      },
+      successFn(id, ip) {
+        let params = {
+          whiteIp: ip,
+          id: id
+        };
+        updWhiteIp(params).then(response => {
+          this.$refs.ipWhite.closeFn();
+          this.msgSuccess("修改成功");
+        });
       },
     }
   };
