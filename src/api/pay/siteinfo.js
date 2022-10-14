@@ -159,3 +159,12 @@ export function updateWithdrawList(data) {
     data: data
   })
 }
+
+//修改ip白名单
+export function updWhiteIp(query) {
+  return request({
+    url: '/pay/siteinfo/updWhiteIp',
+    method: 'put',
+    params: query
+  })
+}
