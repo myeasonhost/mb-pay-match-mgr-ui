@@ -264,6 +264,15 @@
             v-hasPermi="['mbpay:recharge:edit']"
           >合并拆单
           </el-button>
+          <el-button
+            v-if="scope.row.status==3"
+            size="small"
+            type="text"
+            icon="el-icon-delete"
+            @click="handleCancel(scope.row)"
+            v-hasPermi="['mbpay:recharge:edit']"
+          >合并取消
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -576,7 +585,7 @@
 </template>
 
 <script>
-import {getWithdraw, listWithdraw2} from "@/api/mbpay/withdraw";
+import {getWithdraw, listWithdraw2, notifyCancel} from "@/api/mbpay/withdraw";
 import {getRecharge, updateRecharge} from "@/api/mbpay/recharge";
 import {listPool, getPool, daifu, daifuAll, fold, unfold} from "@/api/mbpay/pool";
 import {getToken} from "@/utils/auth";
@@ -823,6 +832,27 @@ export default {
           this.$refs.imageUpload.clearFiles();
         }
       });
+    },
+    /** 取消提现按钮操作 */
+    handleCancel(row) {
+      this.reset();
+      const id = row.id;
+      this.$confirm('此操作将所有未匹配的单全部进行取消提现操作, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        notifyCancel(id).then(response => {
+          this.getList();
+          this.msgSuccess('取消提现已经通知');
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消通知'
+        });
+      });
+      this.open = false;
     },
     /**合并拆单**/
     handleFold(row) {
