@@ -809,13 +809,13 @@ export default {
         let subAmountSum = 0;
         let subAmountShow = new Array();
         response.rows.map(m => {
-          if (m.matchStatus == 4) {
+          if (m.matchStatus == 4 || m.matchStatus == 0) {
             subAmountSum += m.matchAmount;
             subAmountShow.push(m.matchAmount);
           }
         });
         if (!subAmountSum) {
-          this.msgError("只有超时的金额，才能代付合并");
+          this.msgError("只有等待撮合或者超时的金额，才能代付合并");
           return;
         }
         this.formAdminAll = row;
