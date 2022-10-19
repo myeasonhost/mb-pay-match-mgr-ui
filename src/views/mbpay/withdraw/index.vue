@@ -55,7 +55,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table v-loading="loading" :data="withdrawList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="withdrawList" @sort-change="changeSort" @selection-change="handleSelectionChange">
       <el-table-column label="提现订单号" align="center" prop="id"/>
       <el-table-column label="商户ID/玩家ID" align="center" prop="siteId" width="120">
         <template slot-scope="scope">
@@ -91,7 +91,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="提现时间" align="center" prop="withdrawTime" width="100"/>
+      <el-table-column label="提现时间" align="center" prop="withdrawTime" width="100" sortable="custom"/>
       <el-table-column label="提款人明细" align="left" prop="amount" width="200">
         <template slot-scope="scope">
           <div style="color: #666666;font-size: small;">
@@ -106,7 +106,7 @@
         </template>
       </el-table-column>
       <el-table-column label="审核人" align="center" prop="applyBy" />
-      <el-table-column label="审核时间" align="center" prop="applyTime" width="100"/>
+      <el-table-column label="审核时间" align="center" prop="applyTime" width="100" sortable="custom"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -269,6 +269,16 @@ export default {
     this.getList();
   },
   methods: {
+    changeSort(column){
+      Object.assign(
+        this.queryParams,
+        {
+          'orderProp': column.prop,
+          'orderBy': column.order
+        }
+      )
+      this.getList();
+    },
     /** 查询提现订单列表 */
     getList() {
       this.loading = true;

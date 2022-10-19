@@ -55,7 +55,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table v-loading="loading" :data="rechargeList">
+    <el-table v-loading="loading" :data="rechargeList" @sort-change="changeSort">
       <el-table-column label="支付订单号" align="center" prop="id"/>
       <el-table-column label="商户ID/玩家ID" align="center" prop="siteId" width="120">
         <template slot-scope="scope">
@@ -94,8 +94,8 @@
         </template>
       </el-table-column>
       <el-table-column label="审核人" align="center" prop="applyBy"/>
-      <el-table-column label="审核时间" align="center" prop="applyTime" width="100"/>
-      <el-table-column label="下单时间" align="center" prop="createTime" width="100"/>
+      <el-table-column label="审核时间" align="center" prop="applyTime" width="100" sortable="custom"/>
+      <el-table-column label="下单时间" align="center" prop="createTime" width="100" sortable="custom"/>
       <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="100">
         <template slot-scope="scope">
@@ -289,6 +289,16 @@ export default {
     this.getList();
   },
   methods: {
+    changeSort(column){
+      Object.assign(
+        this.queryParams,
+        {
+          'orderProp': column.prop,
+          'orderBy': column.order
+        }
+      )
+      this.getList();
+    },
     /** 查询充值订单列表 */
     getList() {
       this.loading = true;

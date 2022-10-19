@@ -55,7 +55,9 @@
       </el-form-item>
     </el-form>
 
-    <el-table ref="table" v-loading="loading" :data="withdrawList" @expand-change="expandChange" border
+    <el-table ref="table" v-loading="loading" :data="withdrawList"
+              @sort-change="changeSort"
+              @expand-change="expandChange" border
               border-color="#ff0000"
               :row-style="{
                       fontWeight: '600',
@@ -201,7 +203,7 @@
           <dict-tag :options="dict.type.mbpay_withdraw_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="提现时间" align="center" prop="withdrawTime" width="90">
+      <el-table-column label="提现时间" align="center" prop="withdrawTime" width="90" sortable="custom">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.withdrawTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
@@ -220,7 +222,7 @@
         </template>
       </el-table-column>
       <el-table-column label="审核人" align="center" prop="applyBy"/>
-      <el-table-column label="审核时间" align="center" prop="applyTime" width="90">
+      <el-table-column label="审核时间" align="center" prop="applyTime" width="90" sortable="custom">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.applyTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
@@ -695,6 +697,16 @@ export default {
     },
     deleteInput(item, index) {
       this.dynamicItemArr.splice(index, 1);
+    },
+    changeSort(column){
+      Object.assign(
+        this.queryParams,
+        {
+          'orderProp': column.prop,
+          'orderBy': column.order
+        }
+      )
+      this.getList();
     },
     /** 查询提现订单列表 */
     getList() {
