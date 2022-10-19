@@ -59,3 +59,12 @@ export function checkBankNum(bankNum,id) {
     method: 'get',
   })
 }
+
+//修改状态
+export function updStatus(query) {
+  return request({
+    url: '/pay/bank/updStatus',
+    method: 'put',
+    params: query
+  })
+}

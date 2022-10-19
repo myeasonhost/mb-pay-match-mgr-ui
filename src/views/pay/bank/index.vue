@@ -143,9 +143,20 @@
         </template>
       </el-table-column>
       <el-table-column label="录入人" align="center" prop="operCode"/>
-      <el-table-column label="状态" align="center" prop="status">
+      <el-table-column label="状态" align="center" prop="status" width="180">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.mbpay_bank_status" :value="scope.row.status"/>
+            <el-select
+              :value="scope.row.status"
+              @change="(value) => { dialogTipFn(value, scope.row) }"
+              style="width: 100px"
+            >
+              <el-option
+                v-for="dict in dict.type.mbpay_bank_status"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
+            </el-select>
         </template>
       </el-table-column>
       <el-table-column label="录入时间" align="center" prop="createTime" sortable="custom"
@@ -300,7 +311,7 @@
 </template>
 
 <script>
-  import {listBank, getBank, delBank, addBank, updateBank, exportBank, checkBankNum} from "@/api/pay/bank";
+  import {listBank, getBank, delBank, addBank, updateBank, exportBank, checkBankNum, updStatus} from "@/api/pay/bank";
   import {getSiteInfoProfile} from "@/api/pay/profile";
   import {checkGoogleCode} from "@/api/pay/siteinfo";
 
@@ -607,6 +618,37 @@
           googleCode: undefined
         };
         this.resetForm("formGoogleCode");
+      },
+      dialogTipFn(value,row) {
+        const ids = row.id || this.ids;
+        var str = '';
+        if(value === '1'){
+          str = '启用';
+        }else if(value === '2'){
+          str = '禁用';
+        }else if(value === '3'){
+          str = '只收不付';
+        }else if(value === '4'){
+          str = '只付不收';
+        }else{
+          str = '不收不付';
+        }
+        this.$confirm('是否确认修改收款银行卡状态为"' + str + '"?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+          showClose: false,
+        }).then(function () {
+          let params = {
+            status: value,
+            id: ids
+          };
+          return updStatus(params);
+        }).then(() => {
+          this.getList();
+          this.msgSuccess("修改成功");
+        }).catch(() => {
+        })
       },
     }
   };
