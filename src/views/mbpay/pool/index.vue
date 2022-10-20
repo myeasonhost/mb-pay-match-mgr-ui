@@ -587,7 +587,7 @@
 </template>
 
 <script>
-import {getWithdraw, listWithdraw2, notifyCancel} from "@/api/mbpay/withdraw";
+import {getWithdraw, getWithdraw2, listWithdraw2, notifyCancel} from "@/api/mbpay/withdraw";
 import {getRecharge, updateRecharge} from "@/api/mbpay/recharge";
 import {listPool, getPool, daifu, daifuAll, fold, unfold} from "@/api/mbpay/pool";
 import {getToken} from "@/utils/auth";
@@ -698,7 +698,7 @@ export default {
     deleteInput(item, index) {
       this.dynamicItemArr.splice(index, 1);
     },
-    changeSort(column){
+    changeSort(column) {
       Object.assign(
         this.queryParams,
         {
@@ -800,7 +800,8 @@ export default {
     handleAdminChild(row) {
       this.reset();
       const id = row.parentId;
-      getWithdraw(id).then(response => {
+      const matchId = row.matchId;
+      getWithdraw2(id,matchId).then(response => {
         this.formAdmin = response.data;
         this.formAdmin.amount = row.matchAmount;  //row.amount=父类金额， row.matchAmount=拆分金额
         this.formAdmin.notifyTimes = row.matchId; //借用字段

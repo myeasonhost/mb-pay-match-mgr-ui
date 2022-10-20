@@ -25,6 +25,14 @@ export function getWithdraw(id) {
   })
 }
 
+// 查询提现订单详细
+export function getWithdraw2(id,matchId) {
+  return request({
+    url: '/mbpay/withdraw/' + id+'/'+matchId,
+    method: 'get'
+  })
+}
+
 // 修改提现订单
 export function updateWithdraw(data) {
   return request({
