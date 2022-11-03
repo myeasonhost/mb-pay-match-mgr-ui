@@ -71,7 +71,7 @@
                       fontSize: '5px',
                     }">
             <el-table-column label="ID" align="center" prop="id" v-if="false"/>
-            <el-table-column label="渠道号" align="center" prop="parentId"/>
+            <el-table-column label="编号" align="center" prop="id"/>
             <el-table-column label="接口名称" align="center" prop="apiName"/>
             <el-table-column label="请求地址" align="center" prop="apiUrl" width="300"/>
             <el-table-column label="请求方式" align="center" prop="apiMethod"/>

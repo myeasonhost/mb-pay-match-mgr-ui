@@ -71,36 +71,38 @@
                       fontSize: '5px',
                     }">
             <el-table-column label="ID" align="center" prop="id" v-if="false"/>
-            <el-table-column label="站点ID" align="center" prop="siteId" />
-            <el-table-column label="渠道号" align="center" prop="parentId" />
-            <el-table-column label="脚本ID" align="center" prop="scriptId" />
-            <el-table-column label="支付名" align="center" prop="payName" />
-            <el-table-column label="支付方式" align="center" prop="payType" />
-            <el-table-column label="三方费率" align="center" prop="threeRate" />
-            <el-table-column label="优先级" align="center" prop="priority" />
-            <el-table-column label="状态" align="center" prop="status" />
-            <el-table-column label="客户端类型" align="center" prop="clientType" />
-            <el-table-column label="当前额度" align="center" prop="currentLimit" />
-            <el-table-column label="最大限额" align="center" prop="maxLimit" />
-            <el-table-column label="单笔最小限额" align="center" prop="singleMinLimit" />
-            <el-table-column label="单笔最大限额" align="center" prop="singleMaxLimit" />
-            <el-table-column label="备注" align="center" prop="remark" />
+            <el-table-column label="站点ID" align="center" prop="siteId"/>
+            <el-table-column label="渠道号" align="center" prop="parentId"/>
+            <el-table-column label="脚本ID" align="center" prop="scriptId"/>
+            <el-table-column label="支付名" align="center" prop="payName"/>
+            <el-table-column label="支付方式" align="center" prop="payType"/>
+            <el-table-column label="三方费率" align="center" prop="threeRate"/>
+            <el-table-column label="优先级" align="center" prop="priority"/>
+            <el-table-column label="状态" align="center" prop="status"/>
+            <el-table-column label="客户端类型" align="center" prop="clientType"/>
+            <el-table-column label="当前额度" align="center" prop="currentLimit"/>
+            <el-table-column label="最大限额" align="center" prop="maxLimit"/>
+            <el-table-column label="单笔最小限额" align="center" prop="singleMinLimit"/>
+            <el-table-column label="单笔最大限额" align="center" prop="singleMaxLimit"/>
+            <el-table-column label="备注" align="center" prop="remark"/>
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
               <template slot-scope="scope">
                 <el-button
                   size="mini"
                   type="text"
                   icon="el-icon-edit"
-                  @click="handleUpdate(scope.row)"
+                  @click="handleUpdateChild(scope.row)"
                   v-hasPermi="['three:type:edit']"
-                >修改</el-button>
+                >修改
+                </el-button>
                 <el-button
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
-                  @click="handleDelete(scope.row)"
+                  @click="handleDeleteChild(scope.row)"
                   v-hasPermi="['three:type:remove']"
-                >删除</el-button>
+                >删除
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -171,34 +173,66 @@
       <el-form ref="formChild" :model="formChild" :rules="rulesChild" label-width="80px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="接口名称" prop="apiName">
-              <el-input v-model="formChild.apiName" placeholder="请输入接口名称"/>
+            <el-form-item label="脚本ID" prop="scriptId">
+              <el-input v-model="formChild.scriptId" placeholder="请输入脚本ID"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="请求方式" prop="apiMethod">
-              <el-input v-model="formChild.apiMethod" placeholder="请输入请求方式"/>
+            <el-form-item label="优先级" prop="priority">
+              <el-input v-model="formChild.priority" placeholder="请输入优先级"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="通道名称" prop="payWayName">
-              <el-input v-model="formChild.payWayName" placeholder="请输入支付通道名称"/>
+            <el-form-item label="支付名" prop="payName">
+              <el-input v-model="formChild.payName" placeholder="请输入支付名"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="通道编码" prop="payWayCode">
-              <el-input v-model="formChild.payWayCode" placeholder="请输入支付通道编码"/>
+            <el-form-item label="支付方式" prop="payType">
+              <el-input v-model="formChild.payType" placeholder="请输入支付方式"/>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="请求地址" prop="apiUrl">
-          <el-input v-model="formChild.apiUrl" placeholder="请输入请求地址"/>
-        </el-form-item>
-        <el-form-item label="三方脚本" prop="script" width="500px" >
-          <el-input v-model="formChild.script" type="textarea" placeholder="请输入内容" :rows="20"/>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="三方费率" prop="threeRate">
+              <el-input v-model="formChild.threeRate" placeholder="请输入三方费率"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="客户端" prop="clientType">
+              <el-select v-model="formChild.clientType" placeholder="请选择客户端类型">
+                <el-option label="请选择字典生成" value=""/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="当前额度" prop="currentLimit">
+              <el-input v-model="formChild.currentLimit" placeholder="请输入当前额度"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="最大限额" prop="maxLimit">
+              <el-input v-model="formChild.maxLimit" placeholder="请输入最大限额"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="单笔最小" prop="singleMinLimit">
+              <el-input v-model="formChild.singleMinLimit" placeholder="请输入单笔最小限额"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="单笔最大" prop="singleMaxLimit">
+              <el-input v-model="formChild.singleMaxLimit" placeholder="请输入单笔最大限额"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="状态">
           <el-radio-group v-model="formChild.status">
             <el-radio label="1">禁用</el-radio>
@@ -285,9 +319,8 @@
 </template>
 
 <script>
-import {listInfo, getInfo, delInfo, addInfo, updateInfo} from "@/api/three/info";
-import {addScript, delScript, getScript, listScript, updateScript} from "@/api/three/script";
-import {addType, delType, listType, updateType} from "@/api/three/type";
+import {addInfo, delInfo, getInfo, listInfo, updateInfo} from "@/api/three/info";
+import {addType, delType, getType, listType, updateType} from "@/api/three/type";
 
 export default {
   name: "Info",
@@ -469,10 +502,10 @@ export default {
       this.open = true;
       this.title = "添加三方渠道";
     },
-    handleAddChild(row){
+    handleAddChild(row) {
       this.reset();
       this.openChild = true;
-      this.titleChild = "添加三方渠道脚本";
+      this.titleChild = "添加支付通道";
       this.formChild.parentId = row.id; //父类id
     },
     /** 修改按钮操作 */
@@ -489,7 +522,7 @@ export default {
     handleUpdateChild(row) {
       this.reset();
       const id = row.id;
-      getScript(id).then(response => {
+      getType(id).then(response => {
         this.formChild = response.data;
         this.openChild = true;
         this.titleChild = "修改脚本信息";
@@ -521,13 +554,13 @@ export default {
         if (valid) {
           if (this.formChild.id != null) {
             updateType(this.formChild).then(response => {
-              this.msgSuccess("脚本修改成功");
+              this.msgSuccess("通道修改成功");
               this.openChild = false;
               this.getList();
             });
           } else {
             addType(this.formChild).then(response => {
-              this.msgSuccess("脚本新增成功");
+              this.msgSuccess("通道新增成功");
               this.openChild = false;
               this.getList();
             });
