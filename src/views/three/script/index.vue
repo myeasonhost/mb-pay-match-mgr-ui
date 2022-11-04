@@ -103,6 +103,7 @@
         </template>
       </el-table-column>
       <el-table-column label="ID" align="center" prop="id" v-if="false"/>
+      <el-table-column label="站点ID" align="center" prop="siteId"/>
       <el-table-column label="渠道号" align="center" prop="channelId"/>
       <el-table-column label="渠道中文名" align="center" prop="channelNameCn"/>
       <el-table-column label="渠道英文名" align="center" prop="channelNameEn"/>
@@ -111,7 +112,7 @@
       <el-table-column label="最大限额" align="center" prop="maxLimit"/>
       <el-table-column label="IP白名单" align="center" prop="whiteIp"/>
       <el-table-column label="备注" align="center" prop="remark"/>
-      <el-table-column label="备注" align="center" prop="createTime" width="180">
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
