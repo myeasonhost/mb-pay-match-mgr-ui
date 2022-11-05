@@ -168,7 +168,37 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改三方支付脚本对话框 -->
+    <!-- 添加或修改选择摸版对话框 -->
+    <el-dialog :title="titleTemplate" :visible.sync="openTemplate" width="850px" append-to-body>
+      <el-table v-loading="loading" :data="infoListTemplate" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" align="center"/>
+        <el-table-column label="ID" align="center" prop="id" v-if="false"/>
+        <el-table-column label="渠道号" align="center" prop="channelId"/>
+        <el-table-column label="渠道中文名" align="center" prop="channelNameCn"/>
+        <el-table-column label="渠道英文名" align="center" prop="channelNameEn"/>
+        <el-table-column label="渠道类型" align="center" prop="channelType"/>
+        <el-table-column label="状态" align="center" prop="status"/>
+        <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-edit"
+              @click="handleCopy(scope.row)"
+              v-hasPermi="['three:info:edit']"
+            >复制摸版内容
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+
+    <!-- 添加或修改三方支付类型对话框 -->
     <el-dialog :title="titleChild" :visible.sync="openChild" width="700px" append-to-body>
       <el-form ref="formChild" :model="formChild" :rules="rulesChild" label-width="80px">
         <el-row>
@@ -255,7 +285,7 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="渠道号" prop="channelId">
+            <el-form-item label="渠道号" prop="channelId" disabled >
               <el-input v-model="form.channelId" placeholder="请输入渠道号"/>
             </el-form-item>
           </el-col>
@@ -299,6 +329,9 @@
         <el-form-item label="接口地址" prop="threeUrl">
           <el-input v-model="form.threeUrl" placeholder="请输入三方接口地址"/>
         </el-form-item>
+        <el-form-item label="系统参数" prop="apiSystemParam">
+          <el-input v-model="form.apiSystemParam" placeholder="请输入系统参数" type="textarea" :rows="5"/>
+        </el-form-item>
         <el-form-item label="回调地址" prop="notifyUrl">
           <el-input v-model="form.notifyUrl" placeholder="请输入回调地址"/>
         </el-form-item>
@@ -319,7 +352,7 @@
 </template>
 
 <script>
-import {addInfo, delInfo, getInfo, listInfo, updateInfo} from "@/api/three/info";
+import {addInfo, delInfo, getInfo, listInfo, listInfo2, updateInfo} from "@/api/three/info";
 import {addType, delType, getType, listType, updateType} from "@/api/three/type";
 
 export default {
@@ -341,13 +374,16 @@ export default {
       total: 0,
       // 三方渠道表格数据
       infoList: [],
+      infoListTemplate: [],
       dataRow: [], // 当前行的数据列表(由于子表格是内嵌的，所以也有子表格的所有数据)
       // 弹出层标题
       title: "",
       titleChild: "",
+      titleTemplate: "",
       // 是否显示弹出层
       open: false,
       openChild: false,
+      openTemplate: false,
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -450,6 +486,7 @@ export default {
     cancel() {
       this.open = false;
       this.openChild = false;
+      this.openTemplate = false;
       this.reset();
     },
     // 表单重置
@@ -499,6 +536,18 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
+      this.openTemplate = true;
+      this.titleTemplate = "选择渠道摸版";
+      this.queryParams.siteId = "admin";
+      listInfo2(this.queryParams).then(response => {
+        this.infoListTemplate = response.rows;
+        this.total = response.total;
+        this.loading = false;
+      });
+    },
+    /** 新增按钮操作 */
+    handleAdd2() {
+      this.reset();
       this.open = true;
       this.title = "添加三方渠道";
     },
@@ -507,6 +556,17 @@ export default {
       this.openChild = true;
       this.titleChild = "添加支付通道";
       this.formChild.parentId = row.id; //父类id
+    },
+    /** 修改按钮操作 */
+    handleCopy(row) {
+      this.reset();
+      const id = row.id || this.ids
+      getInfo(id).then(response => {
+        this.form = response.data;
+        this.open = true;
+        this.title = "新增三方渠道";
+        this.form.id = null; //调用新增的方法
+      });
     },
     /** 修改按钮操作 */
     handleUpdate(row) {

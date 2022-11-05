@@ -262,6 +262,9 @@
         <el-form-item label="接口地址" prop="threeUrl">
           <el-input v-model="form.threeUrl" placeholder="请输入三方接口地址"/>
         </el-form-item>
+        <el-form-item label="系统参数" prop="apiSystemParam">
+          <el-input v-model="form.apiSystemParam" placeholder="请输入系统参数"/>
+        </el-form-item>
         <el-form-item label="回调地址" prop="notifyUrl">
           <el-input v-model="form.notifyUrl" placeholder="请输入回调地址"/>
         </el-form-item>
@@ -315,6 +318,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        siteId: 'admin',
         channelId: undefined,
         channelNameCn: undefined,
         channelNameEn: undefined,

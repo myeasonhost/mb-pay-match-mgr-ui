@@ -8,6 +8,13 @@ export function listInfo(query) {
     params: query
   })
 }
+export function listInfo2(query) {
+  return request({
+    url: '/three/info/list2',
+    method: 'get',
+    params: query
+  })
+}
 
 // 查询三方渠道详细
 export function getInfo(id) {
