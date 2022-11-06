@@ -170,7 +170,7 @@
 
     <!-- 添加或修改选择摸版对话框 -->
     <el-dialog :title="titleTemplate" :visible.sync="openTemplate" width="850px" append-to-body>
-      <el-table v-loading="loading" :data="infoListTemplate" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :data="infoListTemplate">
         <el-table-column type="selection" width="55" align="center"/>
         <el-table-column label="ID" align="center" prop="id" v-if="false"/>
         <el-table-column label="渠道号" align="center" prop="channelId"/>
@@ -204,7 +204,14 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="脚本ID" prop="scriptId">
-              <el-input v-model="formChild.scriptId" placeholder="请输入脚本ID"/>
+              <el-select v-model="formChild.scriptId" placeholder="请选择脚本">
+                <el-option
+                  v-for="script in scriptList"
+                  :key="script.value"
+                  :label="script.label"
+                  :value="script.value"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -285,7 +292,7 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="渠道号" prop="channelId" disabled >
+            <el-form-item label="渠道号" prop="channelId" disabled>
               <el-input v-model="form.channelId" placeholder="请输入渠道号"/>
             </el-form-item>
           </el-col>
@@ -354,6 +361,7 @@
 <script>
 import {addInfo, delInfo, getInfo, listInfo, listInfo2, updateInfo} from "@/api/three/info";
 import {addType, delType, getType, listType, updateType} from "@/api/three/type";
+import {listScript} from "@/api/three/script";
 
 export default {
   name: "Info",
@@ -375,6 +383,7 @@ export default {
       // 三方渠道表格数据
       infoList: [],
       infoListTemplate: [],
+      scriptList: [], //脚本复选框
       dataRow: [], // 当前行的数据列表(由于子表格是内嵌的，所以也有子表格的所有数据)
       // 弹出层标题
       title: "",
@@ -396,8 +405,13 @@ export default {
       // 查询参数2
       queryParamsParent: {
         pageNum: 1,
-        pageSize: 10,
+        pageSize: 1000,
         parentId: undefined,
+      },
+      // 查询参数3
+      queryParamsScript: {
+        pageNum: 1,
+        pageSize: 1000
       },
       // 表单参数
       form: {},
@@ -452,6 +466,18 @@ export default {
     this.getList();
   },
   methods: {
+    /** 查询三方渠道列表 */
+    getScriptList() {
+      this.scriptList = [];
+      listScript(this.queryParamsScript).then(response => {
+        response.rows.map(row => {
+          var item = {};
+          item.label = row.apiName + "(" + row.payWayCode + ")";
+          item.value = row.id;
+          this.scriptList.push(item);
+        });
+      });
+    },
     /** 查询三方渠道列表 */
     getList() {
       this.loading = true;
@@ -556,6 +582,8 @@ export default {
       this.openChild = true;
       this.titleChild = "添加支付通道";
       this.formChild.parentId = row.id; //父类id
+      //获取脚本列表
+      this.getScriptList();
     },
     /** 修改按钮操作 */
     handleCopy(row) {
