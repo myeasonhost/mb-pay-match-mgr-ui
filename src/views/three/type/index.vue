@@ -571,12 +571,6 @@ export default {
         this.loading = false;
       });
     },
-    /** 新增按钮操作 */
-    handleAdd2() {
-      this.reset();
-      this.open = true;
-      this.title = "添加三方渠道";
-    },
     handleAddChild(row) {
       this.reset();
       this.openChild = true;
@@ -614,6 +608,8 @@ export default {
         this.formChild = response.data;
         this.openChild = true;
         this.titleChild = "修改脚本信息";
+        //获取脚本列表
+        this.getScriptList();
       });
     },
     /** 提交按钮 */
