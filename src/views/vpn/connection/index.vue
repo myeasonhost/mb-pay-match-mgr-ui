@@ -1,19 +1,15 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择" clearable size="small">
-          <el-option label="请选择字典生成" value=""/>
-        </el-select>
-      </el-form-item>
       <el-form-item label="地区" prop="area">
-        <el-input
-          v-model="queryParams.area"
-          placeholder="请输入地区"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
+        <el-select v-model="queryParams.area" placeholder="请选择地区">
+          <el-option
+            v-for="item in areaList"
+            :key="item.id"
+            :label="item.areaName"
+            :value="item.id">
+          </el-option>
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -22,41 +18,6 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['vpn:connection:add']"
-        >新增
-        </el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['vpn:connection:edit']"
-        >修改
-        </el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['vpn:connection:remove']"
-        >删除
-        </el-button>
-      </el-col>
       <el-col :span="1.5">
         <el-button
           type="warning"
@@ -76,18 +37,22 @@
       <el-table-column label="序号" align="center" prop="id" v-if="false"/>
       <el-table-column label="线路id" align="center" prop="lineId"/>
       <el-table-column label="线路链接账户" align="center" prop="account"/>
-      <el-table-column label="状态" align="center" prop="status"/>
-      <el-table-column label="地区" align="center" prop="area"/>
+      <el-table-column label="状态" align="center" prop="status">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.vpn_conn_status" :value="scope.row.status"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="地区" align="center" prop="area">
+        <template slot-scope="scope">
+          <div>
+            <div v-for="item in areaList" :key="item.id" v-if="item.id==scope.row.area">
+              {{ item.areaName }}
+            </div>
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['vpn:connection:edit']"
-          >修改
-          </el-button>
           <el-button
             size="mini"
             type="text"
@@ -147,8 +112,12 @@ import {
   updateConnection
 } from "@/api/vpn/connection";
 
+import { listArea } from "@/api/vpn/area";
+
+
 export default {
   name: "Connection",
+  dicts: ['vpn_conn_status'],
   components: {},
   data() {
     return {
@@ -166,6 +135,7 @@ export default {
       total: 0,
       // 链接管理表格数据
       connectionList: [],
+      areaList:[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -178,6 +148,10 @@ export default {
         account: undefined,
         status: undefined,
         area: undefined,
+      },
+      queryParams2: {
+        pageNum: 1,
+        pageSize: 100,
       },
       // 表单参数
       form: {},
@@ -200,6 +174,11 @@ export default {
   },
   created() {
     this.getList();
+    //复选框加载
+    listArea(this.queryParams2).then(response => {
+      this.areaList = response.rows;
+      this.total = response.total;
+    });
   },
   methods: {
     /** 查询链接管理列表 */

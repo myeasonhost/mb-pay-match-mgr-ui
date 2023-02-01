@@ -1,14 +1,15 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="区域id" prop="areaId">
-        <el-input
-          v-model="queryParams.areaId"
-          placeholder="请输入区域id"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
+      <el-form-item label="地区" prop="areaId">
+        <el-select v-model="queryParams.areaId" placeholder="请选择地区">
+          <el-option
+            v-for="item in areaList"
+            :key="item.id"
+            :label="item.areaName"
+            :value="item.id">
+          </el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="线路名称" prop="lineName">
         <el-input
@@ -20,8 +21,13 @@
         />
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
+        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
+          <el-option
+            v-for="dict in dict.type.sys_normal_disable"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -79,9 +85,21 @@
     <el-table v-loading="loading" :data="lineList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" align="center" prop="id" v-if="false"/>
-      <el-table-column label="区域id" align="center" prop="areaId" />
+      <el-table-column label="区域" align="center" prop="areaId" >
+        <template slot-scope="scope">
+          <div>
+            <div v-for="item in areaList" :key="item.id" v-if="item.id==scope.row.areaId">
+              {{ item.areaName }}
+            </div>
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column label="线路名称" align="center" prop="lineName" />
-      <el-table-column label="状态" align="center" prop="status" />
+      <el-table-column label="状态" align="center" prop="status" >
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
+        </template>
+      </el-table-column>
       <el-table-column label="线路VPN配置" align="center" prop="config" />
       <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -115,19 +133,24 @@
     <!-- 添加或修改线路管理对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="区域id" prop="areaId">
-          <el-input v-model="form.areaId" placeholder="请输入区域id" />
+        <el-form-item label="地区" prop="areaId">
+          <el-select v-model="form.areaId" placeholder="请选择地区" v-if="form.areaId==null">
+            <el-option
+              v-for="item in areaList"
+              :key="item.id"
+              :label="item.areaName"
+              :value="item.id">
+            </el-option>
+          </el-select>
+          <div v-for="item in areaList" :key="item.id" v-if="form.areaId==item.id">
+            {{ item.areaName }}
+          </div>
         </el-form-item>
         <el-form-item label="线路名称" prop="lineName">
           <el-input v-model="form.lineName" placeholder="请输入线路名称" />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-radio-group v-model="form.status">
-            <el-radio label="1">请选择字典生成</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="线路VPN配置" prop="config">
-          <el-input v-model="form.config" type="textarea" placeholder="请输入内容" />
+        <el-form-item label="线路VPN配置" prop="config" width="500px">
+          <el-input v-model="form.config" type="textarea" placeholder="请输入内容" :rows="12"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入备注" />
@@ -143,9 +166,11 @@
 
 <script>
 import { listLine, getLine, delLine, addLine, updateLine, exportLine } from "@/api/vpn/line";
+import {listArea} from "@/api/vpn/area";
 
 export default {
   name: "Line",
+  dicts: ['sys_normal_disable'],
   components: {
   },
   data() {
@@ -164,6 +189,7 @@ export default {
       total: 0,
       // 线路管理表格数据
       lineList: [],
+      areaList:[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -175,6 +201,10 @@ export default {
         areaId: undefined,
         lineName: undefined,
         status: undefined,
+      },
+      queryParams2: {
+        pageNum: 1,
+        pageSize: 100,
       },
       // 表单参数
       form: {},
@@ -197,6 +227,11 @@ export default {
   },
   created() {
     this.getList();
+    //复选框加载
+    listArea(this.queryParams2).then(response => {
+      this.areaList = response.rows;
+      this.total = response.total;
+    });
   },
   methods: {
     /** 查询线路管理列表 */
