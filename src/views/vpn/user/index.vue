@@ -1,20 +1,6 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="用户账号" prop="userName">
-        <el-input
-          v-model="queryParams.userName"
-          placeholder="请输入用户账号"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="用户类型" prop="userType">
-        <el-select v-model="queryParams.userType" placeholder="请选择用户类型" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
-        </el-select>
-      </el-form-item>
       <el-form-item label="用户邮箱" prop="email">
         <el-input
           v-model="queryParams.email"
@@ -24,20 +10,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="手机号码" prop="phonenumber">
-        <el-input
-          v-model="queryParams.phonenumber"
-          placeholder="请输入手机号码"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="帐号状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择帐号状态" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
-        </el-select>
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -45,38 +17,6 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['vpn:user:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['vpn:user:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['vpn:user:remove']"
-        >删除</el-button>
-      </el-col>
       <el-col :span="1.5">
         <el-button
           type="warning"
@@ -94,10 +34,20 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="用户ID" align="center" prop="userId" v-if="false"/>
       <el-table-column label="用户账号" align="center" prop="userName" />
-      <el-table-column label="用户类型" align="center" prop="userType" />
-      <el-table-column label="用户邮箱" align="center" prop="email" />
-      <el-table-column label="手机号码" align="center" prop="phonenumber" />
-      <el-table-column label="帐号状态" align="center" prop="status" />
+      <el-table-column label="用户类型" align="center" prop="userType" >
+        <template slot-scope="scope">
+          <div style="color: #1890ff;font-family: 'Arial Black';">{{scope.row.userType=="00"?"系统用户":""}}</div>
+          <div style="color: #888888;font-family: 'Arial Black';">{{scope.row.userType=="11"?"普通用户":""}}</div>
+          <div style="color: red;font-family: 'Arial Black';">{{scope.row.userType=="22"?"VIP用户":""}}</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="用户邮箱" align="center" prop="email" width="200"/>
+<!--      <el-table-column label="手机号码" align="center" prop="phonenumber" />-->
+      <el-table-column label="帐号状态" align="center" prop="status" >
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
+        </template>
+      </el-table-column>
       <el-table-column label="最后登录IP" align="center" prop="loginIp" />
       <el-table-column label="最后登录时间" align="center" prop="loginDate" width="180">
         <template slot-scope="scope">
@@ -113,7 +63,7 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['vpn:user:edit']"
-          >修改</el-button>
+          >开通会员</el-button>
           <el-button
             size="mini"
             type="text"
@@ -124,7 +74,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -137,38 +87,17 @@
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="用户账号" prop="userName">
-          <el-input v-model="form.userName" placeholder="请输入用户账号" />
+          <el-input v-model="form.userName" placeholder="请输入用户账号" disabled/>
         </el-form-item>
         <el-form-item label="用户类型" prop="userType">
           <el-select v-model="form.userType" placeholder="请选择用户类型">
-            <el-option label="请选择字典生成" value="" />
+            <el-option label="开通会员" value="11" />
           </el-select>
         </el-form-item>
         <el-form-item label="用户邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="请输入用户邮箱" />
+          <el-input v-model="form.email" placeholder="请输入用户邮箱" disabled/>
         </el-form-item>
-        <el-form-item label="手机号码" prop="phonenumber">
-          <el-input v-model="form.phonenumber" placeholder="请输入手机号码" />
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码" />
-        </el-form-item>
-        <el-form-item label="帐号状态">
-          <el-radio-group v-model="form.status">
-            <el-radio label="1">请选择字典生成</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="最后登录IP" prop="loginIp">
-          <el-input v-model="form.loginIp" placeholder="请输入最后登录IP" />
-        </el-form-item>
-        <el-form-item label="最后登录时间" prop="loginDate">
-          <el-date-picker clearable size="small"
-            v-model="form.loginDate"
-            type="datetime"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            placeholder="选择最后登录时间">
-          </el-date-picker>
-        </el-form-item>
+
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
         </el-form-item>
@@ -186,6 +115,7 @@ import { listUser, getUser, delUser, addUser, updateUser, exportUser } from "@/a
 
 export default {
   name: "User",
+  dicts: ['sys_normal_disable'],
   components: {
   },
   data() {
