@@ -25,36 +25,44 @@
           size="mini"
           @click="handleExport"
           v-hasPermi="['vpn:user:export']"
-        >导出</el-button>
+        >导出
+        </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="用户ID" align="center" prop="userId" v-if="false"/>
-      <el-table-column label="用户账号" align="center" prop="userName" />
-      <el-table-column label="用户类型" align="center" prop="userType" >
+      <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="ID" align="center" prop="userId" width="50"/>
+      <el-table-column label="用户账号" align="center" prop="userName" width="150"/>
+      <el-table-column label="用户等级" align="center" prop="userType" width="100">
         <template slot-scope="scope">
-          <div style="color: #1890ff;font-family: 'Arial Black';">{{scope.row.userType=="00"?"系统用户":""}}</div>
-          <div style="color: #888888;font-family: 'Arial Black';">{{scope.row.userType=="11"?"普通用户":""}}</div>
-          <div style="color: red;font-family: 'Arial Black';">{{scope.row.userType=="22"?"VIP用户":""}}</div>
+          <div style="color: #888888;font-family: 'Arial Black';">{{ scope.row.userType == "00" ? "普通用户" : "" }}</div>
+          <div style="color: #1890ff;font-family: 'Arial Black';">{{ scope.row.userType == "11" ? "包月用户" : "" }}</div>
+          <div style="color: #13ce66;font-family: 'Arial Black';">{{ scope.row.userType == "22" ? "包季用户" : "" }}</div>
+          <div style="color: #ffba00;font-family: 'Arial Black';">{{ scope.row.userType == "33" ? "半年用户" : "" }}</div>
+          <div style="color: red;font-family: 'Arial Black';">{{ scope.row.userType == "44" ? "包年用户" : "" }}</div>
         </template>
       </el-table-column>
       <el-table-column label="用户邮箱" align="center" prop="email" width="200"/>
-<!--      <el-table-column label="手机号码" align="center" prop="phonenumber" />-->
-      <el-table-column label="帐号状态" align="center" prop="status" >
+      <!--      <el-table-column label="手机号码" align="center" prop="phonenumber" />-->
+      <el-table-column label="帐号状态" align="center" prop="status" width="80">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="最后登录IP" align="center" prop="loginIp" />
-      <el-table-column label="最后登录时间" align="center" prop="loginDate" width="180">
+      <el-table-column label="登录IP" align="center" prop="loginIp" width="80"/>
+      <el-table-column label="最后登录时间" align="center" prop="loginDate" width="100">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.loginDate, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.loginDate, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" />
+      <el-table-column label="过期时间" align="center" prop="expirationTime" width="100">
+        <template slot-scope="scope">
+          <span style="color: red;">{{ parseTime(scope.row.expirationTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -63,14 +71,16 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['vpn:user:edit']"
-          >开通会员</el-button>
+          >添加会员时长
+          </el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['vpn:user:remove']"
-          >删除</el-button>
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -89,17 +99,19 @@
         <el-form-item label="用户账号" prop="userName">
           <el-input v-model="form.userName" placeholder="请输入用户账号" disabled/>
         </el-form-item>
-        <el-form-item label="用户类型" prop="userType">
-          <el-select v-model="form.userType" placeholder="请选择用户类型">
-            <el-option label="开通会员" value="11" />
-          </el-select>
-        </el-form-item>
         <el-form-item label="用户邮箱" prop="email">
           <el-input v-model="form.email" placeholder="请输入用户邮箱" disabled/>
         </el-form-item>
-
+        <el-form-item label="会员时长" prop="userType">
+          <el-radio-group v-model="form.userType">
+            <el-radio :label="11">一个月</el-radio>
+            <el-radio :label="22">三个月</el-radio>
+            <el-radio :label="33">半年</el-radio>
+            <el-radio :label="44">包年</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -111,13 +123,12 @@
 </template>
 
 <script>
-import { listUser, getUser, delUser, addUser, updateUser, exportUser } from "@/api/vpn/user";
+import {addUser, delUser, exportUser, getUser, listUser, updateUser} from "@/api/vpn/user";
 
 export default {
   name: "User",
   dicts: ['sys_normal_disable'],
-  components: {
-  },
+  components: {},
   data() {
     return {
       // 遮罩层
@@ -147,13 +158,14 @@ export default {
         email: undefined,
         phonenumber: undefined,
         status: undefined,
+        expirationTime: undefined
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
         userName: [
-          { required: true, message: "用户账号不能为空", trigger: "blur" }
+          {required: true, message: "用户账号不能为空", trigger: "blur"}
         ],
       }
     };
@@ -207,7 +219,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.userId)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
@@ -223,7 +235,7 @@ export default {
       getUser(userId).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改VPN用户";
+        this.title = "会员时长";
       });
     },
     /** 提交按钮 */
@@ -250,28 +262,28 @@ export default {
     handleDelete(row) {
       const userIds = row.userId || this.ids;
       this.$confirm('是否确认删除VPN用户编号为"' + userIds + '"的数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return delUser(userIds);
-        }).then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
-        })
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        return delUser(userIds);
+      }).then(() => {
+        this.getList();
+        this.msgSuccess("删除成功");
+      })
     },
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
       this.$confirm('是否确认导出所有VPN用户数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return exportUser(queryParams);
-        }).then(response => {
-          this.download(response.msg);
-        })
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        return exportUser(queryParams);
+      }).then(response => {
+        this.download(response.msg);
+      })
     }
   }
 };

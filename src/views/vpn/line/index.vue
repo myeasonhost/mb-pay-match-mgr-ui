@@ -45,7 +45,8 @@
           size="mini"
           @click="handleAdd"
           v-hasPermi="['vpn:line:add']"
-        >新增</el-button>
+        >新增
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -56,7 +57,8 @@
           :disabled="single"
           @click="handleUpdate"
           v-hasPermi="['vpn:line:edit']"
-        >修改</el-button>
+        >修改
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -67,7 +69,8 @@
           :disabled="multiple"
           @click="handleDelete"
           v-hasPermi="['vpn:line:remove']"
-        >删除</el-button>
+        >删除
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -77,15 +80,16 @@
           size="mini"
           @click="handleExport"
           v-hasPermi="['vpn:line:export']"
-        >导出</el-button>
+        >导出
+        </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="lineList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" align="center" prop="id" v-if="false"/>
-      <el-table-column label="区域" align="center" prop="areaId" >
+      <el-table-column label="区域" align="center" prop="areaId">
         <template slot-scope="scope">
           <div>
             <div v-for="item in areaList" :key="item.id" v-if="item.id==scope.row.areaId">
@@ -94,14 +98,19 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="线路名称" align="center" prop="lineName" />
-      <el-table-column label="状态" align="center" prop="status" >
+      <el-table-column label="线路名称" align="center" prop="lineName"/>
+      <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
+          <el-switch
+            v-model="scope.row.status"
+            active-value="0"
+            inactive-value="1"
+            @change="handleStatusChange(scope.row)"
+          ></el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="线路VPN配置" align="center" prop="config" />
-      <el-table-column label="备注" align="center" prop="remark" />
+      <el-table-column label="线路VPN配置" align="center" prop="config"/>
+      <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -110,14 +119,16 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['vpn:line:edit']"
-          >修改</el-button>
+          >修改
+          </el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['vpn:line:remove']"
-          >删除</el-button>
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -147,13 +158,13 @@
           </div>
         </el-form-item>
         <el-form-item label="线路名称" prop="lineName">
-          <el-input v-model="form.lineName" placeholder="请输入线路名称" />
+          <el-input v-model="form.lineName" placeholder="请输入线路名称"/>
         </el-form-item>
         <el-form-item label="线路VPN配置" prop="config" width="500px">
           <el-input v-model="form.config" type="textarea" placeholder="请输入内容" :rows="12"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注" />
+          <el-input v-model="form.remark" placeholder="请输入备注"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -165,14 +176,13 @@
 </template>
 
 <script>
-import { listLine, getLine, delLine, addLine, updateLine, exportLine } from "@/api/vpn/line";
+import {addLine, changeStatus, delLine, exportLine, getLine, listLine, updateLine} from "@/api/vpn/line";
 import {listArea} from "@/api/vpn/area";
 
 export default {
   name: "Line",
   dicts: ['sys_normal_disable'],
-  components: {
-  },
+  components: {},
   data() {
     return {
       // 遮罩层
@@ -189,7 +199,7 @@ export default {
       total: 0,
       // 线路管理表格数据
       lineList: [],
-      areaList:[],
+      areaList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -211,16 +221,16 @@ export default {
       // 表单校验
       rules: {
         areaId: [
-          { required: true, message: "区域id不能为空", trigger: "blur" }
+          {required: true, message: "区域id不能为空", trigger: "blur"}
         ],
         lineName: [
-          { required: true, message: "线路名称不能为空", trigger: "blur" }
+          {required: true, message: "线路名称不能为空", trigger: "blur"}
         ],
         config: [
-          { required: true, message: "线路VPN配置不能为空", trigger: "blur" }
+          {required: true, message: "线路VPN配置不能为空", trigger: "blur"}
         ],
         createTime: [
-          { required: true, message: "创建时间不能为空", trigger: "blur" }
+          {required: true, message: "创建时间不能为空", trigger: "blur"}
         ],
       }
     };
@@ -241,6 +251,17 @@ export default {
         this.lineList = response.rows;
         this.total = response.total;
         this.loading = false;
+      });
+    },
+    // 线路状态修改
+    handleStatusChange(row) {
+      let text = row.status === "0" ? "启用" : "停用";
+      this.$modal.confirm('确认要"' + text + '""' + row.lineName + '"线路吗？').then(function () {
+        return changeStatus(row.id, row.status);
+      }).then(() => {
+        this.$modal.msgSuccess(text + "成功");
+      }).catch(function () {
+        row.status = row.status === "0" ? "1" : "0";
       });
     },
     // 取消按钮
@@ -275,7 +296,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
@@ -318,28 +339,28 @@ export default {
     handleDelete(row) {
       const ids = row.id || this.ids;
       this.$confirm('是否确认删除线路管理编号为"' + ids + '"的数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return delLine(ids);
-        }).then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
-        })
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        return delLine(ids);
+      }).then(() => {
+        this.getList();
+        this.msgSuccess("删除成功");
+      })
     },
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
       this.$confirm('是否确认导出所有线路管理数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return exportLine(queryParams);
-        }).then(response => {
-          this.download(response.msg);
-        })
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        return exportLine(queryParams);
+      }).then(response => {
+        this.download(response.msg);
+      })
     }
   }
 };

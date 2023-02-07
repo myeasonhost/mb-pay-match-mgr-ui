@@ -35,6 +35,13 @@ export function updateLine(data) {
   })
 }
 
+export function changeStatus(id, status) {
+  return request({
+    url: '/vpn/line/' + id + "/" + status,
+    method: 'put'
+  })
+}
+
 // 删除线路管理
 export function delLine(id) {
   return request({

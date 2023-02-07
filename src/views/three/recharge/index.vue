@@ -129,27 +129,19 @@
           <dict-tag :options="dict.type.mbpay_notify_status" :value="scope.row.notifySucceed"/>
         </template>
       </el-table-column>
-      <el-table-column label="通知次数" align="center" prop="notifyTimes" />
       <el-table-column label="支付时间" align="center" prop="payTime" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.payTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.payTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['three:recharge:edit']"
-          >修改</el-button>
           <el-button
             size="mini"
             type="text"
