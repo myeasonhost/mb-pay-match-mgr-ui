@@ -12,7 +12,7 @@
       </el-form-item>
       <el-form-item label="帐号状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择帐号状态" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
+          <el-option label="请选择字典生成" value=""/>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -30,7 +30,8 @@
           size="mini"
           @click="handleAdd"
           v-hasPermi="['vpn:product:add']"
-        >新增</el-button>
+        >新增
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -41,7 +42,8 @@
           :disabled="single"
           @click="handleUpdate"
           v-hasPermi="['vpn:product:edit']"
-        >修改</el-button>
+        >修改
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -52,7 +54,8 @@
           :disabled="multiple"
           @click="handleDelete"
           v-hasPermi="['vpn:product:remove']"
-        >删除</el-button>
+        >删除
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -62,18 +65,23 @@
           size="mini"
           @click="handleExport"
           v-hasPermi="['vpn:product:export']"
-        >导出</el-button>
+        >导出
+        </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="productList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="产品ID" align="center" prop="productId" v-if="false"/>
-      <el-table-column label="产品名称" align="center" prop="productName" />
-      <el-table-column label="产品信息" align="center" prop="info" />
-      <el-table-column label="价格" align="center" prop="amount" />
-      <el-table-column label="帐号状态" align="center" prop="status" />
+      <el-table-column label="产品名称" align="center" prop="productName"/>
+      <el-table-column label="产品信息" align="center" prop="info"/>
+      <el-table-column label="价格" align="center" prop="amount"/>
+      <el-table-column label="状态" align="center" prop="status">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -82,14 +90,16 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['vpn:product:edit']"
-          >修改</el-button>
+          >修改
+          </el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['vpn:product:remove']"
-          >删除</el-button>
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -106,18 +116,17 @@
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="产品名称" prop="productName">
-          <el-input v-model="form.productName" placeholder="请输入产品名称" />
+          <el-input v-model="form.productName" placeholder="请输入产品名称"/>
         </el-form-item>
         <el-form-item label="产品信息" prop="info">
-          <el-input v-model="form.info" placeholder="请输入产品信息" />
+          <el-input v-model="form.info" placeholder="请输入产品信息"/>
         </el-form-item>
         <el-form-item label="价格" prop="amount">
-          <el-input v-model="form.amount" placeholder="请输入价格" />
+          <el-input v-model="form.amount" placeholder="请输入价格"/>
         </el-form-item>
-        <el-form-item label="帐号状态">
-          <el-radio-group v-model="form.status">
-            <el-radio label="1">请选择字典生成</el-radio>
-          </el-radio-group>
+        <el-form-item label="状态">
+          <el-radio label="0" v-model="form.status">启用</el-radio>
+          <el-radio label="1" v-model="form.status">停用</el-radio>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -129,12 +138,12 @@
 </template>
 
 <script>
-import { listProduct, getProduct, delProduct, addProduct, updateProduct, exportProduct } from "@/api/vpn/product";
+import {addProduct, delProduct, exportProduct, getProduct, listProduct, updateProduct} from "@/api/vpn/product";
 
 export default {
   name: "Product",
-  components: {
-  },
+  dicts: ['sys_normal_disable'],
+  components: {},
   data() {
     return {
       // 遮罩层
@@ -165,8 +174,7 @@ export default {
       // 表单参数
       form: {},
       // 表单校验
-      rules: {
-      }
+      rules: {}
     };
   },
   created() {
@@ -213,7 +221,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.productId)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
@@ -256,28 +264,28 @@ export default {
     handleDelete(row) {
       const productIds = row.productId || this.ids;
       this.$confirm('是否确认删除产品信息编号为"' + productIds + '"的数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return delProduct(productIds);
-        }).then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
-        })
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        return delProduct(productIds);
+      }).then(() => {
+        this.getList();
+        this.msgSuccess("删除成功");
+      })
     },
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
       this.$confirm('是否确认导出所有产品信息数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return exportProduct(queryParams);
-        }).then(response => {
-          this.download(response.msg);
-        })
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        return exportProduct(queryParams);
+      }).then(response => {
+        this.download(response.msg);
+      })
     }
   }
 };

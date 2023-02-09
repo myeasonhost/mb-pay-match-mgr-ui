@@ -42,13 +42,10 @@
           <dict-tag :options="dict.type.vpn_conn_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="地区" align="center" prop="area">
+      <el-table-column label="地区" align="center" prop="area"/>
+      <el-table-column label="链接时间" align="center" prop="updateTime" width="150">
         <template slot-scope="scope">
-          <div>
-            <div v-for="item in areaList" :key="item.id" v-if="item.id==scope.row.area">
-              {{ item.areaName }}
-            </div>
-          </div>
+          <span style="color: #1ab394;">{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -112,7 +109,7 @@ import {
   updateConnection
 } from "@/api/vpn/connection";
 
-import { listArea } from "@/api/vpn/area";
+import {listArea} from "@/api/vpn/area";
 
 
 export default {
@@ -135,7 +132,7 @@ export default {
       total: 0,
       // 链接管理表格数据
       connectionList: [],
-      areaList:[],
+      areaList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层

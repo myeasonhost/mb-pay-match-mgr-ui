@@ -88,7 +88,7 @@
 
     <el-table v-loading="loading" :data="lineList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="序号" align="center" prop="id" v-if="false"/>
+      <el-table-column label="线路ID" align="center" prop="id"/>
       <el-table-column label="区域" align="center" prop="areaId">
         <template slot-scope="scope">
           <div>

@@ -37,11 +37,13 @@
       <el-table-column label="用户账号" align="center" prop="userName" width="150"/>
       <el-table-column label="用户等级" align="center" prop="userType" width="100">
         <template slot-scope="scope">
-          <div style="color: #888888;font-family: 'Arial Black';">{{ scope.row.userType == "00" ? "普通用户" : "" }}</div>
-          <div style="color: #1890ff;font-family: 'Arial Black';">{{ scope.row.userType == "11" ? "包月用户" : "" }}</div>
-          <div style="color: #13ce66;font-family: 'Arial Black';">{{ scope.row.userType == "22" ? "包季用户" : "" }}</div>
-          <div style="color: #ffba00;font-family: 'Arial Black';">{{ scope.row.userType == "33" ? "半年用户" : "" }}</div>
-          <div style="color: red;font-family: 'Arial Black';">{{ scope.row.userType == "44" ? "包年用户" : "" }}</div>
+          <div style="color: #888888;font-family: 'Arial Black';">{{ scope.row.userType == "0" ? "试用用户" : "" }}</div>
+          <div style="color: #f8ac59;font-family: 'Arial Black';">{{ scope.row.userType == "1" ? "包天用户" : "" }}</div>
+          <div style="color: #1890ff;font-family: 'Arial Black';">{{ scope.row.userType == "15" ? "半月用户" : "" }}</div>
+          <div style="color: #7a6df0;font-family: 'Arial Black';">{{ scope.row.userType == "30" ? "包月用户" : "" }}</div>
+          <div style="color: #13ce66;font-family: 'Arial Black';">{{ scope.row.userType == "90" ? "包季用户" : "" }}</div>
+          <div style="color: #ffba00;font-family: 'Arial Black';">{{ scope.row.userType == "180" ? "半年用户" : "" }}</div>
+          <div style="color: red;font-family: 'Arial Black';">{{ scope.row.userType == "365" ? "包年用户" : "" }}</div>
         </template>
       </el-table-column>
       <el-table-column label="用户邮箱" align="center" prop="email" width="200"/>
@@ -104,10 +106,14 @@
         </el-form-item>
         <el-form-item label="会员时长" prop="userType">
           <el-radio-group v-model="form.userType">
-            <el-radio :label="11">一个月</el-radio>
-            <el-radio :label="22">三个月</el-radio>
-            <el-radio :label="33">半年</el-radio>
-            <el-radio :label="44">包年</el-radio>
+            <el-radio :label="1">一天</el-radio>
+            <el-radio :label="15">半月</el-radio>
+            <el-radio :label="30">一月</el-radio>
+            <br/>
+            <el-radio :label="90">三月</el-radio>
+            <el-radio :label="180">半年</el-radio>
+            <el-radio :label="365">包年</el-radio>
+            <br/>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
