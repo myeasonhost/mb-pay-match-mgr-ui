@@ -53,6 +53,7 @@
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
         </template>
       </el-table-column>
+      <el-table-column label="邀请码" align="center" prop="inviteCode" width="80"/>
       <el-table-column label="登录IP" align="center" prop="loginIp" width="80"/>
       <el-table-column label="最后登录时间" align="center" prop="loginDate" width="100">
         <template slot-scope="scope">
