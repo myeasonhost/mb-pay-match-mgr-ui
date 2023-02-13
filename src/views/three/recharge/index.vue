@@ -74,7 +74,8 @@
           size="mini"
           @click="handleAdd"
           v-hasPermi="['three:recharge:add']"
-        >新增</el-button>
+        >新增
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -85,7 +86,8 @@
           :disabled="single"
           @click="handleUpdate"
           v-hasPermi="['three:recharge:edit']"
-        >修改</el-button>
+        >修改
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -96,7 +98,8 @@
           :disabled="multiple"
           @click="handleDelete"
           v-hasPermi="['three:recharge:remove']"
-        >删除</el-button>
+        >删除
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -106,19 +109,20 @@
           size="mini"
           @click="handleExport"
           v-hasPermi="['three:recharge:export']"
-        >导出</el-button>
+        >导出
+        </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="rechargeList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="支付订单号" align="center" prop="id" v-if="false"/>
-      <el-table-column label="商户ID" align="center" prop="siteId" />
-      <el-table-column label="商户订单号" align="center" prop="orderId" />
-      <el-table-column label="用户ID" align="center" prop="userId" />
-      <el-table-column label="产品名" align="center" prop="productName" />
-      <el-table-column label="金额" align="center" prop="amount" />
+      <el-table-column label="商户ID" align="center" prop="siteId"/>
+      <el-table-column label="商户订单号" align="center" prop="orderId"/>
+      <el-table-column label="用户ID" align="center" prop="userId"/>
+      <el-table-column label="产品名" align="center" prop="productName"/>
+      <el-table-column label="金额" align="center" prop="amount"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.three_status" :value="scope.row.status"/>
@@ -134,7 +138,7 @@
           <span>{{ parseTime(scope.row.payTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" />
+      <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -145,10 +149,21 @@
           <el-button
             size="mini"
             type="text"
+            icon="el-icon-edit"
+            @click="handleUpdate(scope.row)"
+            v-hasPermi="['three:info:edit']"
+            v-if="scope.row.status!=2"
+          >手动回调
+          </el-button>
+          <el-button
+            size="mini"
+            type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['three:recharge:remove']"
-          >删除</el-button>
+            v-if="scope.row.status!=2"
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -164,20 +179,17 @@
     <!-- 添加或修改三方代收订单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="商户ID" prop="siteId">
-          <el-input v-model="form.siteId" placeholder="请输入商户ID" />
-        </el-form-item>
-        <el-form-item label="商户订单号" prop="orderId">
-          <el-input v-model="form.orderId" placeholder="请输入商户订单号" />
+        <el-form-item label="订单号" prop="orderId">
+          <el-input v-model="form.orderId" placeholder="请输入商户订单号"/>
         </el-form-item>
         <el-form-item label="用户ID" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入用户ID" />
+          <el-input v-model="form.userId" placeholder="请输入用户ID" disabled/>
         </el-form-item>
         <el-form-item label="产品名" prop="productName">
-          <el-input v-model="form.productName" placeholder="请输入产品名" />
+          <el-input v-model="form.productName" placeholder="请输入产品名" disabled/>
         </el-form-item>
         <el-form-item label="金额" prop="amount">
-          <el-input v-model="form.amount" placeholder="请输入金额" />
+          <el-input v-model="form.amount" placeholder="请输入金额" disabled/>
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
@@ -185,61 +197,12 @@
               v-for="dict in dict.type.three_status"
               :key="dict.value"
               :label="dict.value"
-            >{{dict.label}}</el-radio>
+            >{{ dict.label }}
+            </el-radio>
           </el-radio-group>
-        </el-form-item>
-        <el-form-item label="支付跳转地址" prop="payUrl">
-          <el-input v-model="form.payUrl" placeholder="请输入支付跳转地址" />
-        </el-form-item>
-        <el-form-item label="回调通知">
-          <el-radio-group v-model="form.notifySucceed">
-            <el-radio
-              v-for="dict in dict.type.mbpay_notify_status"
-              :key="dict.value"
-              :label="dict.value"
-            >{{dict.label}}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="通知次数" prop="notifyTimes">
-          <el-input v-model="form.notifyTimes" placeholder="请输入通知次数" />
-        </el-form-item>
-        <el-form-item label="回调地址" prop="notifyUrl">
-          <el-input v-model="form.notifyUrl" placeholder="请输入回调地址" />
-        </el-form-item>
-        <el-form-item label="最后通知时间" prop="lastNotifyTime">
-          <el-date-picker clearable size="small"
-            v-model="form.lastNotifyTime"
-            type="datetime"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            placeholder="选择最后通知时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="下一次通知时间" prop="nextNotifyTime">
-          <el-date-picker clearable size="small"
-            v-model="form.nextNotifyTime"
-            type="datetime"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            placeholder="选择下一次通知时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="支付时间" prop="payTime">
-          <el-date-picker clearable size="small"
-            v-model="form.payTime"
-            type="datetime"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            placeholder="选择支付时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="取消时间" prop="cancelTime">
-          <el-date-picker clearable size="small"
-            v-model="form.cancelTime"
-            type="datetime"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            placeholder="选择取消时间">
-          </el-date-picker>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注" />
+          <el-input v-model="form.remark" placeholder="请输入备注"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -251,13 +214,19 @@
 </template>
 
 <script>
-import { listRecharge, getRecharge, delRecharge, addRecharge, updateRecharge, exportRecharge } from "@/api/three/recharge";
+import {
+  addRecharge,
+  delRecharge,
+  exportRecharge,
+  getRecharge,
+  listRecharge,
+  updateRecharge
+} from "@/api/three/recharge";
 
 export default {
   name: "Recharge",
   dicts: ['three_status', 'mbpay_notify_status'],
-  components: {
-  },
+  components: {},
   data() {
     return {
       // 遮罩层
@@ -296,16 +265,16 @@ export default {
       // 表单校验
       rules: {
         siteId: [
-          { required: true, message: "商户ID不能为空", trigger: "blur" }
+          {required: true, message: "商户ID不能为空", trigger: "blur"}
         ],
         orderId: [
-          { required: true, message: "商户订单号不能为空", trigger: "blur" }
+          {required: true, message: "商户订单号不能为空", trigger: "blur"}
         ],
         productName: [
-          { required: true, message: "产品名不能为空", trigger: "blur" }
+          {required: true, message: "产品名不能为空", trigger: "blur"}
         ],
-        createTime: [
-          { required: true, message: "创建时间不能为空", trigger: "blur" }
+        remark: [
+          {required: true, message: "备注不能为空", trigger: "blur"}
         ],
       }
     };
@@ -371,7 +340,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
@@ -387,7 +356,7 @@ export default {
       getRecharge(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改三方代收订单";
+        this.title = "修改订单状态";
       });
     },
     /** 提交按钮 */
@@ -414,28 +383,28 @@ export default {
     handleDelete(row) {
       const ids = row.id || this.ids;
       this.$confirm('是否确认删除三方代收订单编号为"' + ids + '"的数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return delRecharge(ids);
-        }).then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
-        })
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        return delRecharge(ids);
+      }).then(() => {
+        this.getList();
+        this.msgSuccess("删除成功");
+      })
     },
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
       this.$confirm('是否确认导出所有三方代收订单数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return exportRecharge(queryParams);
-        }).then(response => {
-          this.download(response.msg);
-        })
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        return exportRecharge(queryParams);
+      }).then(response => {
+        this.download(response.msg);
+      })
     }
   }
 };

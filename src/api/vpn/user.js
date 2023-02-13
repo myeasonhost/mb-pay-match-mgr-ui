@@ -35,6 +35,14 @@ export function updateUser(data) {
   })
 }
 
+
+export function changeStatus(id, status) {
+  return request({
+    url: '/vpn/user/' + id + "/" + status,
+    method: 'put'
+  })
+}
+
 // 删除VPN用户
 export function delUser(userId) {
   return request({

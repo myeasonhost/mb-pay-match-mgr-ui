@@ -50,7 +50,12 @@
       <!--      <el-table-column label="手机号码" align="center" prop="phonenumber" />-->
       <el-table-column label="帐号状态" align="center" prop="status" width="80">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
+          <el-switch
+            v-model="scope.row.status"
+            active-value="0"
+            inactive-value="1"
+            @change="handleStatusChange(scope.row)"
+          ></el-switch>
         </template>
       </el-table-column>
       <el-table-column label="邀请码" align="center" prop="inviteCode" width="80"/>
@@ -130,7 +135,7 @@
 </template>
 
 <script>
-import {addUser, delUser, exportUser, getUser, listUser, updateUser} from "@/api/vpn/user";
+import {addUser, changeStatus, delUser, exportUser, getUser, listUser, updateUser} from "@/api/vpn/user";
 
 export default {
   name: "User",
@@ -188,6 +193,17 @@ export default {
         this.userList = response.rows;
         this.total = response.total;
         this.loading = false;
+      });
+    },
+    // 线路状态修改
+    handleStatusChange(row) {
+      let text = row.status === "0" ? "启用" : "停用";
+      this.$modal.confirm('确认要"' + text + '""' + row.email + '"用户吗？').then(function () {
+        return changeStatus(row.userId, row.status);
+      }).then(() => {
+        this.$modal.msgSuccess(text + "成功");
+      }).catch(function () {
+        row.status = row.status === "0" ? "1" : "0";
       });
     },
     // 取消按钮
