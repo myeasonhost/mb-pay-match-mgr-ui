@@ -1,10 +1,19 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="100px">
       <el-form-item label="用户邮箱" prop="email">
         <el-input
           v-model="queryParams.email"
           placeholder="请输入用户邮箱"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="上级邀请码" prop="upInviteCode">
+        <el-input
+          v-model="queryParams.upInviteCode"
+          placeholder="请输入上级邀请码"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
@@ -59,6 +68,7 @@
         </template>
       </el-table-column>
       <el-table-column label="邀请码" align="center" prop="inviteCode" width="80"/>
+      <el-table-column label="上级邀请码" align="center" prop="upInviteCode" width="100"/>
       <el-table-column label="登录IP" align="center" prop="loginIp" width="80"/>
       <el-table-column label="最后登录时间" align="center" prop="loginDate" width="100">
         <template slot-scope="scope">
@@ -168,7 +178,7 @@ export default {
         userName: undefined,
         userType: undefined,
         email: undefined,
-        phonenumber: undefined,
+        upInviteCode: undefined,
         status: undefined,
         expirationTime: undefined
       },
