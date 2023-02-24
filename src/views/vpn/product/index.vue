@@ -12,7 +12,12 @@
       </el-form-item>
       <el-form-item label="帐号状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择帐号状态" clearable size="small">
-          <el-option label="请选择字典生成" value=""/>
+          <el-option
+            v-for="dict in dict.type.sys_normal_disable"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -55,17 +60,6 @@
           @click="handleDelete"
           v-hasPermi="['vpn:product:remove']"
         >删除
-        </el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['vpn:product:export']"
-        >导出
         </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
