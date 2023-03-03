@@ -229,7 +229,6 @@ export default {
     //复选框加载
     listArea(this.queryParams2).then(response => {
       this.areaList = response.rows;
-      this.total = response.total;
     });
   },
   methods: {

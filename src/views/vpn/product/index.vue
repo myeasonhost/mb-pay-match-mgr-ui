@@ -77,6 +77,13 @@
         </template>
       </el-table-column>
       <el-table-column label="期限（天）" align="center" prop="timeOut"/>
+      <el-table-column label="折扣率" align="center" prop="discount"/>
+      <el-table-column label="过期时间" align="center" prop="expirationTime"  width="100">
+        <template slot-scope="scope">
+          <span style="color: red;">{{ parseTime(scope.row.expirationTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="设备单价" align="center" prop="devicePrice"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -117,11 +124,27 @@
           <el-input v-model="form.info" placeholder="请输入产品信息"/>
         </el-form-item>
         <el-form-item label="价格" prop="amount">
-          <el-input v-model="form.amount" placeholder="请输入价格"/>
+          <el-input v-model="form.amount" placeholder="请输入价格" type="number" min="0"/>
         </el-form-item>
         <el-form-item label="状态">
           <el-radio label="0" v-model="form.status">启用</el-radio>
           <el-radio label="1" v-model="form.status">停用</el-radio>
+        </el-form-item>
+        <el-form-item label="折扣率" prop="discount">
+          <el-input v-model="form.discount" placeholder="请输入折扣率" type="number" max="1" min="0.1" :step="0.1" maxlength="3"
+                    oninput="if(isNaN(value)) { value = null } if(value.indexOf('.')>0){value=value.slice(0,value.indexOf('.')+3)}"/>
+          <span style="color: red;font-size: xx-small">示例：1=100%（不打折），0.5=50%（半折）</span>
+        </el-form-item>
+        <el-form-item label="过期时间" prop="expirationTime">
+          <el-date-picker clearable size="small"
+                          v-model="form.expirationTime"
+                          type="datetime"
+                          value-format="yyyy-MM-dd HH:mm:ss"
+                          placeholder="选择过期时间">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="每台设备数单价" prop="devicePrice">
+          <el-input v-model="form.devicePrice" placeholder="请输入每台设备数单价" type="number" min="0"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -165,11 +188,30 @@ export default {
         pageSize: 10,
         productName: undefined,
         status: undefined,
+        discount: undefined,
+        expirationTime: undefined,
+        devicePrice: undefined
       },
       // 表单参数
       form: {},
       // 表单校验
-      rules: {}
+      rules: {
+        productName: [
+          { required: true, message: "产品名称不能为空", trigger: "blur" }
+        ],
+        info: [
+          { required: true, message: "产品信息不能为空", trigger: "blur" }
+        ],
+        timeOut: [
+          { required: true, message: "使用时长不能为空", trigger: "blur" }
+        ],
+        amount: [
+          { required: true, message: "价格不能为空", trigger: "blur" }
+        ],
+        status: [
+          { required: true, message: "帐号状态不能为空", trigger: "blur" }
+        ],
+      }
     };
   },
   created() {
@@ -199,7 +241,10 @@ export default {
         amount: undefined,
         status: "0",
         createBy: undefined,
-        createTime: undefined
+        createTime: undefined,
+        discount: undefined,
+        expirationTime: undefined,
+        devicePrice: undefined
       };
       this.resetForm("form");
     },

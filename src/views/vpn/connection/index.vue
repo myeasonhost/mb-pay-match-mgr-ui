@@ -7,7 +7,7 @@
             v-for="item in areaList"
             :key="item.id"
             :label="item.areaName"
-            :value="item.id">
+            :value="item.areaName">
           </el-option>
         </el-select>
       </el-form-item>
