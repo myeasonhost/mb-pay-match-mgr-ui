@@ -58,6 +58,7 @@
       </el-table-column>
       <el-table-column label="邀请码" align="center" prop="inviteCode" width="80"/>
       <el-table-column label="上级邀请码" align="center" prop="upInviteCode" width="100"/>
+      <el-table-column label="设备数量" align="center" prop="deviceNum" width="80"/>
       <el-table-column label="登录IP" align="center" prop="loginIp" width="80"/>
       <el-table-column label="最后登录时间" align="center" prop="loginDate" width="100">
         <template slot-scope="scope">
@@ -78,7 +79,7 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['vpn:user:edit']"
-          >添加会员时长
+          >修改会员
           </el-button>
           <el-button
             size="mini"
@@ -110,16 +111,16 @@
           <el-input v-model="form.email" placeholder="请输入用户邮箱" disabled/>
         </el-form-item>
         <el-form-item label="会员时长" prop="userType">
-          <el-radio-group v-model="form.userType">
-            <el-radio :label="1">一天</el-radio>
-            <el-radio :label="15">半月</el-radio>
-            <el-radio :label="30">一月</el-radio>
-            <br/>
-            <el-radio :label="90">三月</el-radio>
-            <el-radio :label="180">半年</el-radio>
-            <el-radio :label="365">包年</el-radio>
-            <br/>
-          </el-radio-group>
+          <el-radio label="0" v-model="form.userType">试用</el-radio>
+          <el-radio label="1" v-model="form.userType">一天</el-radio>
+          <el-radio label="15" v-model="form.userType">半月</el-radio>
+          <el-radio label="30" v-model="form.userType">一月</el-radio>
+          <el-radio label="90" v-model="form.userType">三月</el-radio>
+          <el-radio label="180" v-model="form.userType">半年</el-radio>
+          <el-radio label="365" v-model="form.userType">包年</el-radio>
+        </el-form-item>
+        <el-form-item label="设备数量" prop="deviceNum">
+          <el-input v-model="form.deviceNum" placeholder="请输入设备数量" type="number" min="1" :step="1"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
@@ -178,6 +179,9 @@ export default {
         userName: [
           {required: true, message: "用户账号不能为空", trigger: "blur"}
         ],
+        deviceNum: [
+          {required: true, message: "设备数量不能为空", trigger: "blur"}
+        ],
       }
     };
   },
@@ -220,6 +224,7 @@ export default {
         phonenumber: undefined,
         password: undefined,
         status: "0",
+        deviceNum: 0,
         loginIp: undefined,
         loginDate: undefined,
         createBy: undefined,
