@@ -21,13 +21,12 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="connectionList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="connectionList" @selection-change="handleSelectionChange" size="small">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="序号" align="center" prop="id" v-if="false"/>
-      <el-table-column label="线路id" align="center" prop="lineId"  width="60"/>
-      <el-table-column label="线路链接账户" align="center" prop="account" width="200"/>
-      <el-table-column label="设备名称" align="center" prop="deviceName"/>
-      <el-table-column label="设备ID" align="center" prop="deviceId"/>
+      <el-table-column label="序号" align="center" prop="id" />
+      <el-table-column label="线路链接账户" align="center" prop="account" width="180"/>
+      <el-table-column label="设备名称" align="center" prop="deviceName"  width="180"/>
+      <el-table-column label="设备ID" align="center" prop="deviceId" width="380"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.vpn_conn_status" :value="scope.row.status"/>
