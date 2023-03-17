@@ -111,6 +111,7 @@
       <el-table-column label="商户订单号" align="center" prop="orderId"/>
       <el-table-column label="用户ID" align="center" prop="userId"/>
       <el-table-column label="产品名" align="center" prop="productName"/>
+      <el-table-column label="设备数量" align="center" prop="deviceNum"/>
       <el-table-column label="金额" align="center" prop="amount"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
